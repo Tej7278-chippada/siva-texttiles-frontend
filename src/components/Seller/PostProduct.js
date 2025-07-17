@@ -25,8 +25,11 @@ import { addProduct, updateProduct } from '../Apis/SellerApis';
 
 
 const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsData, /* generatedImages, loadingGeneration,
-  noImagesFound, */ newMedia, setNewMedia, editingProduct, /* formData, setFormData, */ selectedDate, setSelectedDate, mediaError, setMediaError,
-  timeFrom, setTimeFrom, timeTo, setTimeTo, existingMedia, setExistingMedia, /* fetchUnsplashImages, */ loadingMedia, loading, setLoading,
+  noImagesFound, */ newMedia, setNewMedia, editingProduct, /* formData, setFormData, */ 
+  // selectedDate, setSelectedDate,
+   mediaError, setMediaError,
+  // timeFrom, setTimeFrom, timeTo, setTimeTo, 
+  existingMedia, setExistingMedia, /* fetchUnsplashImages, */ loadingMedia, loading, setLoading,
   setSnackbar, setSubmitError, submitError,
   //   protectLocation, setProtectLocation, fakeAddress, setFakeAddress, activeStep, setActiveStep,
   //   darkMode, validationErrors, setValidationErrors,
@@ -56,7 +59,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
         gender: editingProduct.gender,
         categoriesFemale: editingProduct?.categoriesFemale,
         categoriesMale: editingProduct?.categoriesMale,
-        categoriesKids: editingProduct?.categorieKids,
+        categoriesKids: editingProduct?.categoriesKids,
         stockStatus: editingProduct.stockStatus,
         totalStock: editingProduct.totalStock,
         deliveryDays: editingProduct.deliveryDays,

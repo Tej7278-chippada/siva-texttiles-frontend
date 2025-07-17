@@ -36,3 +36,27 @@ export const fetchSellerProducts = () => {
   const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
   return API.get('/api/products/my-products', { headers });
 };
+
+export const searchProducts = (query, page = 1, limit = 20) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+  return API.get(`/api/products/searchProducts?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`, { headers });
+};
+
+export const filterProductsByGender = (genderType, page = 1, limit = 20, search = '') => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+  return API.get(`/api/products/filterProducts?genderType=${genderType}&page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`, { headers });
+};
+
+export const getProductCounts = () => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+  return API.get('/api/products/productCounts', { headers });
+};
