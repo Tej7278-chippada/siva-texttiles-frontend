@@ -7,17 +7,17 @@ import {
   Typography, 
   TextField, 
 //   Button, 
-  Paper, 
-  Table, 
-  TableBody, 
-  TableCell, 
-  TableContainer, 
-  TableHead, 
-  TableRow, 
+  // Paper, 
+  // Table, 
+  // TableBody, 
+  // TableCell, 
+  // TableContainer, 
+  // TableHead, 
+  // TableRow, 
   MenuItem, 
   Select,
 //   Box,
-  CircularProgress,
+  // CircularProgress,
 //   useMediaQuery,
   Tabs,
   Tab,
@@ -32,7 +32,7 @@ import {
 // import { useTheme } from "@emotion/react";
 import ClearIcon from '@mui/icons-material/Clear';
 import LazyImage from "../Products/LazyImage";
-import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
+// import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
 import DeleteSweepRoundedIcon from '@mui/icons-material/DeleteSweepRounded';
 import PostAddRoundedIcon from '@mui/icons-material/PostAddRounded';
@@ -42,7 +42,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
     const [searchQuery, setSearchQuery] = useState("");
     const [products, setProducts] = useState([]);
     const [loadingData, setLoadingData] = useState(false);
-    const [statusUpdates, setStatusUpdates] = useState({});
+    // const [statusUpdates, setStatusUpdates] = useState({});
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [activeTab, setActiveTab] = useState('all');
@@ -108,11 +108,11 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
             hasPrev: response.data.hasPrevPage
             });
             // Initialize status updates
-            const updates = {};
-            response.data.products.forEach(product => {
-            updates[product._id] = product.gender;
-            });
-            setStatusUpdates(updates);
+            // const updates = {};
+            // response.data.products.forEach(product => {
+            // updates[product._id] = product.gender;
+            // });
+            // setStatusUpdates(updates);
         } catch (error) {
             console.error("Error loading users:", error);
         } finally {
