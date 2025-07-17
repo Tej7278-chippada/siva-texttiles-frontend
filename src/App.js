@@ -23,6 +23,7 @@ import PrivateRoute from './components/Layout/PriviteRoute';
 import NotFound from './components/Layout/NotFound';
 import ProductsList from './components/Products/ProductsList';
 import UserProfile from './components/Auth/UserProfile';
+import SellerProducts from './components/Seller/SellerProducts';
 // import NotificationsPage from './components/Helper/NotificationsPage';
 // import NearPostsNotification from './components/Helper/NearPostsNotification';
 // import HelperHome from './components/Helper/HelperHome';
@@ -345,6 +346,11 @@ function App() {
               <UserProfile />
             </PrivateRoute>}
           />
+          <Route path="/sellerProducts" element={
+            <PrivateRoute>
+              <SellerProducts />
+            </PrivateRoute>
+          } />
           {/* <Route path="/userPosts" element={
             <PrivateRoute>
               <PostService darkMode={darkMode} toggleDarkMode={toggleDarkMode} username={username} unreadCount={unreadCount} shouldAnimate={shouldAnimate}/>

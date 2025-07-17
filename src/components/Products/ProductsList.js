@@ -7,8 +7,8 @@ const ProductsList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) =>
 
     return (
         <Layout>
-            <Box sx={{display: 'flow'}}>
-                <h1>Products List</h1>
+            <Box sx={{display: 'flow', m: 2}}>
+                <h2>Products List</h2>
                 <SkeletonProductDetail/>
             </Box>
         </Layout>
