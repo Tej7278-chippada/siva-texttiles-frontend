@@ -115,7 +115,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                 loading={loading} setLoading={setLoading}
                 newMedia={newMedia} setNewMedia={setNewMedia}
                 mediaError={mediaError} setMediaError={setMediaError}
-                editingProduct={editingProduct} existingMedia={existingMedia} setExistingMedia={setExistingMedia}
+                editingProduct={editingProduct} setEditingProduct={setEditingProduct} existingMedia={existingMedia} setExistingMedia={setExistingMedia}
             //  /* formData={formData} setFormData={setFormData} */ /* generatedImages={generatedImages} loadingGeneration={loadingGeneration} */ loadingMedia={loadingMedia}
             //  selectedDate={selectedDate} setSelectedDate={setSelectedDate} timeFrom={timeFrom} setTimeFrom={setTimeFrom} timeTo={timeTo} setTimeTo={setTimeTo}
             //  protectLocation={protectLocation} setProtectLocation={setProtectLocation} fakeAddress={fakeAddress} setFakeAddress={setFakeAddress}
