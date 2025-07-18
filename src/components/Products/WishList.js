@@ -15,7 +15,7 @@ import { useTheme } from '@emotion/react';
 // import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 // import VisibilityIcon from '@mui/icons-material/Visibility';
 import PersonIcon from '@mui/icons-material/Person';
-import CategoryIcon from '@mui/icons-material/Category';
+// import CategoryIcon from '@mui/icons-material/Category';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
 import WorkIcon from '@mui/icons-material/Work';
 import Layout from '../Layout/Layout';
@@ -73,7 +73,7 @@ const WishList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
 
   const openPostDetail = (post) => {
     // setSelectedProduct(product);
-    navigate(`/post/${post._id}`);
+    navigate(`/product/${post._id}`);
   };
 
   // if (loading) return <p>Loading wishlist...</p>;
@@ -386,7 +386,7 @@ const WishList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
 
                               {/* Category and People Count */}
                               <Box display="flex" gap={1} flexWrap="wrap">
-                                <Chip
+                                {/* <Chip
                                   icon={<CategoryIcon sx={{ fontSize: 14 }} />}
                                   label={post.categories}
                                   size="small"
@@ -396,11 +396,11 @@ const WishList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
                                     color: post.categories === 'Emergency' ? 'error.main' : 'text.secondary',
                                     fontSize: '0.75rem'
                                   }}
-                                />
+                                /> */}
                                 
                                 <Chip
                                   icon={<PersonIcon sx={{ fontSize: 14 }} />}
-                                  label={`${post.peopleCount} (${post.gender})`}
+                                  label={`${post.gender} (${post.categoriesFemale || post.categoriesMale})`}
                                   size="small"
                                   variant="outlined"
                                   sx={{ fontSize: '0.75rem', color: 'text.secondary' }}

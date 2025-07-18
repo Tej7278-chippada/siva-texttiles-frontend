@@ -1,9 +1,8 @@
 // components/UserProfile.js
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate} from 'react-router-dom';
-import { Box, Typography, Avatar, IconButton, Alert, useMediaQuery, Grid, Button, Toolbar, Snackbar, Dialog, DialogTitle, DialogContent, DialogActions, } from '@mui/material';
+import { useParams } from 'react-router-dom';
+import { Box, Typography, Avatar, Alert, useMediaQuery, Grid,  Snackbar, } from '@mui/material';
 import { useTheme } from '@emotion/react';
-import DeleteForeverRoundedIcon from '@mui/icons-material/DeleteForeverRounded';
 // import API from './api/api';
 // import Layout from './Layout';
 // import SkeletonProductDetail from './SkeletonProductDetail';
@@ -74,11 +73,8 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(true);
   // const [error, setError] = useState('');
-  const navigate = useNavigate();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [hoveredId, setHoveredId] = useState(null);
   // const [successMessage, setSuccessMessage] = useState('');
   // const [mapMode, setMapMode] = useState('normal');
   // const [currentLocation, setCurrentLocation] = useState(null);
@@ -112,33 +108,7 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
     fetchUserDetails();
   }, [id]);
 
-  const handleDeleteAccount = async () => {
-
-    try {
-      const authToken = localStorage.getItem('authToken');
-      await API.delete(`/api/auth/${id}`, {
-        headers: { Authorization: `Bearer ${authToken}` },
-      });
-
-      // setSuccessMessage('Your account has been deleted successfully.');
-      setSnackbar({ open: true, message: 'Your account has been deleted successfully.', severity: 'success' });
-      localStorage.clear();
-      navigate('/login');
-    } catch (err) {
-      // setError('Failed to delete account. Please try again later.');
-      setSnackbar({ open: true, message: 'Failed to delete account. Please try again later.', severity: 'error' });
-    } finally {
-      setDeleteDialogOpen(false);
-    }
-  };
-
-  const handleOpenDeleteDialog = () => {
-    setDeleteDialogOpen(true);
-  };
-
-  const handleCloseDeleteDialog = () => {
-    setDeleteDialogOpen(false);
-  };
+ 
 
   
 
@@ -337,62 +307,7 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
                 </Grid>
               </Box>
 
-              <Box>
-                <Toolbar sx={{
-                  position: 'absolute',
-                  bottom: 0,
-                  left: 0,
-                  right: 0,
-                  // bgcolor: 'white', 
-                  borderRadius: '16px',
-                  boxShadow: '0 -2px 5px rgba(0, 0, 0, 0.1)',
-                  display: 'flex',
-                  justifyContent: 'right',
-                  marginTop: '1rem',
-                }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', flex: 1, alignItems: 'center' }}>
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      {/* <Button variant="text" size="small" onClick={() => setShowRatings(true)}>
-                        Ratings
-                      </Button> */}
-                      {/* <Button variant="outlined" size="small" sx={{borderRadius:'12px', padding: '4px 12px'}} onClick={handleOpenRateDialog}>
-                        Profile Ratings
-                      </Button> */}
-                    </Box>
-                    <IconButton
-                      onClick={handleOpenDeleteDialog}
-                      onMouseEnter={() => setHoveredId(userData._id)} // Set hoveredId to the current button's ID
-                      onMouseLeave={() => setHoveredId(null)} // Reset hoveredId when mouse leaves
-                      style={{
-
-                        backgroundColor: hoveredId === userData._id ? '#ffe6e6' : 'rgba(255, 255, 255, 0.2)',
-                        borderRadius: hoveredId === userData._id ? '12px' : '12px',
-                        boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)',
-                        display: 'flex',
-                        alignItems: 'center', color: 'red'
-                        // transition: 'all 0.2s ease',
-                      }}
-                    >
-                      {hoveredId && (
-                        <span
-                          style={{
-                            fontSize: '14px',
-                            color: '#ff0000',
-                            marginRight: '8px',
-                            whiteSpace: 'nowrap',
-                            opacity: hoveredId === userData._id ? 1 : 0,
-                            transform: hoveredId === userData._id ? 'translateX(0)' : 'translateX(10px)',
-                            transition: 'opacity 0.3s, transform 0.3s',
-                          }}
-                        >
-                          Delete User Account
-                        </span>
-                      )}
-                      <DeleteForeverRoundedIcon />
-                    </IconButton>
-                  </Box>
-                </Toolbar>
-              </Box>
+              
             </Box>
             {/* {showRatings && (
               <Card
@@ -571,7 +486,7 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
         </Box> */}
 
       {/* Delete Confirmation Dialog */}
-      <Dialog
+      {/* <Dialog
         open={deleteDialogOpen}
         onClose={handleCloseDeleteDialog}
         aria-labelledby="delete-dialog-title" 
@@ -594,7 +509,7 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
           </Button>
 
         </DialogActions>
-      </Dialog>
+      </Dialog> */}
 
       {/* <RateUserDialog
         userId={id}
