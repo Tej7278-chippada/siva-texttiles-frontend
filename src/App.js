@@ -24,6 +24,8 @@ import NotFound from './components/Layout/NotFound';
 import ProductsList from './components/Products/ProductsList';
 import UserProfile from './components/Auth/UserProfile';
 import SellerProducts from './components/Seller/SellerProducts';
+import ProductDetailsById from './components/Products/ProductDetailsById';
+import WishList from './components/Products/WishList';
 // import NotificationsPage from './components/Helper/NotificationsPage';
 // import NearPostsNotification from './components/Helper/NearPostsNotification';
 // import HelperHome from './components/Helper/HelperHome';
@@ -351,6 +353,12 @@ function App() {
               <SellerProducts />
             </PrivateRoute>
           } />
+          <Route path="/product/:id" element={<ProductDetailsById />} />
+          <Route path="/wishlist" element={
+            <PrivateRoute>
+              <WishList />
+            </PrivateRoute>
+          } />
           {/* <Route path="/userPosts" element={
             <PrivateRoute>
               <PostService darkMode={darkMode} toggleDarkMode={toggleDarkMode} username={username} unreadCount={unreadCount} shouldAnimate={shouldAnimate}/>
@@ -358,12 +366,7 @@ function App() {
           } />
           <Route path="/forgot-password" element={<ForgotPassword darkMode={darkMode} />} />
           
-          <Route path="/post/:id" element={<PostDetailsById darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}/>} />
-          <Route path="/wishlist" element={
-            <PrivateRoute>
-              <WishList darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}/>
-            </PrivateRoute>
-          } />
+          
           <Route path="/chatsOfPost/:postId" element={
             <PrivateRoute>
               <ChatsOfPosts darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}/>

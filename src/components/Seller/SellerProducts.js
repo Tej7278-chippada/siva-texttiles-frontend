@@ -38,6 +38,7 @@ import EditNoteRoundedIcon from '@mui/icons-material/EditNoteRounded';
 import DeleteSweepRoundedIcon from '@mui/icons-material/DeleteSweepRounded';
 import PostAddRoundedIcon from '@mui/icons-material/PostAddRounded';
 import SkeletonCards from "../Layout/SkeletonCards";
+import { useNavigate } from "react-router-dom";
 
 const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -77,6 +78,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loadingProductDeletion, setLoadingProductDeletion] = useState(false);
   const [refreshTrigger, setRefreshTrigger] = useState(false);
+  const navigate = useNavigate();
 
   // Fetch user counts on component mount
   useEffect(() => {
@@ -336,6 +338,15 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
       setDeleteDialogOpen(false); // Close dialog after action
       setLoadingProductDeletion(false);
     }
+  };
+
+  const openProductDetail = (product) => {
+    // Save both to global cache and localStorage as backup
+    // globalCache.lastViewedPostId = post._id;
+    // globalCache.lastScrollPosition = window.scrollY;
+    // localStorage.setItem('lastHelperScroll', window.scrollY);
+    // localStorage.setItem('lastViewedPostId', post._id);
+    navigate(`/product/${product._id}`);
   };
 
   return (
@@ -708,7 +719,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                             transition: 'all 0.3s ease',
                           }}
                           onClick={(e) => {
-                            e.stopPropagation();
+                            e.stopPropagation(); openProductDetail(post);
                             // Handle view
                           }}
                         >
