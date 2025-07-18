@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from "react";
 import Layout from "../Layout/Layout";
-import { Alert, alpha, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Snackbar, Tooltip, useMediaQuery, useTheme } from "@mui/material";
+import { Alert, alpha, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Snackbar, Tooltip, useMediaQuery, useTheme, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress } from "@mui/material";
 import PostProduct from "./PostProduct";
-import { filterProductsByGender, getProductCounts, searchProducts } from "../Apis/SellerApis";
+import { deleteProduct, filterProductsByGender, getProductCounts, searchProducts } from "../Apis/SellerApis";
 import {
   Typography,
   TextField,
@@ -66,6 +66,16 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
     hasPrev: false
   });
   const [searchMode, setSearchMode] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false);
+  const [editingProduct, setEditingProduct] = useState(null);
+  const [existingMedia, setExistingMedia] = useState([]);
+  const [newMedia, setNewMedia] = useState([]);
+  const [mediaError, setMediaError] = useState('');
+  const [loading, setLoading] = useState(false); // to show loading state
+  const [submitError, setSubmitError] = useState(''); // Error for failed product submission
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState(null);
+  const [loadingProductDeletion, setLoadingProductDeletion] = useState(false);
 
   // Fetch user counts on component mount
   useEffect(() => {
@@ -189,13 +199,6 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
     }));
   };
 
-  const [openDialog, setOpenDialog] = useState(false);
-  const [editingProduct, setEditingProduct] = useState(null);
-  const [existingMedia, setExistingMedia] = useState([]);
-  const [newMedia, setNewMedia] = useState([]);
-  const [mediaError, setMediaError] = useState('');
-  const [loading, setLoading] = useState(false); // to show loading state
-  const [submitError, setSubmitError] = useState(''); // Error for failed product submission
   // const [selectedProduct, setSelectedProduct] = useState(null);
   // const [notification, setNotification] = useState({ open: false, message: '', severity: 'success' }); // For notifications
   // const theme = useTheme();
@@ -290,6 +293,48 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
     // }
     setExistingMedia(product.media.map((media, index) => ({ data: media.toString('base64'), _id: index.toString(), remove: false })));
     setOpenDialog(true);
+  };
+
+  const handleDeleteClick = (product, event) => {
+    if (event) event.stopPropagation();
+    setSelectedProduct(product);  // Store selected post details
+    setDeleteDialogOpen(true);  // Open confirmation dialog
+  };
+
+  const handleConfirmDelete  = async () => {
+    if (!selectedProduct) return;
+    // const post = posts.find((p) => p._id === postId); // Find the product to get its title
+  
+    // if (!post) {
+    //   // showNotification("Post not found for deletion.", "error");
+    //   setSnackbar({ open: true, message: 'Post not found for deletion.', severity: 'error' });
+    //   return;
+    // }
+    setLoadingProductDeletion(true);
+    try {
+      await deleteProduct(selectedProduct._id);
+      // Update local state instead of refetching
+      setProducts(prevProducts => prevProducts.filter(product => product._id !== selectedProduct._id));
+      setProductCounts(prevCounts => ({
+        ...prevCounts,
+        all: prevCounts.all - 1,
+        [selectedProduct.gender]: prevCounts[selectedProduct.gender] - 1
+      }));
+      setPagination(prev => ({
+        ...prev,
+        total: prev.total - 1
+      }));
+      // showNotification(`Post "${post.title}" deleted successfully.`, "success");
+      setSnackbar({ open: true, message: `Product "${selectedProduct.title}" deleted successfully.`, severity: 'success' });
+      // await fetchPostsData(); // Refresh posts list
+    } catch (error) {
+      console.error("Error deleting post:", error);
+      // showNotification(`Failed to delete "${post.title}". Please try again later.`, "error");
+      setSnackbar({ open: true, message: `Failed to delete "${selectedProduct.title}". Please try again later.`, severity: 'error' });
+    } finally {
+      setDeleteDialogOpen(false); // Close dialog after action
+      setLoadingProductDeletion(false);
+    }
   };
 
   return (
@@ -630,7 +675,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                             backgroundColor: 'rgba(244, 67, 54, 0.1)',
                             transform: 'translateY(-2px)',
                           }
-                        }} onClick={(event) => { event.stopPropagation(); }}>Delete</Button>
+                        }} onClick={(event) => handleDeleteClick(post, event)}>Delete</Button>
                       <Box sx={{ display: 'flex', alignItems: 'center' }}>
                         <Button color="primary" size="small" variant="outlined" startIcon={<EditNoteRoundedIcon />}
                           sx={{
@@ -882,6 +927,31 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
       //  protectLocation={protectLocation} setProtectLocation={setProtectLocation} fakeAddress={fakeAddress} setFakeAddress={setFakeAddress}
       //  activeStep={activeStep} setActiveStep={setActiveStep} darkMode={darkMode} setValidationErrors={setValidationErrors} validationErrors={validationErrors}
       />
+
+      {/* existed product Delete Confirmation Dialog */}
+      <Dialog
+        open={deleteDialogOpen}
+        onClose={() => setDeleteDialogOpen(false)}
+        aria-labelledby="delete-dialog-title" 
+        sx={{ '& .MuiPaper-root': { borderRadius: '14px', backdropFilter: 'blur(12px)', }, }}
+      >
+        <DialogTitle id="delete-dialog-title" >
+          Are you sure you want to delete this product?
+        </DialogTitle>
+        <DialogContent style={{ padding: '2rem' }}>
+          <Typography color='error'>
+            If you proceed, the product <strong>{selectedProduct?.title}</strong> will be removed permanently...
+          </Typography>
+        </DialogContent>
+        <DialogActions style={{ padding: '1rem' , gap: 1}}>
+          <Button onClick={() => setDeleteDialogOpen(false)} variant='outlined' color="primary" sx={{borderRadius:'8px'}}>
+            Cancel
+          </Button>
+          <Button onClick={handleConfirmDelete} variant='contained' color="error" sx={{ marginRight: '10px', borderRadius:'8px' }}>
+            {loadingProductDeletion ? <> <CircularProgress size={20} sx={{marginRight:'8px'}}/> Deleting... </> : "Delete Product"}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={snackbar.open}
