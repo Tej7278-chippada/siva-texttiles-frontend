@@ -1,7 +1,7 @@
 // src/components/SkeletonProductDetail.js
 import React from 'react';
-import { Box, Skeleton, Grid, Card, CardContent, useMediaQuery, useTheme } from '@mui/material';
-// import { useTheme } from '@emotion/react';
+import { Box, Skeleton, Grid, Card, CardContent, useMediaQuery } from '@mui/material';
+import { useTheme } from '@emotion/react';
 
 // Enhanced glassmorphism styles
 const getGlassmorphismStyle = (opacity = 0.15, blur = 20) => ({
@@ -16,7 +16,7 @@ const SkeletonProductDetail = () => {
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     return (
         <Box sx={{ padding: '0rem' }}>
-            <Grid container spacing={2} sx={{display:'flow', gap: 2}}>
+            <Grid container spacing={2}>
                 {/* Media Section Skeleton */}
                 <Grid item xs={12} md={6}>
                     <Card sx={{ height: isMobile ? 250 : 300, borderRadius: 3 , ...getGlassmorphismStyle(0.1, 10),}}>

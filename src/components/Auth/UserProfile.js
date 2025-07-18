@@ -84,7 +84,7 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
   // const [currentLocation, setCurrentLocation] = useState(null);
   // const [locationDetails, setLocationDetails] = useState(null);
   // const [loadingLocation, setLoadingLocation] = useState(false);
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: '' });
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   // const [savingLocation, setSavingLocation] = useState(false);
   // const [showRatings, setShowRatings] = useState(false);
   const tokenUsername = localStorage.getItem('tokenUsername');

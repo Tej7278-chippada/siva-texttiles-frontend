@@ -43,6 +43,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
     const [products, setProducts] = useState([]);
     const [loadingData, setLoadingData] = useState(false);
     // const [statusUpdates, setStatusUpdates] = useState({});
+    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' }); 
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
     const [activeTab, setActiveTab] = useState('all');
@@ -207,7 +208,8 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
     // const [successMessage, setSuccessMessage] = useState('');
     // const theme = useTheme();
     //   const isMobile = useMediaQuery(theme.breakpoints.down("sm"));
-    const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: '' });
+    // const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: '' });
+    
 
 
     const handleOpenDialog = () => {
@@ -819,14 +821,15 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
             />
 
             <Snackbar
-                open={snackbar.open}
-                autoHideDuration={6000}
-                onClose={handleCloseSnackbar}
-                anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              open={snackbar.open}
+              autoHideDuration={6000}
+              onClose={handleCloseSnackbar}
+              anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+              action={snackbar.action}
             >
-                <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{ width: '100%', borderRadius: '1rem' }}>
-                    {snackbar.message}
-                </Alert>
+              <Alert onClose={handleCloseSnackbar} action={snackbar.action} severity={snackbar.severity} sx={{ width: '100%', borderRadius:'1rem' }}>
+                {snackbar.message}
+              </Alert>
             </Snackbar>
         </Layout>
     );
