@@ -14,20 +14,18 @@ import {
   MenuItem,
   FormControl,
   InputLabel,
-  Alert,
+  Alert, alpha,
   CircularProgress,
 } from '@mui/material';
-import {
-  Close as CloseIcon,
-} from '@mui/icons-material';
+import { Close as CloseIcon, } from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { addProduct, updateProduct } from '../Apis/SellerApis';
 
 
 const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsData, /* generatedImages, loadingGeneration,
-  noImagesFound, */ newMedia, setNewMedia, editingProduct, /* formData, setFormData, */ 
+  noImagesFound, */ newMedia, setNewMedia, editingProduct, /* formData, setFormData, */
   // selectedDate, setSelectedDate,
-   mediaError, setMediaError,
+  mediaError, setMediaError,
   // timeFrom, setTimeFrom, timeTo, setTimeTo, 
   existingMedia, setExistingMedia, /* fetchUnsplashImages, */ loadingMedia, loading, setLoading,
   setSnackbar, setSubmitError, submitError,
@@ -264,7 +262,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
       },
     }}>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
-        <DialogTitle>{editingProduct ? "Edit Product" : "Add Product"}
+        <DialogTitle sx={{ boxShadow: '0px 2px 4px rgba(0, 0, 0, 0.1)' }}>{editingProduct ? "Edit Product" : "Add Product"}
           <IconButton
             onClick={handleCloseDialog}
             style={{
@@ -415,7 +413,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
               >
                 <MenuItem value="Female">Female</MenuItem>
                 <MenuItem value="Male">Male</MenuItem>
-                <MenuItem value="Kids">Kids</MenuItem>
+                {/* <MenuItem value="Kids">Kids</MenuItem> */}
                 {/* <MenuItem value="Everyone">Everyone</MenuItem> */}
               </Select>
             </FormControl>
@@ -543,18 +541,33 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
             inputProps={{ maxLength: 2000 }} // Ensures no more than 100 characters can be typed
             required
           />
+          <Typography variant="caption" color="text.secondary" sx={{ ml: 'auto', display: 'block' }}>
+            {formData.description.length}/2000 characters
+          </Typography>
 
 
         </DialogContent>
         {submitError && <Alert severity="error" style={{ margin: '1rem' }}>{submitError}</Alert>}
-        <DialogActions sx={{ margin: '2rem', gap: '1rem' }}>
+        <DialogActions sx={{ margin: '2rem', gap: '1rem', borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`, display: 'flex', justifyContent: 'space-between' }}>
           <Button onClick={handleCloseDialog} disabled={loading} variant='text' color='warning' sx={{ borderRadius: '8px' }}>Cancel</Button>
           <Button
             type="submit"
             variant="contained"
-            color="primary"
+            // color="primary"
             disabled={loading}
-            style={loading ? { cursor: 'wait' } : {}} sx={{ borderRadius: '0.5rem' }}
+            style={loading ? { cursor: 'wait' } : {}}
+            sx={{
+              borderRadius: '8px',
+              background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
+              // textTransform: 'none',
+              fontWeight: 'medium',
+              '&:hover': {
+                background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 20px rgba(67, 97, 238, 0.3)',
+              },
+              transition: 'all 0.3s ease',
+            }}
           >
             {loading ? <> <CircularProgress size={20} sx={{ marginRight: '8px' }} /> {editingProduct ? 'Updating...' : 'Adding...'} </> : (editingProduct ? 'Update Product' : 'Add Product')}
           </Button>
