@@ -76,6 +76,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [loadingProductDeletion, setLoadingProductDeletion] = useState(false);
+  const [refreshTrigger, setRefreshTrigger] = useState(false);
 
   // Fetch user counts on component mount
   useEffect(() => {
@@ -133,7 +134,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
     };
 
     loadProducts();
-  }, [activeTab, pagination.page, pagination.limit, searchQuery]);
+  }, [activeTab, pagination.page, pagination.limit, searchQuery, refreshTrigger]);
 
   const handleSearch = async () => {
     if (!searchQuery.trim()) return;
@@ -926,6 +927,16 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
       //  selectedDate={selectedDate} setSelectedDate={setSelectedDate} timeFrom={timeFrom} setTimeFrom={setTimeFrom} timeTo={timeTo} setTimeTo={setTimeTo}
       //  protectLocation={protectLocation} setProtectLocation={setProtectLocation} fakeAddress={fakeAddress} setFakeAddress={setFakeAddress}
       //  activeStep={activeStep} setActiveStep={setActiveStep} darkMode={darkMode} setValidationErrors={setValidationErrors} validationErrors={validationErrors}
+        onProductSuccess={() => {
+          setRefreshTrigger(prev => !prev); // Toggle refresh trigger
+          if (editingProduct) {
+            // For edits, we might want to stay on the same page
+            setPagination(prev => ({...prev}));
+          } else {
+            // For new products, go to first page
+            setPagination(prev => ({...prev, page: 1}));
+          }
+        }}
       />
 
       {/* existed product Delete Confirmation Dialog */}

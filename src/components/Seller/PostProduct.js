@@ -28,7 +28,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
   mediaError, setMediaError,
   // timeFrom, setTimeFrom, timeTo, setTimeTo, 
   existingMedia, setExistingMedia, /* fetchUnsplashImages, */ loadingMedia, loading, setLoading,
-  setSnackbar, setSubmitError, submitError,
+  setSnackbar, setSubmitError, submitError, onProductSuccess 
   //   protectLocation, setProtectLocation, fakeAddress, setFakeAddress, activeStep, setActiveStep,
   //   darkMode, validationErrors, setValidationErrors,
 }) => {
@@ -179,6 +179,10 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
       });
       setExistingMedia([]);
       setNewMedia([]);
+      // Call the success callback if provided
+      if (onProductSuccess) {
+        onProductSuccess();
+      }
       handleCloseDialog();
     } catch (error) {
       console.error("Error submitting product:", error);
