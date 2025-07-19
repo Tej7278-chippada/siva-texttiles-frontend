@@ -477,7 +477,7 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
                     display: 'inline-block',
                   }}
                 >
-                  Siva Texttiles
+                  Siva Textiles
                 </Link>
               </Typography>
             </Box>
