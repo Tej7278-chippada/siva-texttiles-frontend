@@ -364,13 +364,13 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
     localStorage.removeItem('authToken'); // Clear current session token
     setAnchorEl(null);
     setCurrentUsername('');
-    localStorage.removeItem('activeUser'); // Clear active user on logout
-    localStorage.removeItem('tokenUsername');
-    localStorage.removeItem('userId');
-    localStorage.removeItem('userLocation');
-    localStorage.removeItem('distanceRange');
-    localStorage.removeItem('tokenProfilePic');
-    // localStorage.clear();
+    // localStorage.removeItem('activeUser'); // Clear active user on logout
+    // localStorage.removeItem('tokenUsername');
+    // localStorage.removeItem('userId');
+    // localStorage.removeItem('userLocation');
+    // localStorage.removeItem('distanceRange');
+    // localStorage.removeItem('tokenProfilePic');
+    localStorage.clear();
     navigate('/login');
   };
 
