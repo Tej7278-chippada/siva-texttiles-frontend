@@ -94,3 +94,36 @@ export const addComment = async (id, comment) => {
       throw error;
   }
 };
+
+export const addDeliveryAddresses = async (deliveryAddresses) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+
+  try {
+      const response = await API.post('/api/auth/add-deliveryAddress', deliveryAddresses, { headers });
+      return response.data;
+  } catch (error) {
+      console.error('Error adding deliveryAddresses:', error);
+      throw error;
+  }
+};
+
+export const fetchProductStockCount = async (id) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.get(`/api/products/${id}/stock-count`, { headers });
+};
+
+export const saveOrder = async (order) => {
+  const authToken = localStorage.getItem("authToken");
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  return await API.post("/api/orders", order, { headers });
+};
+
+// Send Order Confirmation Email
+export const sendOrderConfirmationEmail = async (payload) => {
+  const authToken = localStorage.getItem("authToken");
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  return await API.post("/api/orders/send-email", payload, { headers });
+};

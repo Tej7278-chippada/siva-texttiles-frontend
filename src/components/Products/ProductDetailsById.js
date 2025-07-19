@@ -10,7 +10,7 @@ import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
 // import CommentPopup from './CommentPopup';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import FavoriteBorderIcon from '@mui/icons-material/FavoriteBorder';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 // import Layout from '../Layout';
 import { useTheme } from '@emotion/react';
 // import SkeletonProductDetail from './SkeletonProductDetail';
@@ -80,12 +80,12 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
   const [likeLoading, setLikeLoading] = useState(false); // For like progress
   const [wishStatusLoading, setWishStatusLoading] = useState(false);
   const [wishLoading, setWishLoading] = useState(false); // For like progress
-//   const navigate = useNavigate();
+  const navigate = useNavigate();
   const [snackbar, setSnackbar] = useState({ open: false, message: "", severity: "info" });
   const [successMessage, setSuccessMessage] = useState('');
   // const [routeMapDialogOpen, setRouteMapDialogOpen] = useState(false);
   // const [chatDialogOpen, setChatDialogOpen] = useState(false);
-  const userId = localStorage.getItem('userId');
+  // const userId = localStorage.getItem('userId');
   const [loginMessage, setLoginMessage] = useState({ open: false, message: "", severity: "info" });
   // const [isRateDialogOpen, setRateDialogOpen] = useState(false);
 
@@ -331,14 +331,14 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
     }
   };
 
-//   const handleBuyNow = () => {
-//     if (!isAuthenticated || likeLoading) return; // Prevent unauthenticated actions
-//     if (stockCountId > 0) {
-//       navigate(`/order/${id}`, { state: { product } });
-//     } else {
-//       setSnackbar({ open: true, message: "Product is out of stock.", severity: "warning" });
-//     }
-//   };
+  const handleBuyNow = () => {
+    if (!isAuthenticated || likeLoading ) return; // Prevent unauthenticated actions
+    if (product.totalStock > 0) {
+      navigate(`/order/${id}`, { state: { product } });
+    } else {
+      setSnackbar({ open: true, message: "Product is out of stock.", severity: "warning" });
+    }
+  };
 
   const handleCloseSnackbar = () => {
     setSnackbar({ ...snackbar, open: false });
@@ -708,13 +708,15 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                           {product.stockStatus} ({product?.totalStock || 0})
                         </Typography>
                     </Box>
-                    {!(product.user.id === userId) &&
+                    {/* {!(product.user.id === userId) && */}
                       <Box >
                         <Button
                           variant="contained"
                           // color="primary"
                           // onClick={() => openRouteMapDialog(post)}
                           // disabled={stockCountId === 0}
+                          onClick={handleBuyNow}
+                          // disabled={product.totalStock === 0}
                           // sx={{ margin: "0rem", borderRadius: '8px', background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)', }}
                           sx={{
                             borderRadius: '8px',
@@ -734,7 +736,7 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                           Buy Now
                         </Button>
                       </Box>
-                    }
+                    {/* } */}
                   </Toolbar>
 
                 </Box>

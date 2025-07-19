@@ -26,6 +26,7 @@ import UserProfile from './components/Auth/UserProfile';
 import SellerProducts from './components/Seller/SellerProducts';
 import ProductDetailsById from './components/Products/ProductDetailsById';
 import WishList from './components/Products/WishList';
+import OrderPage from './components/Orders/OrderPage';
 // import NotificationsPage from './components/Helper/NotificationsPage';
 // import NearPostsNotification from './components/Helper/NearPostsNotification';
 // import HelperHome from './components/Helper/HelperHome';
@@ -359,6 +360,11 @@ function App() {
               <WishList />
             </PrivateRoute>
           } />
+          <Route path="/order/:id" element={
+            <PrivateRoute>
+              <OrderPage />
+            </PrivateRoute>} 
+          />
           {/* <Route path="/userPosts" element={
             <PrivateRoute>
               <PostService darkMode={darkMode} toggleDarkMode={toggleDarkMode} username={username} unreadCount={unreadCount} shouldAnimate={shouldAnimate}/>

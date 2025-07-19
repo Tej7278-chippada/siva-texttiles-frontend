@@ -1,7 +1,14 @@
 // components/UserProfile.js
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { Box, Typography, Avatar, Alert, useMediaQuery, Grid,  Snackbar, } from '@mui/material';
+import { Box, Typography, Avatar, Alert, useMediaQuery, Grid,  Snackbar, 
+  Button,
+  List,
+  ListItem,
+  ListItemText,
+  Card,
+  TextField,
+} from '@mui/material';
 import { useTheme } from '@emotion/react';
 // import API from './api/api';
 // import Layout from './Layout';
@@ -21,7 +28,7 @@ import { useTheme } from '@emotion/react';
 // import CloseIcon from '@mui/icons-material/Close';
 // import LocationOnIcon from '@mui/icons-material/LocationOn';
 import SkeletonProductDetail from '../Layout/SkeletonProductDetail';
-import API from '../Apis/UserApis';
+import API, { addDeliveryAddresses } from '../Apis/UserApis';
 import Layout from '../Layout/Layout';
 // import RateUserDialog from './Helper/RateUserDialog';
 
@@ -85,6 +92,22 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
   // const [showRatings, setShowRatings] = useState(false);
   const tokenUsername = localStorage.getItem('tokenUsername');
   // const [currentAddress, setCurrentAddress] = useState('');
+  const [deliveryAddresses, setDeliveryAddresses] = useState([]);
+  const [selectedAddress, setSelectedAddress] = useState(null);
+  const [newAddress, setNewAddress] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    street: "",
+    area: "",
+    city: "",
+    state: "",
+    pincode: "",
+  });
+  const [addressAddedMessage, setAddressAddedMessage] = useState('');
+  const [addressFailedMessage, setAddressFailedMessage] = useState('');
+  const [isAddAddressBoxOpen, setIsAddAddressBoxOpen] = useState(false); // to toggle the Add Address button
+  const [isDeliveryAddressBoxOpen, setIsDeliveryAddressBoxOpen] = useState(false);
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -96,6 +119,9 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
         });
         setUserData(response.data);
         // fetchAddress(response.data.location.latitude, response.data.location.longitude);
+        const addresses = response.data.deliveryAddresses || [];
+        // Sort addresses by `createdAt` in descending order
+        setDeliveryAddresses(addresses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
         
       } catch (err) {
         // setError('Failed to fetch User details. Please try again later.');
@@ -144,6 +170,43 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
   // const [isRateDialogOpen, setRateDialogOpen] = useState(false);
   // const handleOpenRateDialog = () => setRateDialogOpen(true);
   // const handleCloseRateDialog = () => setRateDialogOpen(false);
+
+  const handleAddAddress = async () => {
+    try {
+      const addressPayload = {
+        name: newAddress.name,
+        phone: newAddress.phone,
+        email: newAddress.email,
+        address: {
+          street: newAddress.street,
+          area: newAddress.area,
+          city: newAddress.city,
+          state: newAddress.state,
+          pincode: newAddress.pincode,
+        },
+      };
+
+      const response = await addDeliveryAddresses(addressPayload);
+      const updatedAddresses = response.deliveryAddresses;
+      // Sort addresses to ensure latest one is on top
+      setDeliveryAddresses(updatedAddresses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      setNewAddress({   // Clear input fields and close the box
+        name: "",
+        phone: "",
+        email: "",
+        street: "",
+        area: "",
+        city: "",
+        state: "",
+        pincode: "",
+      });
+      setAddressAddedMessage('Address added successfully!');
+      setIsAddAddressBoxOpen(false);
+    } catch (error) {
+      setAddressFailedMessage('Failed to add address. Please try again later.');
+      console.error('Error adding address:', error);
+    }
+  };
 
   return (
     <Layout username={tokenUsername} darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}>
@@ -307,6 +370,13 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
                 </Grid>
               </Box>
 
+              <Button
+                variant="outlined" size="small"
+                onClick={() => setIsDeliveryAddressBoxOpen((prev) => !prev)}
+                sx={{borderRadius: '12px'}}
+              >
+                {isDeliveryAddressBoxOpen ? 'Close Delivery Addresses' : 'Show Delivery Addresses'}
+              </Button>
               
             </Box>
             {/* {showRatings && (
@@ -393,6 +463,113 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
           
         </Box>
       }
+
+      {isDeliveryAddressBoxOpen && (
+        <Card sx={{ padding: `${isMobile ? '4px' : '1rem'}`, marginTop: '1rem', marginBottom: '1rem', mx: isMobile ? '10px' : '16px', bgcolor: '#f5f5f5', borderRadius: '8px' }}>
+          <Box mb={2}>
+            <Box style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+              <Button
+                variant="contained"
+                onClick={() => setIsAddAddressBoxOpen((prev) => !prev)}
+                sx={{ mt: 0, mb: 1, mr: 1, borderRadius: '12px' }}
+              >
+                Add New Address
+              </Button>
+            </Box>
+            {isAddAddressBoxOpen && (
+              <Card sx={{ borderRadius: '16px', marginBottom: '2rem' }}>
+                <Box my={2} p={2} >
+                  <Typography variant="h6" marginInline={1} mb={2}>Add New Delivery Address</Typography>
+                  <Grid container spacing={2}>
+                    {["name", "phone", "email", "street", "area", "city", "state", "pincode"].map(
+                      (field) => (
+                        <Grid item xs={12} sm={6} key={field}>
+                          <TextField
+                            label={field.charAt(0).toUpperCase() + field.slice(1)}
+                            fullWidth
+                            value={newAddress[field] || ""}
+                            onChange={(e) =>
+                              setNewAddress({ ...newAddress, [field]: e.target.value })
+                            }
+                          />
+                        </Grid>
+                      )
+                    )}
+                  </Grid>
+
+                  <Button
+                    variant="contained"
+                    onClick={handleAddAddress}
+                    sx={{ mt: 2, mb: 2, float: "right", minWidth: '150px', borderRadius: '12px' }}
+                  >
+                    Submit
+                  </Button>
+                  <Button
+                    variant="text"
+                    onClick={() => setIsAddAddressBoxOpen(false)}
+                    sx={{ mt: 2, mb: 2, mr: 1, float: "right", minWidth: '80px' }}
+                  >
+                    Cancel
+                  </Button>
+                </Box>
+              </Card>
+            )}
+            {addressAddedMessage && <Snackbar open={true} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} autoHideDuration={6000} onClose={() => setAddressAddedMessage('')}>
+              <Alert severity="success">{addressAddedMessage}</Alert>
+            </Snackbar>}
+            {addressFailedMessage && <Snackbar open={true} anchorOrigin={{ vertical: 'top', horizontal: 'center' }} autoHideDuration={6000} onClose={() => setAddressFailedMessage('')}>
+              <Alert severity="error">{addressFailedMessage}</Alert>
+            </Snackbar>}
+            <Box>
+              <Typography variant="h6" sx={{ mt: 1, ml: 1 }}>Delivery Addresses</Typography>
+              <Grid container spacing={1}>
+                {deliveryAddresses.length > 0 ? (
+                  deliveryAddresses.map((deliveryAddress, index) => (
+                  <Grid item key={index} xs={12} sm={6} md={4} >
+                    <List sx={{ height: "100%", width: "100%" }}>
+                      <ListItem
+                        key={index}
+                        button="true"
+                        selected={selectedAddress === deliveryAddress}
+                        onClick={() => setSelectedAddress(deliveryAddress)}
+                        sx={{
+                          border: selectedAddress === deliveryAddress ? "2px solid blue" : "1px solid lightgray",
+                          borderRadius: 2,
+                          mb: 0,
+                          flexDirection: "column", // column for desktop, row for mobile to align text on middle
+                          height: "100%", // Make the ListItem fill the grid cell height
+                        }}
+                      >
+                        <ListItemText
+                          primary={
+                            <>{`${deliveryAddress.name}, ${deliveryAddress.phone}, ${deliveryAddress.email}`}
+                              <br />
+                              {`${deliveryAddress.address.street}, ${deliveryAddress.address.area}, ${deliveryAddress.address.city}, ${deliveryAddress.address.state}, ${deliveryAddress.address.pincode}`}
+                            </>}
+                          secondary={
+                            <>
+
+                              <br />
+                              <Typography sx={{ display: 'inline-block', float: 'right' }}>
+                                Added on: {new Date(deliveryAddress.createdAt).toLocaleString()} {/* toLocaleDateString for displaying date only */}
+                              </Typography>
+                            </>
+                          }
+                        />
+                      </ListItem>
+                    </List>
+                  </Grid>
+                ))) : (
+                  <Typography align="center" padding="1rem" variant="body1" color="error">
+                    You Don't have Delivery Addresses. Add new Delivery Address.
+                  </Typography>
+                )}
+              </Grid>
+
+            </Box>
+          </Box>
+        </Card>
+      )}
         {/* <Box mt={1} sx={{ borderRadius:3, bgcolor:'rgba(0, 0, 0, 0.07)'}}>
           {locationDetails && (
             <Box sx={{ margin: '1rem' }}>
