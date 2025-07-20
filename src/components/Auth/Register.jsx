@@ -9,6 +9,7 @@ import PinOutlinedIcon from '@mui/icons-material/PinOutlined';
 import CloseIcon from '@mui/icons-material/Close';
 import Layout from '../Layout/Layout';
 import GoogleOAuth from '../GoogleOAuth/GoogleOAuth';
+import TermsPolicyBar from '../PolicyPages/TermsPolicyBar';
 // import GoogleOAuth from './GoogleOAuth/GoogleOAuth';
 
 const theme = createTheme({
@@ -850,6 +851,7 @@ const Register = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }) => {
             <GoogleOAuth setSuccess={setSuccess} setError={setError} darkMode={darkMode} />
           </form>
         </Box>
+        <TermsPolicyBar/>
       </Layout>
     </ThemeProvider>
   );

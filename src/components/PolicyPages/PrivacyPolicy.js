@@ -1,12 +1,12 @@
 // src/components/PolicyPages/PrivacyPolicy.js
 import React from 'react';
 import { Box, Typography, Container } from '@mui/material';
-import Header from '../Header';
-import Footer from '../Footer';
+// import Header from '../Header';
+// import Footer from '../Footer';
+import Layout from '../Layout/Layout';
 
 const PrivacyPolicy = () => (
-  <div>
-    <Header/>
+  <Layout>
     <Container>
       <Box py={4}>
         <Typography variant="h4">Privacy Policy</Typography>
@@ -16,8 +16,7 @@ const PrivacyPolicy = () => (
         {/* Add more details about your privacy practices here */}
       </Box>
     </Container>
-    <Footer/>
-  </div>
+    </Layout>
 );
 
 export default PrivacyPolicy;

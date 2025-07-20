@@ -1,12 +1,12 @@
 // src/components/PolicyPages/ShippingDelivery.js
 import React from 'react';
 import { Box, Typography, Container } from '@mui/material';
-import Header from '../Header';
-import Footer from '../Footer';
+// import Header from '../Header';
+// import Footer from '../Footer';
+import Layout from '../Layout/Layout';
 
 const ShippingDelivery = () => (
-  <div>
-    <Header/>
+  <Layout>
     <Container>
       <Box py={4}>
         <Typography variant="h4">Shipping and Delivery Policy</Typography>
@@ -16,8 +16,7 @@ const ShippingDelivery = () => (
         {/* Add details about your shipping and delivery policies */}
       </Box>
     </Container>
-    <Footer/>
-  </div>
+    </Layout>
 );
 
 export default ShippingDelivery;

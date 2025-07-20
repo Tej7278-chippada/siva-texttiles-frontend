@@ -30,6 +30,7 @@ import { useTheme } from '@emotion/react';
 import SkeletonProductDetail from '../Layout/SkeletonProductDetail';
 import API, { addDeliveryAddresses } from '../Apis/UserApis';
 import Layout from '../Layout/Layout';
+import TermsPolicyBar from '../PolicyPages/TermsPolicyBar';
 // import RateUserDialog from './Helper/RateUserDialog';
 
 
@@ -698,6 +699,7 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
         // setLoginMessage={setLoginMessage}  
         setSnackbar={setSnackbar} darkMode={darkMode}
       /> */}
+      <TermsPolicyBar/>
 
       <Snackbar
         open={snackbar.open}

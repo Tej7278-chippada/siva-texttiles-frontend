@@ -1,12 +1,10 @@
 // src/components/PolicyPages/Contact.js
 import React from 'react';
 import { Box, Typography, Container } from '@mui/material';
-import Header from '../Header';
-import Footer from '../Footer';
+import Layout from '../Layout/Layout';
 
 const Contact = () => (
-  <div>
-    <Header/>
+    <Layout>
     <Container>
       <Box py={4}>
         <Typography variant="h4">Contact Us</Typography>
@@ -19,8 +17,7 @@ const Contact = () => (
         </Typography>
       </Box>
     </Container>
-    <Footer/>
-  </div>
+    </Layout>
 );
 
 export default Contact;

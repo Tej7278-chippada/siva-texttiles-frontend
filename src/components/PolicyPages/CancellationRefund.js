@@ -1,16 +1,16 @@
 // src/components/PolicyPages/CancellationRefund.js
 import React from 'react';
 import { Box, Typography, Container } from '@mui/material';
-import Header from '../Header';
-import Footer from '../Footer';
+import Layout from '../Layout/Layout';
+// import Header from '../Header';
+// import Footer from '../Footer';
 // import Header from "./Header";
 
 const CancellationRefund = () => {
 
 
   return (
-    <div>
-      <Header/>
+      <Layout>
       <Container>
         <Box py={4}>
           <Typography variant="h4">Cancellation and Refund Policy</Typography>
@@ -21,8 +21,7 @@ const CancellationRefund = () => {
           <Typography variant="body">Refund amount will be processed in 2 to 3 working days.</Typography>
         </Box>
       </Container>
-      <Footer/>
-    </div>
+      </Layout>
   );
 };
 export default CancellationRefund;
