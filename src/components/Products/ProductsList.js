@@ -4,12 +4,14 @@ import Layout from "../Layout/Layout";
 import { 
     Box, Button,
     Typography, 
-    Card, 
-    CardContent, useMediaQuery,
+    // Card, 
+    // CardContent,
+     useMediaQuery,
 } from '@mui/material';
-import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
+// import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
 import { useNavigate } from "react-router-dom";
 import { useTheme } from '@emotion/react';
+import ProductsPage from "./ProductsPage";
 
 const ProductsList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
     const theme = useTheme();
@@ -159,7 +161,7 @@ const ProductsList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) =>
                     </Button>
                 </Box>
                 {/* Coming Soon Section */}
-            <Card sx={{ 
+            {/* <Card sx={{ 
                 background: 'linear-gradient(135deg, rgba(25, 118, 210, 0.08) 0%, rgba(25, 118, 210, 0.05) 100%)',
                 borderRadius: '16px',
                 border: '1px solid rgba(25, 118, 210, 0.2)',
@@ -199,8 +201,9 @@ const ProductsList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) =>
                         Browse the latest and variety of Saaries on our website!
                     </Typography>
                 </CardContent>
-            </Card>
+            </Card> */}
             </Box>
+            <ProductsPage/>
         </Layout>
     );
 };
