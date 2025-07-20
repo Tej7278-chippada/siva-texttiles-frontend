@@ -27,6 +27,11 @@ import SellerProducts from './components/Seller/SellerProducts';
 import ProductDetailsById from './components/Products/ProductDetailsById';
 import WishList from './components/Products/WishList';
 import OrderPage from './components/Orders/OrderPage';
+import PrivacyPolicy from './components/PolicyPages/PrivacyPolicy';
+import Contact from './components/PolicyPages/Contact';
+import TermsConditions from './components/PolicyPages/TermsConditions';
+import CancellationRefund from './components/PolicyPages/CancellationRefund';
+import ShippingDelivery from './components/PolicyPages/ShippingDelivery';
 // import NotificationsPage from './components/Helper/NotificationsPage';
 // import NearPostsNotification from './components/Helper/NearPostsNotification';
 // import HelperHome from './components/Helper/HelperHome';
@@ -365,6 +370,13 @@ function App() {
               <OrderPage />
             </PrivateRoute>} 
           />
+
+          {/* Policy Pages */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/contact" element={<Contact />} />
+          <Route path="/terms-conditions" element={<TermsConditions />} />
+          <Route path="/cancellation-refund" element={<CancellationRefund />} />
+          <Route path="/shipping-delivery" element={<ShippingDelivery />} />
           {/* <Route path="/userPosts" element={
             <PrivateRoute>
               <PostService darkMode={darkMode} toggleDarkMode={toggleDarkMode} username={username} unreadCount={unreadCount} shouldAnimate={shouldAnimate}/>
