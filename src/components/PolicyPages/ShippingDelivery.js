@@ -14,6 +14,9 @@ const ShippingDelivery = () => (
           This policy outlines our shipping and delivery process.
         </Typography>
         {/* Add details about your shipping and delivery policies */}
+        <Typography variant="body1" paragraph>
+          Product will be deliveried in 4 to 6 business days.
+        </Typography>
       </Box>
     </Container>
     </Layout>

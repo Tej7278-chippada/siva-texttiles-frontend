@@ -18,7 +18,8 @@ const CancellationRefund = () => {
             This policy outlines our cancellation and refund process.
           </Typography>
           {/* Detail your cancellation and refund policy here */}
-          <Typography variant="body">Refund amount will be processed in 2 to 3 working days.</Typography>
+          <Typography variant="body">Refund amount will be processed in 2 to 3 working days to your payment method. </Typography>
+          <Typography variant="body">Incase any assistance, please contact our customer support.</Typography>
         </Box>
       </Container>
       </Layout>
