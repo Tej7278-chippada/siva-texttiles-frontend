@@ -60,18 +60,18 @@ const DEFAULT_FILTERS = {
 //   postType: 'HelpRequest' // added this line for only shows the Helper posts on ALL section
 };
 
-// const getGlassmorphismStyle = (theme, darkMode) => ({
-//   background: darkMode 
-//     ? 'rgba(30, 30, 30, 0.85)' 
-//     : 'rgba(255, 255, 255, 0.15)',
-//   backdropFilter: 'blur(20px)',
-//   border: darkMode 
-//     ? '1px solid rgba(255, 255, 255, 0.1)' 
-//     : '1px solid rgba(255, 255, 255, 0.2)',
-//   boxShadow: darkMode 
-//     ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
-//     : '0 8px 32px rgba(0, 0, 0, 0.1)',
-// });
+const getGlassmorphismStyle = (theme, darkMode) => ({
+  background: darkMode 
+    ? 'rgba(30, 30, 30, 0.85)' 
+    : 'rgba(255, 255, 255, 0.15)',
+  backdropFilter: 'blur(20px)',
+  border: darkMode 
+    ? '1px solid rgba(255, 255, 255, 0.1)' 
+    : '1px solid rgba(255, 255, 255, 0.2)',
+  boxShadow: darkMode 
+    ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+    : '0 8px 32px rgba(0, 0, 0, 0.1)',
+});
 
 const SearchContainer = styled(Box)(({ theme }) => ({
   display: 'flex', 
@@ -538,8 +538,67 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
 //   const worldBounds = L.latLngBounds(L.latLng(-90, -180), L.latLng(90, 180));
 
   // Gender categories
-  const femaleCategories = ['All', 'Saari', 'Dress', 'Accessories'];
-  const maleCategories = ['All', 'Sports', 'Top', 'Bottom'];
+  // const femaleCategories = ['All', 'Saari', 'Dress', 'Accessories'];
+  const femaleCategories = [
+    'All',
+    'Uppada Pattu',
+    'Kuppadam Sarees',
+    'Kanchi Pattu',
+    'Mangalagiri Pattu',
+    'Silk Sarees',
+    'Wedding Sarees',
+    'Banarasi Sarees',
+    'Chanderi Sarees',
+    // 'Maheshwari Sarees',
+    // 'Tussar Silk',
+    // 'Organza Sarees',
+    // 'Linen Sarees',
+    'Cotton Sarees',
+    'Printed Sarees',
+    // 'Designer Sarees',
+    // 'Bollywood Sarees',
+    'Party Wear Sarees',
+    // 'Traditional Sarees',
+    // 'Modern Sarees',
+    // 'Handloom Sarees',
+    'Other'
+  ];
+  // const maleCategories = ['All', 'Sports', 'Top', 'Bottom'];
+  const maleCategories = [
+    'All', 
+    // Tops
+    'Round Neck T-Shirt (Half Sleeves)',
+    'Round Neck T-Shirt (Full Sleeves)',
+    'Collar T-Shirt (Half Sleeves)',
+    'Collar T-Shirt (Full Sleeves)',
+    // 'Polo T-Shirt',
+    // 'Sleeveless Shirt',
+    // 'Tank Top',
+    'Sports Jacket',
+    // 'Hoodie',
+    // 'Sweatshirt',
+    
+    // Bottoms
+    'Track Pants',
+    'Shorts',
+    // 'Joggers',
+    // 'Sports Tights',
+    // 'Three-Fourths',
+    // 'Cargo Pants',
+    
+    // // Sets
+    // 'Sports Set (Top+Bottom)',
+    // 'Track Suit',
+    
+    // // Specialized
+    // 'Compression Wear',
+    // 'Swimwear',
+    // 'Cycling Shorts',
+    // 'Gym Wear'
+
+    'Other',
+  ];
+
 
   return (
     <Layout username={tokenUsername} darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}>
@@ -703,7 +762,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
       {filters.gender && (
         <Box sx={{ 
           display: 'flex', 
-          overflowX: 'auto',
+          overflowX: 'auto', ...getGlassmorphismStyle(), m: 1, borderRadius: '12px',
           gap: 1,
           px: 2,
           py: 1,
@@ -718,8 +777,10 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
               variant={selectedCategory === (category === 'All' ? '' : category) ? 'filled' : 'outlined'}
               color="primary"
               sx={{ 
-                minWidth: 80,
-                fontWeight: selectedCategory === (category === 'All' ? '' : category) ? 600 : 400 
+                // minWidth: 80,
+                fontWeight: selectedCategory === (category === 'All' ? '' : category) ? 600 : 400 ,
+                // color: '#f59e0b', 
+                // backgroundColor: 'rgba(245, 158, 11, 0.1)',
               }}
             />
           ))}

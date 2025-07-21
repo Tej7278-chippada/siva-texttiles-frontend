@@ -432,9 +432,18 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
                   required
                   label="Categories"
                 >
-                  <MenuItem value="Saari">Saari</MenuItem>
-                  <MenuItem value="Dress">Dress</MenuItem>
-                  <MenuItem value="Accessories">Accessories</MenuItem>
+                  <MenuItem value="Uppada Pattu">Uppada Pattu</MenuItem>
+                  <MenuItem value="Kuppadam Sarees">Kuppadam Sarees</MenuItem>
+                  <MenuItem value="Kanchi Pattu">Kanchi Pattu</MenuItem>
+                  <MenuItem value="Mangalagiri Pattu">Mangalagiri Pattu</MenuItem>
+                  <MenuItem value="Silk Sarees">Silk Sarees</MenuItem>
+                  <MenuItem value="Wedding Sarees">Wedding Sarees</MenuItem>
+                  <MenuItem value="Banarasi Sarees">Banarasi Sarees</MenuItem>
+                  <MenuItem value="Chanderi Sarees">Chanderi Sarees</MenuItem>
+                  <MenuItem value="Cotton Sarees">Cotton Sarees</MenuItem>
+                  <MenuItem value="Printed Sarees">Printed Sarees</MenuItem>
+                  <MenuItem value="Party Wear Sarees">Party Wear Sarees</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
                 </Select>
               </FormControl>
             )}
@@ -447,13 +456,18 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
                   required
                   label="Categories"
                 >
-                  <MenuItem value="Sports">Sports</MenuItem>
-                  <MenuItem value="Top">Top</MenuItem>
-                  <MenuItem value="Bottom">Bottom</MenuItem>
+                  <MenuItem value="Round Neck T-Shirt (Half Sleeves)">Round Neck T-Shirt (Half Sleeves)</MenuItem>
+                  <MenuItem value="Round Neck T-Shirt (Full Sleeves)">Round Neck T-Shirt (Full Sleeves)</MenuItem>
+                  <MenuItem value="Collar T-Shirt (Half Sleeves)">Collar T-Shirt (Half Sleeves)</MenuItem>
+                  <MenuItem value="Collar T-Shirt (Full Sleeves)">Collar T-Shirt (Full Sleeves)</MenuItem>
+                  <MenuItem value="Sports Jacket">Sports Jacket</MenuItem>
+                  <MenuItem value="Track Pants">Track Pants</MenuItem>
+                  <MenuItem value="Shorts">Shorts</MenuItem>
+                  <MenuItem value="Other">Other</MenuItem>
                 </Select>
               </FormControl>
             )}
-            {(formData.gender === 'Kids') && (
+            {/* {(formData.gender === 'Kids') && (
               <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem', } }} required>
                 <InputLabel>Product Category</InputLabel>
                 <Select
@@ -467,7 +481,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
                   <MenuItem value="Accessories">Accessories</MenuItem>
                 </Select>
               </FormControl>
-            )}
+            )} */}
             {/* {editingProduct && ( */}
             <FormControl fullWidth required sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem', } }}>
               <InputLabel>Stock Status</InputLabel>
