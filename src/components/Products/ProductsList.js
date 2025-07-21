@@ -11,7 +11,7 @@ import {
 // import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
 import { useNavigate } from "react-router-dom";
 import { useTheme } from '@emotion/react';
-import ProductsPage from "./ProductsPage";
+// import ProductsPage from "./ProductsPage";
 
 const ProductsList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
     const theme = useTheme();
@@ -203,7 +203,7 @@ const ProductsList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) =>
                 </CardContent>
             </Card> */}
             </Box>
-            <ProductsPage/>
+            {/* <ProductsPage/> */}
         </Layout>
     );
 };

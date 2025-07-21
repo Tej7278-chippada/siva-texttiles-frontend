@@ -21,7 +21,7 @@ import Login from './components/Auth/Login';
 import Register from './components/Auth/Register';
 import PrivateRoute from './components/Layout/PriviteRoute';
 import NotFound from './components/Layout/NotFound';
-import ProductsList from './components/Products/ProductsList';
+// import ProductsList from './components/Products/ProductsList';
 import UserProfile from './components/Auth/UserProfile';
 import SellerProducts from './components/Seller/SellerProducts';
 import ProductDetailsById from './components/Products/ProductDetailsById';
@@ -32,6 +32,7 @@ import Contact from './components/PolicyPages/Contact';
 import TermsConditions from './components/PolicyPages/TermsConditions';
 import CancellationRefund from './components/PolicyPages/CancellationRefund';
 import ShippingDelivery from './components/PolicyPages/ShippingDelivery';
+import ProductsPage from './components/Products/ProductsPage';
 // import NotificationsPage from './components/Helper/NotificationsPage';
 // import NearPostsNotification from './components/Helper/NearPostsNotification';
 // import HelperHome from './components/Helper/HelperHome';
@@ -346,7 +347,7 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/" element={
             <PrivateRoute>
-              <ProductsList />
+              <ProductsPage />
             </PrivateRoute>
           } />
           <Route path="/user/:id" element={

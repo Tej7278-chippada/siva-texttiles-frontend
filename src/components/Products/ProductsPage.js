@@ -1,4 +1,4 @@
-// components/Helper/Helper.js
+// components/Products/ProductsPage.js
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {Alert, alpha, Box, Button, Card, CardContent, CardMedia, CircularProgress, FormControl, Grid, IconButton, InputAdornment, InputLabel,  MenuItem,  Select, Snackbar, styled,  TextField, Toolbar, Tooltip, Typography, useMediaQuery, Stack, Chip} from '@mui/material';
 // import Layout from '../Layout';
@@ -24,7 +24,8 @@ import CategoryIcon from '@mui/icons-material/Category';
 // import markerShadow from 'leaflet/dist/images/marker-shadow.png';
 // import DistanceSlider from './DistanceSlider';
 // import LazyBackgroundImage from './LazyBackgroundImage';
-import ShareLocationRoundedIcon from '@mui/icons-material/ShareLocationRounded';
+// import ShareLocationRoundedIcon from '@mui/icons-material/ShareLocationRounded';
+import FilterListRoundedIcon from '@mui/icons-material/FilterListRounded';
 // import DemoPosts from '../Banners/DemoPosts';
 import SearchIcon from '@mui/icons-material/Search';
 import ClearIcon from '@mui/icons-material/Clear';
@@ -55,7 +56,7 @@ const DEFAULT_FILTERS = {
 //   categoriesKids: '',
   gender: 'Female',
   stockStatus: '',
-  priceRange: [0, 10000000],
+  priceRange: [0, 100000],
 //   postType: 'HelpRequest' // added this line for only shows the Helper posts on ALL section
 };
 
@@ -99,7 +100,7 @@ const SearchTextField = styled(TextField)(({ theme, expanded, darkMode }) => ({
       backdropFilter: 'blur(20px)',
       border: darkMode 
         ? '1px solid rgba(255, 255, 255, 0.1)' 
-        : '1px solid rgba(255, 255, 255, 0.2)',
+        : '2px solid rgba(206, 206, 206, 0.2)',
     },
   },
   '& .MuiInputBase-input': {
@@ -146,7 +147,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
 //   const [mapMode, setMapMode] = useState('normal');
 //   const [locationDetails, setLocationDetails] = useState(null);
   // const distanceOptions = [2, 5, 10, 20, 30, 50, 70, 100, 120, 150, 200];
-  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: '' }); // Snackbar state
+  const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' }); // Snackbar state
   const [showDistanceRanges, setShowDistanceRanges] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -542,23 +543,125 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
 
   return (
     <Layout username={tokenUsername} darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}>
+       <Box sx={{
+            // Refined gradient with better color harmony
+            background: isMobile 
+                ? 'linear-gradient(310deg, rgb(245, 191, 47) 0%, rgb(184, 134, 11) 40%, rgb(166, 130, 39) 70%, rgba(255,255,255,0.05) 100%)' 
+                : 'linear-gradient(310deg, rgb(247, 203, 59) 0%, rgb(191, 142, 15) 35%, rgb(156, 114, 10) 65%, rgba(255,255,255,0.08) 100%)',
+            
+            // Improved text color for better readability
+            color: '#ffffff',
+            
+            // Responsive padding with better proportions
+            padding: isMobile ? '1.5rem 1rem' : '2.5rem 2rem',
+            paddingTop: '6rem',
+            
+            textAlign: 'center',
+            borderRadius: '0 0 20px 20px',
+            marginTop: -8,
+            
+            // Enhanced shadow with warmer tones
+            boxShadow: '0 6px 30px rgba(184, 134, 11, 0.25), 0 2px 12px rgba(0,0,0,0.1)',
+            
+            position: 'relative',
+            overflow: 'hidden',
+            
+            // Refined glass effect overlay
+            '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: [
+                    'radial-gradient(circle at 75% 25%, rgba(255,255,255,0.15) 0%, transparent 60%)',
+                    'radial-gradient(circle at 25% 75%, rgba(255,248,220,0.08) 0%, transparent 50%)',
+                    'linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%)'
+                ].join(', '),
+                backdropFilter: 'blur(1px)',
+                zIndex: 0
+            },
+            
+            // Subtle texture overlay
+            '&::after': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'url("data:image/svg+xml,%3Csvg width="60" height="60" viewBox="0 0 60 60" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="none" fill-rule="evenodd"%3E%3Cg fill="%23ffffff" fill-opacity="0.02"%3E%3Ccircle cx="7" cy="7" r="1"/%3E%3Ccircle cx="30" cy="30" r="1"/%3E%3Ccircle cx="53" cy="53" r="1"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
+                zIndex: 1
+            }
+        }}>
+            <Typography 
+                variant={isMobile ? 'h5' : 'h4'} 
+                component="h1" 
+                sx={{
+                    fontWeight: 700,
+                    marginBottom: 1.5,
+                    position: 'relative',
+                    zIndex: 2,
+                    
+                    // Enhanced text shadow for better depth
+                    textShadow: [
+                        '0 2px 4px rgba(0,0,0,0.3)',
+                        '0 1px 2px rgba(139,101,8,0.4)'
+                    ].join(', '),
+                    
+                    // Subtle text glow
+                    filter: 'drop-shadow(0 0 8px rgba(255,255,255,0.1))',
+                    
+                    // Better letter spacing
+                    letterSpacing: '-0.02em'
+                }}
+            >
+                Welcome to Siva Textiles!
+            </Typography>
+            
+            <Typography 
+                variant={isMobile ? 'body1' : 'h6'} 
+                sx={{
+                    maxWidth: '800px',
+                    margin: '0 auto',
+                    position: 'relative',
+                    zIndex: 2,
+                    
+                    // Improved opacity for better readability
+                    opacity: 0.95,
+                    lineHeight: 1.7,
+                    
+                    // Subtle text shadow
+                    textShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    
+                    // Better font weight for hierarchy
+                    fontWeight: isMobile ? 400 : 500,
+                    
+                    // Refined letter spacing
+                    letterSpacing: '0.01em'
+                }}
+            >
+                Discover the finest collection of Handloom Sarees & authentic traditional wear crafted with love and heritage
+            </Typography>
+        </Box>
       {/* Gender Selection Section */}
       <Box sx={{ 
         display: 'flex', 
         justifyContent: 'center', 
-        gap: 4, 
-        my: 4,
-        flexDirection: isMobile ? 'column' : 'row',
+        gap: isMobile ? 2 : 4, 
+        my: 4, mx: 1,
+        flexDirection:  'row',
         alignItems: 'center'
       }}>
         <GenderSelectionCard 
           selected={filters.gender === 'Female'}
           onClick={() => handleGenderSelect('Female')}
-          sx={{ width: isMobile ? '100%' : 300, textAlign: 'center' }}
+          sx={{ width: isMobile ? '100%' : 300, textAlign: 'center' }} // width: isMobile ? '100%' : 300,
         >
           <CardMedia
             component="img"
-            height="200"
+            height={isMobile ? '150px' : '200px'}
             image={'/category/Women.png'}
             alt="Women in traditional saree"
             sx={{ objectFit: 'cover' }}
@@ -580,7 +683,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
         >
           <CardMedia
             component="img"
-            height="200"
+            height={isMobile ? '150px' : '200px'}
             image={'/category/Men.png'}
             alt="Men in sports wear"
             sx={{ objectFit: 'cover' }}
@@ -645,7 +748,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
           
           </Box>
           {/* Search Bar */}
-          {!isMobile && <SearchContainer>
+          <SearchContainer>
             <Box>
             <SearchTextField
               variant="outlined"
@@ -657,8 +760,38 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
               inputRef={inputRef}
               expanded={expanded} darkMode={darkMode}
               InputProps={{
-                startAdornment: (
-                  <InputAdornment position="start">
+                // startAdornment: (
+                //   <InputAdornment position="start">
+                //     <IconButton 
+                //       onClick={!expanded ? handleSearchClick : undefined}
+                //       sx={{
+                //         minWidth: '40px',
+                //         minHeight: '40px',
+                //         // marginLeft: expanded ? '8px' : '0px',
+                //       }}
+                //     >
+                //       {isSearching ? (
+                //         <CircularProgress size={16} />
+                //       ) : (
+                //         <SearchIcon color="action" />
+                //       )}
+                //     </IconButton>
+                //   </InputAdornment>
+                // ),
+                endAdornment: 
+                
+                  <>
+                  {expanded && searchQuery && (
+                  <InputAdornment position="end">
+                    <IconButton 
+                      onClick={handleClearClick}
+                      size="small"
+                      sx={{ mr: '6px' }}
+                    >
+                      <ClearIcon color="action" fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>)}
+                  <InputAdornment position="center">
                     <IconButton 
                       onClick={!expanded ? handleSearchClick : undefined}
                       sx={{
@@ -674,18 +807,8 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                       )}
                     </IconButton>
                   </InputAdornment>
-                ),
-                endAdornment: expanded && searchQuery && (
-                  <InputAdornment position="end">
-                    <IconButton 
-                      onClick={handleClearClick}
-                      size="small"
-                      sx={{ mr: '6px' }}
-                    >
-                      <ClearIcon color="action" fontSize="small" />
-                    </IconButton>
-                  </InputAdornment>
-                ),
+                  </>
+                ,
                 sx: {
                   padding: 0,
                 }
@@ -693,8 +816,8 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             />
             
             </Box>
-          </SearchContainer>}
-          {isMobile && !expanded && <IconButton 
+          </SearchContainer>
+          {/* {isMobile && !expanded && <IconButton 
             onClick={!expanded ? handleSearchClick : undefined}
             sx={{
               minWidth: '40px',
@@ -707,15 +830,25 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             ) : (
               <SearchIcon color="action" />
             )}
-          </IconButton>}
+          </IconButton>} */}
           <Box sx={{display:'flex', justifyContent:'space-between', marginRight:'-6px', marginLeft:'8px'}}>
           {/* Button to Open Distance Menu */}
+          <IconButton 
+           onClick={() => setShowDistanceRanges(true)}
+            sx={{
+              minWidth: '40px',
+              minHeight: '40px',
+              marginLeft: expanded ? '8px' : '0px',
+            }}
+          >
+            <FilterListRoundedIcon color="action" />
+          </IconButton>
           {/* Distance Button */}
-          <Button
+          {/* <Button
             variant="contained"
             // onClick={handleDistanceMenuOpen}
             onClick={() => setShowDistanceRanges(true)}
-            startIcon={<ShareLocationRoundedIcon />}
+            startIcon={<FilterListRoundedIcon />}
             sx={{
               // backgroundColor: "#1976d2",
               // color: "#fff",
@@ -738,7 +871,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             }}
           >
             Filters
-          </Button>
+          </Button> */}
 
           {/* Distance Range Menu */}
           {showDistanceRanges && (
@@ -758,7 +891,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
               '& .MuiCardContent-root': {padding: '10px' },  }}
           >
             <Box sx={{ m: 1, display: 'flex', flexDirection: isMobile ? 'column' : 'column', gap: 1 }}>
-              <Box sx={{ m: 0, borderRadius:'8px'}}>
+              {/* <Box sx={{ m: 0, borderRadius:'8px'}}> */}
                 <Box
                   sx={{
                     px: isMobile ? '8px' : '10px', py: '12px',
@@ -851,7 +984,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                     }}
                   /> */}
                 {/* </Box> */}
-              </Box>
+              {/* </Box> */}
               {/* <Divider/> */}
               <Box sx={{maxWidth: '450px'}}>
                 {/* Filter Card */}
@@ -875,7 +1008,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                       
                       <Box display="flex" gap={2} flexWrap="wrap" sx={{mt: 2}}>
                         {/* Gender Filter */}
-                        <FormControl size='small' sx={{ flex: '1 1 140px', '& .MuiOutlinedInput-root': { borderRadius: '12px',} }}>
+                        {/* <FormControl size='small' sx={{ flex: '1 1 140px', '& .MuiOutlinedInput-root': { borderRadius: '12px',} }}>
                           <InputLabel>Gender</InputLabel>
                           <Select
                             name="gender"
@@ -886,12 +1019,12 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                             <MenuItem value="">All</MenuItem>
                             <MenuItem value="Male">Male</MenuItem>
                             <MenuItem value="Female">Female</MenuItem>
-                            {/* <MenuItem value="Kids">Kids</MenuItem> */}
-                            {/* <MenuItem value="Everyone">Everyone</MenuItem> */}
+                            <MenuItem value="Kids">Kids</MenuItem>
+                            <MenuItem value="Everyone">Everyone</MenuItem>
                           </Select>
-                        </FormControl>
+                        </FormControl> */}
                         {/* Category Filter */}
-                        {/* {localFilters.gender === 'Female' && ( */}
+                        {/* {localFilters.gender === 'Female' && (
                             <FormControl size='small' sx={{ flex: '1 1 140px', '& .MuiOutlinedInput-root': { borderRadius: '12px', } }}>
                             <InputLabel>Category</InputLabel>
                             <Select
@@ -904,11 +1037,11 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                                 <MenuItem value="Saari">Saari</MenuItem>
                                 <MenuItem value="Dress">Dress</MenuItem>
                                 <MenuItem value="Accessories">Accessories</MenuItem>
-                                {/* <MenuItem value="Friends">Friends</MenuItem> */}
+                                <MenuItem value="Friends">Friends</MenuItem>
                             </Select>
                             </FormControl>
-                        {/* )} */}
-                        {/* {localFilters.gender === 'Male' && ( */}
+                        )} 
+                        {localFilters.gender === 'Male' && (
                             <FormControl size='small' sx={{ flex: '1 1 140px', '& .MuiOutlinedInput-root': { borderRadius: '12px', } }}>
                             <InputLabel>Category</InputLabel>
                             <Select
@@ -921,10 +1054,10 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                                 <MenuItem value="Sports">Sports</MenuItem>
                                 <MenuItem value="Top">Top</MenuItem>
                                 <MenuItem value="Bottom">Bottom</MenuItem>
-                                {/* <MenuItem value="Friends">Friends</MenuItem> */}
+                                <MenuItem value="Friends">Friends</MenuItem>
                             </Select>
                             </FormControl>
-                        {/* )} */}
+                        )} */}
 
                         {/* Service Filters */}
                         {/* <FormControl size='small' sx={{ flex: '1 1 140px', '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}>
@@ -963,7 +1096,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                             name="stockStatus"
                             value={localFilters.stockStatus}
                             onChange={handleFilterChange}
-                            label="Status"
+                            label="Stock Status"
                           >
                             <MenuItem value="">All</MenuItem>
                             <MenuItem value="In Stock">In Stock</MenuItem>
@@ -1021,7 +1154,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
           
         </Toolbar>
         {/* Search Bar */}
-         {isMobile && expanded &&  <SearchContainer sx={{mx : 2}}>
+         {/* {isMobile && expanded &&  <SearchContainer sx={{mx : 2}}>
             <Box>
             <SearchTextField
               variant="outlined"
@@ -1069,7 +1202,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             />
             
             </Box>
-          </SearchContainer> }
+          </SearchContainer> } */}
 
 
         <Box mb={1} sx={{ background: 'rgba(255, 255, 255, 0)',  backdropFilter: 'blur(10px)', paddingTop: '1rem', paddingBottom: '1rem', mx: isMobile ? '6px' : '8px', paddingInline: isMobile ? '8px' : '10px', borderRadius: '10px' }} > {/* sx={{ p: 2 }} */}
@@ -1336,7 +1469,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
               <Box sx={{ display: 'flex', justifyContent: 'center', alignItems:'center', p: 4, gap:'1rem' }}>
                 <CircularProgress size={24} />
                 {/* <LinearProgress sx={{ width: 84, height: 4, borderRadius: 2, mt: 0 }}/> */}
-                <Typography color='grey' variant='body2'>Loading posts...</Typography>
+                <Typography color='grey' variant='body2'>Loading products...</Typography>
               </Box>
             )}
             {!hasMore && posts.length > 0 && (
@@ -1348,11 +1481,11 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                 mt: 2
               }}>
                 <Typography color="text.secondary">
-                  You've reached the end of <strong>{totalPosts} posts</strong> in your area
+                  You've reached the end of <strong>{totalPosts} products</strong>
                 </Typography>
-                <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+                {/* <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                   Current search range:  km
-                </Typography>
+                </Typography> */}
               </Box>
             )}
           </Box>
