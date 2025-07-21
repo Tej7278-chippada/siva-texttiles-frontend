@@ -16,10 +16,280 @@ import {
   InputLabel,
   Alert, alpha,
   CircularProgress,
+  Chip,
+  Grid,
+  Avatar,
+  // Divider,
+  Tooltip,
+  InputAdornment,
+  Collapse,
+  IconButton as MuiIconButton,
+  Paper,
+  // Stack,
 } from '@mui/material';
 import { Close as CloseIcon, } from '@mui/icons-material';
+import {
+  // Add as AddIcon,
+  Delete as DeleteIcon,
+  ExpandMore as ExpandMoreIcon,
+  Palette as PaletteIcon,
+} from '@mui/icons-material';
 import React, { useEffect, useState } from 'react';
 import { addProduct, updateProduct } from '../Apis/SellerApis';
+import { ChromePicker } from 'react-color';
+
+// Add these constants at the top of the file
+const AVAILABLE_SIZES = [
+  'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '4XL', '5XL', '6XL', 'Free Size'
+];
+
+// Add ColorVariantForm component inside PostProduct.js
+const ColorVariantForm = ({ variants, setVariants, removedVariants,
+  setRemovedVariants  }) => {
+  const [expanded, setExpanded] = useState(false);
+  const [colorPickerOpen, setColorPickerOpen] = useState(false);
+  const [currentColor, setCurrentColor] = useState('#3f51b5');
+  const [editingIndex, setEditingIndex] = useState(null);
+  const [tempColor, setTempColor] = useState(null);
+  // const [removedVariants, setRemovedVariants] = useState([]);
+
+  const handleAddVariant = () => {
+    const newVariant = {
+      colorName: `Color ${variants.length + 1}`,
+      colorCode: currentColor,
+      images: [],
+      sizes: AVAILABLE_SIZES.map(size => ({
+        size,
+        count: 0
+      }))
+    };
+    
+    if (editingIndex !== null) {
+      const updated = [...variants];
+      updated[editingIndex] = {
+        ...updated[editingIndex],
+        colorCode: currentColor,
+        colorName: tempColor?.name || updated[editingIndex].colorName
+      };
+      setVariants(updated);
+      setEditingIndex(null);
+      setTempColor(null);
+    } else {
+      setVariants([...variants, newVariant]);
+    }
+    setColorPickerOpen(false);
+  };
+
+  const handleEditColor = (index, variant) => {
+    setCurrentColor(variant.colorCode);
+    setTempColor({
+      name: variant.colorName,
+      code: variant.colorCode
+    });
+    setEditingIndex(index);
+    setColorPickerOpen(true);
+  };
+
+  const handleRemoveVariant = (index) => {
+    const variantToRemove = variants[index];
+    // If this variant has an _id (meaning it existed in the database)
+    if (variantToRemove._id) {
+      setRemovedVariants([...removedVariants, variantToRemove._id]);
+    }
+    const updated = variants.filter((_, i) => i !== index);
+    setVariants(updated);
+  };
+
+  const handleSizeCountChange = (colorIndex, sizeIndex, value) => {
+    const updated = [...variants];
+    updated[colorIndex].sizes[sizeIndex].count = parseInt(value) || 0;
+    setVariants(updated);
+  };
+
+  const handleColorNameChange = (index, name) => {
+    const updated = [...variants];
+    updated[index].colorName = name;
+    setVariants(updated);
+  };
+
+  const handleUndoRemoveVariant = (variantId) => {
+    setRemovedVariants(removedVariants.filter(id => id !== variantId));
+  };
+
+  return (
+    <Paper elevation={0} sx={{ p: 2, mb: 2, border: '1px solid #eee', borderRadius: 2 }}>
+      <Box display="flex" justifyContent="space-between" alignItems="center">
+        <Typography variant="subtitle1">Color Variants & Sizes</Typography>
+        <MuiIconButton
+          onClick={() => setExpanded(!expanded)}
+          aria-expanded={expanded}
+          aria-label="show more"
+          size="small"
+        >
+          <ExpandMoreIcon style={{ transform: expanded ? 'rotate(180deg)' : 'none' }} />
+        </MuiIconButton>
+      </Box>
+      
+      <Collapse in={expanded} timeout="auto" unmountOnExit>
+        <Box sx={{ mt: 2 }}>
+          {variants.length > 0 && (
+            <Box sx={{ mb: 3 }}>
+              {variants.map((variant, colorIndex) => (
+                <Box key={variant._id || colorIndex} sx={{ mb: 3, p: 2, border: '1px solid #eee', borderRadius: 1, position: 'relative', opacity: removedVariants.includes(variant._id) ? 0.6 : 1 }}>
+                  {removedVariants.includes(variant._id) && (
+                    <Box sx={{
+                      position: 'absolute',
+                      top: 0,
+                      left: 0,
+                      right: 0,
+                      bottom: 0,
+                      bgcolor: 'rgba(0,0,0,0.1)',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center'
+                    }}>
+                      <Chip label="Will be removed" color="error" />
+                    </Box>
+                  )}
+
+                  {/* Add this button to the variant display: */}
+                  {removedVariants.includes(variant._id) && (
+                    <Button
+                      size="small"
+                      color="success"
+                      onClick={() => handleUndoRemoveVariant(variant._id)}
+                      sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1 }}
+                    >
+                      Undo
+                    </Button>
+                  )}
+                  <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                    <Box display="flex" alignItems="center" gap={1}>
+                      <Tooltip title="Click to change color">
+                        <Avatar 
+                          sx={{ 
+                            bgcolor: variant.colorCode, 
+                            width: 24, 
+                            height: 24,
+                            cursor: 'pointer'
+                          }}
+                          onClick={() => handleEditColor(colorIndex, variant)}
+                        />
+                      </Tooltip>
+                      <TextField
+                        size="small"
+                        value={variant.colorName}
+                        onChange={(e) => handleColorNameChange(colorIndex, e.target.value)}
+                        sx={{ minWidth: 150 }}
+                      />
+                    </Box>
+                    <Button
+                      size="small"
+                      color="error"
+                      startIcon={<DeleteIcon />}
+                      onClick={() => handleRemoveVariant(colorIndex)}
+                    >
+                      Remove
+                    </Button>
+                  </Box>
+                  
+                  <Typography variant="body2" sx={{ mb: 1 }}>Size Availability:</Typography>
+                  <Grid container spacing={1}>
+                    {variant.sizes.map((sizeItem, sizeIndex) => (
+                      <Grid item xs={4} sm={3} md={2} key={sizeIndex}>
+                        <TextField
+                          label={sizeItem.size}
+                          type="number"
+                          size="small"
+                          fullWidth
+                          value={sizeItem.count}
+                          onChange={(e) => handleSizeCountChange(colorIndex, sizeIndex, e.target.value)}
+                          inputProps={{ min: 0 }}
+                          InputProps={{
+                            startAdornment: (
+                              <InputAdornment position="start">
+                                <Typography variant="caption">{sizeItem.size}</Typography>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                      </Grid>
+                    ))}
+                  </Grid>
+                </Box>
+              ))}
+            </Box>
+          )}
+          
+          <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
+            <Button
+              variant="outlined"
+              startIcon={<PaletteIcon />}
+              onClick={() => {
+                setEditingIndex(null);
+                setCurrentColor('#3f51b5');
+                setColorPickerOpen(true);
+              }}
+            >
+              Add Color Variant
+            </Button>
+            
+            {colorPickerOpen && (
+              <Box sx={{ position: 'absolute', zIndex: 10 }}>
+                <Box sx={{ 
+                  position: 'absolute', 
+                  mt: 1,
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 1
+                }}>
+                  <ChromePicker
+                    color={currentColor}
+                    onChangeComplete={(color) => setCurrentColor(color.hex)}
+                  />
+                  {/* {editingIndex !== null && (
+                    <TextField
+                      size="small"
+                      label="Color Name"
+                      value={tempColor?.name || ''}
+                      onChange={(e) => setTempColor({
+                        ...tempColor,
+                        name: e.target.value
+                      })}
+                      sx={{ backgroundColor: 'white' }}
+                    />
+                  )} */}
+                  <Box sx={{ display: 'flex', gap: 1 }}>
+                    <Button
+                      variant="outlined"
+                      size="small"
+                      onClick={() => {
+                        setColorPickerOpen(false);
+                        setEditingIndex(null);
+                        setTempColor(null);
+                      }}
+                      sx={{ flex: 1 }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant="contained"
+                      size="small"
+                      onClick={handleAddVariant}
+                      sx={{ flex: 1 }}
+                    >
+                      {editingIndex !== null ? 'Update Color' : 'Add Color'}
+                    </Button>
+                  </Box>
+                </Box>
+              </Box>
+            )}
+          </Box>
+        </Box>
+      </Collapse>
+    </Paper>
+  );
+};
 
 
 const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsData, /* generatedImages, loadingGeneration,
@@ -32,6 +302,8 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
   //   protectLocation, setProtectLocation, fakeAddress, setFakeAddress, activeStep, setActiveStep,
   //   darkMode, validationErrors, setValidationErrors,
 }) => {
+  const [variants, setVariants] = useState([]);
+  const [removedVariants, setRemovedVariants] = useState([]);
   // Add formData state inside the component
   const [formData, setFormData] = useState({
     title: '',
@@ -63,6 +335,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
         deliveryDays: editingProduct.deliveryDays,
         description: editingProduct.description,
       });
+      setVariants(editingProduct.variants || []);
     } else {
       // Reset form when creating new post
       setFormData({
@@ -78,6 +351,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
         description: '',
         media: null,
       });
+      setVariants([]);
     }
   }, [editingProduct]);
 
@@ -149,6 +423,16 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
       if (key !== 'media') data.append(key, formData[key]);
     });
 
+    // Add removed variants information
+    if (removedVariants.length > 0) {
+      data.append('removedVariants', JSON.stringify(removedVariants));
+    }
+
+    // Include variants data
+    if (variants.length > 0) {
+      data.append('variants', JSON.stringify(variants));
+    }
+
     // Include IDs of existing media to keep
     const mediaToKeep = existingMedia.filter(media => !media.remove).map(media => media._id);
     if (mediaToKeep.length > 0) {
@@ -177,6 +461,8 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
         description: '',
         media: null,
       });
+      setVariants([]);
+      setRemovedVariants([]);
       setExistingMedia([]);
       setNewMedia([]);
       // Call the success callback if provided
@@ -497,6 +783,10 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
               </Select>
             </FormControl>
             {/* )} */}
+          </div>
+
+          <div>
+            <ColorVariantForm variants={variants} setVariants={setVariants} removedVariants={removedVariants} setRemovedVariants={setRemovedVariants} />
           </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>

@@ -33,6 +33,8 @@ import ImageZoomDialog from './ImageZoomDialog';
 import SkeletonProductDetail from '../Layout/SkeletonProductDetail';
 import Layout from '../Layout/Layout';
 import CommentPopup from './CommentPopup';
+import { Chip, Paper, Stack, Badge } from '@mui/material';
+import CircleIcon from '@mui/icons-material/Circle';
 
 const CustomTooltip = styled(({ className, ...props }) => (
   <Tooltip {...props} arrow classes={{ popper: className }} />
@@ -63,6 +65,97 @@ const getGlassmorphismStyle = (theme, darkMode) => ({
     : '0 8px 32px rgba(0, 0, 0, 0.1)',
 });
 
+// Add this component inside ProductDetailsById.js (before the main component)
+const ColorVariantDisplay = ({ variants }) => {
+  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(null);
+
+  if (!variants || variants.length === 0) {
+    return null;
+  }
+
+  const currentVariant = variants[selectedColorIndex];
+
+  return (
+    <Paper elevation={0} sx={{ 
+      p: 2, 
+      mb: 2, 
+      border: '1px solid #eee', 
+      borderRadius: 2,
+      backgroundColor: 'transparent'
+    }}>
+      <Typography variant="h6" sx={{ mb: 2 }}>Available Colors & Sizes</Typography>
+      
+      {/* Color Selection */}
+      <Box sx={{ mb: 3 }}>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>Select Color:</Typography>
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+          {variants.map((variant, index) => (
+            <Chip
+              key={index}
+              label={variant.colorName}
+              avatar={
+                <Avatar sx={{ 
+                  bgcolor: variant.colorCode, 
+                  width: 24, 
+                  height: 24,
+                  border: selectedColorIndex === index ? '2px solid #3f51b5' : 'none'
+                }}>
+                  <CircleIcon sx={{ color: variant.colorCode }} />
+                </Avatar>
+              }
+              onClick={() => setSelectedColorIndex(index)}
+              variant={selectedColorIndex === index ? 'outlined' : 'filled'}
+              sx={{
+                borderColor: selectedColorIndex === index ? '#3f51b5' : 'transparent',
+                '&:hover': {
+                  borderColor: '#3f51b5'
+                }
+              }}
+            />
+          ))}
+        </Stack>
+      </Box>
+
+      {/* Size Selection */}
+      <Box>
+        <Typography variant="subtitle2" sx={{ mb: 1 }}>Available Sizes:</Typography>
+        <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
+          {currentVariant.sizes.map((sizeItem, sizeIndex) => (
+            <Badge 
+              key={sizeIndex}
+              badgeContent={sizeItem.count > 0 ? sizeItem.count : '0'}
+              color={sizeItem.count > 0 ? 'primary' : 'error'}
+              overlap="circular"
+              anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              <Chip
+                label={sizeItem.size}
+                onClick={() => setSelectedSize(sizeItem.size)}
+                variant={selectedSize === sizeItem.size ? 'outlined' : 'filled'}
+                disabled={sizeItem.count <= 0}
+                sx={{
+                  borderColor: selectedSize === sizeItem.size ? '#3f51b5' : 'transparent',
+                  minWidth: '60px',
+                  opacity: sizeItem.count > 0 ? 1 : 0.6,
+                  '&:hover': {
+                    borderColor: sizeItem.count > 0 ? '#3f51b5' : 'transparent'
+                  }
+                }}
+              />
+            </Badge>
+          ))}
+        </Stack>
+      </Box>
+
+      {selectedSize && (
+        <Typography variant="body2" sx={{ mt: 2, color: 'text.secondary' }}>
+          Selected: {currentVariant.colorName} / {selectedSize}
+        </Typography>
+      )}
+    </Paper>
+  );
+};
 
 function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCount, shouldAnimate }) {
   const [selectedImage, setSelectedImage] = useState(null);
@@ -673,6 +766,11 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                       </Typography>
                     </Grid> */}
                     </Grid>
+                    <Box sx={{ borderRadius: '8px', my: 1,
+                      //  ...getGlassmorphismStyle(theme, darkMode) 
+                       }}>
+                      <ColorVariantDisplay variants={product.variants} />
+                    </Box>
                   </Box>
                   <Toolbar sx={{
                     position: 'absolute',
