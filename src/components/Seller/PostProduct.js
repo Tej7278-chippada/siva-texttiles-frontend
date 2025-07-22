@@ -217,12 +217,13 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVa
     const variantToRemove = variants[index];
     // If this variant has an _id (meaning it existed in the database)
     if (variantToRemove._id) {
-      setRemovedVariants([...removedVariants, variantToRemove._id]);
+      setRemovedVariants([...removedVariants, variantToRemove._id.toString()]); // Ensure ID is string
     }
     const updated = variants.filter((_, i) => i !== index);
     setVariants(updated);
   };
 
+  // Update the handleSizeCountChange function to trigger stock calculation
   const handleSizeCountChange = (colorIndex, sizeIndex, value) => {
     const updated = [...variants];
     updated[colorIndex].sizes[sizeIndex].count = parseInt(value) || 0;
@@ -472,6 +473,8 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
   // Add formData state inside the component
   const [formData, setFormData] = useState({
     title: '',
+    originalPrice: '',
+    discount: 0,
     price: '',
     gender: '',
     categoriesFemale: '',
@@ -485,17 +488,65 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
     // isFullTime: false,
   });
 
+  // to calculate totalStock whenever variants change
+  useEffect(() => {
+    if (variants.length > 0) {
+      const total = variants.reduce((sum, variant) => {
+        return sum + variant.sizes.reduce((sizeSum, size) => sizeSum + (size.count || 0), 0);
+      }, 0);
+      setFormData(prev => ({ 
+        ...prev, 
+        totalStock: total,
+        stockStatus: total === 0 ? 'Out-of-stock' :  'In Stock' // prev.stockStatus
+      }));
+    } else {
+      setFormData(prev => ({ 
+        ...prev, 
+        totalStock: '',
+        stockStatus: 'Out-of-stock'
+      }));
+    }
+  }, [variants]);
+
+  // function to handle price calculations
+  const handlePriceChange = (field, value) => {
+    let parsedValue = parseFloat(value) || 0;
+    
+    if (field === 'originalPrice') {
+      const discount = parseFloat(formData.discount) || 0;
+      const finalPrice = parsedValue - (parsedValue * discount / 100);
+      setFormData(prev => ({
+        ...prev,
+        originalPrice: value,
+        price: finalPrice.toFixed(2)
+      }));
+    } else if (field === 'discount') {
+      const originalPrice = parseFloat(formData.originalPrice) || 0;
+      parsedValue = Math.min(100, Math.max(0, parsedValue)); // Clamp between 0-100
+      const finalPrice = originalPrice - (originalPrice * parsedValue / 100);
+      setFormData(prev => ({
+        ...prev,
+        discount: parsedValue,
+        price: finalPrice.toFixed(2)
+      }));
+    } else if (field === 'price') {
+      setFormData(prev => ({ ...prev, price: value }));
+    }
+  };
+
   // Initialize form data when editingProduct changes
   useEffect(() => {
     if (editingProduct) {
       setFormData({
         title: editingProduct.title,
+        originalPrice: editingProduct.originalPrice || editingProduct.price,
+        discount: editingProduct.discount || 0,
         price: editingProduct.price,
         gender: editingProduct.gender,
         categoriesFemale: editingProduct?.categoriesFemale,
         categoriesMale: editingProduct?.categoriesMale,
         categoriesKids: editingProduct?.categoriesKids,
-        stockStatus: editingProduct.stockStatus,
+        stockStatus: editingProduct.totalStock === 0 ? 'Out-of-stock' : editingProduct.stockStatus,
         totalStock: editingProduct.totalStock,
         deliveryDays: editingProduct.deliveryDays,
         description: editingProduct.description,
@@ -505,12 +556,14 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
       // Reset form when creating new post
       setFormData({
         title: '',
+        originalPrice: '',
+        discount: 0,
         price: '',
         gender: '',
         categoriesFemale: '',
         categoriesMale: '',
         categoriesKids: '',
-        stockStatus: '',
+        stockStatus: 'Out-of-stock',
         totalStock: '',
         deliveryDays: '',
         description: '',
@@ -834,30 +887,50 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
           />
 
           <div style={{ display: 'flex', gap: '1rem' }}>
+            <TextField
+              label="Original Price (INR)"
+              type="number"
+              fullWidth 
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem' } }}
+              value={formData.originalPrice}
+              onChange={(e) => handlePriceChange('originalPrice', e.target.value)}
+              required
+              InputProps={{
+                startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+              }}
+            />
+            
+            <TextField
+              label="Discount (%)"
+              type="number"
+              fullWidth 
+              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem' }, maxWidth: isMobile ? '80px' : '120px' }}
+              value={formData.discount}
+              onChange={(e) => handlePriceChange('discount', e.target.value)}
+              inputProps={{ min: 0, max: 100 }}
+              InputProps={{
+                endAdornment: <InputAdornment position="end">%</InputAdornment>,
+              }}
+            />
+
             {/* {!(formData.categories === 'UnPaid') && ( */}
             <TextField
-              label="Price to the Product (INR)"
+              label="Final Price (INR)"
               type="number"
               fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem', } }}
               value={formData.price}
-              onChange={(e) => {
-                let value = e.target.value;
-                // Remove any invalid characters like "-", "+", or ","
-                value = value.replace(/[-+,]/g, '');
-
-                // Allow only numbers with up to two decimal places
-                if (/^\d*\.?\d{0,2}$/.test(value)) {
-                  const num = Number(value);
-
-                  // Ensure the value is within range (0 to 10,000,000)
-                  if (num >= 0 && num <= 10000000) {
-                    setFormData({ ...formData, price: value });
-                  }
-                }
-              }}
+              onChange={(e) => handlePriceChange('price', e.target.value)}
               required
+              InputProps={{
+                startAdornment: <InputAdornment position="start">₹</InputAdornment>,
+                readOnly: true,
+              }}
             />
             {/* )} */}
+            
+          </div>
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            
             <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem', } }} required>
               <InputLabel>Gender</InputLabel>
               <Select
@@ -872,8 +945,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
                 {/* <MenuItem value="Everyone">Everyone</MenuItem> */}
               </Select>
             </FormControl>
-          </div>
-          <div style={{ display: 'flex', gap: '1rem' }}>
+
             {(formData.gender === 'Female') && (
               <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem', } }} required>
                 <InputLabel>Product Category</InputLabel>
@@ -918,6 +990,10 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
                 </Select>
               </FormControl>
             )}
+          </div>
+
+          <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
+            
             {/* {(formData.gender === 'Kids') && (
               <FormControl fullWidth sx={{ '& .MuiOutlinedInput-root': { borderRadius: '1rem', } }} required>
                 <InputLabel>Product Category</InputLabel>
@@ -941,12 +1017,18 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
                 onChange={(e) => setFormData({ ...formData, stockStatus: e.target.value })}
                 required
                 label="Stock Status"
+                // disabled={formData.totalStock === 0 || formData.totalStock === ''}
               >
                 <MenuItem value="In Stock">In Stock</MenuItem>
                 <MenuItem value="Out-of-stock">Out-of-stock</MenuItem>
                 <MenuItem value="Getting Ready">Getting Ready</MenuItem>
               </Select>
             </FormControl>
+            {formData.totalStock === 0 && (
+              <Typography variant="caption" color="error" mx={1} >
+                Stock status automatically set to "Out-of-stock" when total stock is zero
+              </Typography>
+            )}
             {/* )} */}
           </div>
 
