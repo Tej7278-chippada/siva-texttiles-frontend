@@ -38,6 +38,19 @@ import React, { useEffect, useState } from 'react';
 import { addProduct, updateProduct } from '../Apis/SellerApis';
 import { ChromePicker } from 'react-color';
 
+// const getGlassmorphismStyle = (theme, darkMode) => ({
+//   background: darkMode 
+//     ? 'rgba(30, 30, 30, 0.85)' 
+//     : 'rgba(255, 255, 255, 0.15)',
+//   backdropFilter: 'blur(20px)',
+//   border: darkMode 
+//     ? '1px solid rgba(255, 255, 255, 0.1)' 
+//     : '1px solid rgba(94, 91, 91, 0.2)',
+//   boxShadow: darkMode 
+//     ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+//     : '0 8px 32px rgba(0, 0, 0, 0.1)',
+// });
+
 // Add these constants at the top of the file
 const AVAILABLE_SIZES = [
   'XS', 'S', 'M', 'L', 'XL', 'XXL', 'XXXL', '4XL', '5XL', '6XL', 'Free Size'
@@ -52,9 +65,120 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVa
   const [tempColor, setTempColor] = useState(null);
   // const [removedVariants, setRemovedVariants] = useState([]);
 
+  // Add this function to convert hex color to a readable color name
+  const getColorName = (hex, variants) => {
+    const colorMap = {
+      '#FF0000': 'Red',
+      '#00FF00': 'Green', 
+      '#0000FF': 'Blue',
+      '#FFFF00': 'Yellow',
+      '#FF00FF': 'Magenta',
+      '#00FFFF': 'Cyan',
+      '#000000': 'Black',
+      '#FFFFFF': 'White',
+      '#808080': 'Gray',
+      '#800000': 'Maroon',
+      '#008000': 'Dark Green',
+      '#000080': 'Navy',
+      '#808000': 'Olive',
+      '#800080': 'Purple',
+      '#008080': 'Teal',
+      '#C0C0C0': 'Silver',
+      '#FFC0CB': 'Pink',
+      '#FFA500': 'Orange',
+      '#A52A2A': 'Brown',
+      '#40E0D0': 'Turquoise',
+      '#EE82EE': 'Violet',
+      '#90EE90': 'Light Green',
+      '#87CEEB': 'Sky Blue',
+      '#DDA0DD': 'Plum',
+      '#98FB98': 'Pale Green',
+      '#F0E68C': 'Khaki',
+      '#FF6347': 'Tomato',
+      '#4682B4': 'Steel Blue',
+      '#D2691E': 'Chocolate',
+      '#FF69B4': 'Hot Pink',
+      '#32CD32': 'Lime Green',
+      '#FFD700': 'Gold',
+      '#DC143C': 'Crimson',
+      '#00CED1': 'Dark Turquoise',
+      '#FF1493': 'Deep Pink',
+      '#00BFFF': 'Deep Sky Blue',
+      '#228B22': 'Forest Green',
+      '#FF4500': 'Orange Red',
+      '#2E8B57': 'Sea Green',
+      '#4169E1': 'Royal Blue',
+      '#8B008B': 'Dark Magenta',
+      '#556B2F': 'Dark Olive Green',
+      '#FF8C00': 'Dark Orange',
+      '#9932CC': 'Dark Orchid',
+      '#B22222': 'Fire Brick',
+      '#DAA520': 'Goldenrod',
+      '#008B8B': 'Dark Cyan',
+      '#B8860B': 'Dark Goldenrod',
+      '#A9A9A9': 'Dark Gray',
+      '#006400': 'Dark Green',
+      '#BDB76B': 'Dark Khaki',
+      // '#8B008B': 'Dark Magenta',
+      // '#FF8C00': 'Dark Orange',
+      // '#9932CC': 'Dark Orchid',
+      '#8B0000': 'Dark Red',
+      '#E9967A': 'Dark Salmon',
+      '#8FBC8F': 'Dark Sea Green',
+      '#483D8B': 'Dark Slate Blue',
+      '#2F4F4F': 'Dark Slate Gray'
+    };
+    
+    const upperHex = hex.toUpperCase();
+    
+    // Direct match
+    if (colorMap[upperHex]) {
+      return colorMap[upperHex];
+    }
+    
+    // Find closest color by calculating color distance
+    let minDistance = Infinity;
+    let closestColor = null;
+    
+    const hexToRgb = (hex) => {
+      const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+      return result ? {
+        r: parseInt(result[1], 16),
+        g: parseInt(result[2], 16),
+        b: parseInt(result[3], 16)
+      } : null;
+    };
+    
+    const inputRgb = hexToRgb(hex);
+    if (!inputRgb) {
+      return `Color ${variants.length + 1}`;
+    }
+    
+    Object.entries(colorMap).forEach(([colorHex, colorName]) => {
+      const colorRgb = hexToRgb(colorHex);
+      if (colorRgb) {
+        const distance = Math.sqrt(
+          Math.pow(inputRgb.r - colorRgb.r, 2) +
+          Math.pow(inputRgb.g - colorRgb.g, 2) +
+          Math.pow(inputRgb.b - colorRgb.b, 2)
+        );
+        
+        if (distance < minDistance) {
+          minDistance = distance;
+          closestColor = colorName;
+        }
+      }
+    });
+    
+    // If no close match found, generate incremental color name
+    return minDistance < 50 ? closestColor : `Color ${variants.length + 1}`;
+  };
+
   const handleAddVariant = () => {
+    const colorName = getColorName(currentColor, variants);
+    
     const newVariant = {
-      colorName: `Color ${variants.length + 1}`,
+      colorName: editingIndex !== null ? (tempColor?.name || colorName) : colorName,
       colorCode: currentColor,
       images: [],
       sizes: AVAILABLE_SIZES.map(size => ({
@@ -68,7 +192,7 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVa
       updated[editingIndex] = {
         ...updated[editingIndex],
         colorCode: currentColor,
-        colorName: tempColor?.name || updated[editingIndex].colorName
+        colorName: tempColor?.name || colorName
       };
       setVariants(updated);
       setEditingIndex(null);
@@ -248,19 +372,46 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVa
             </Button>
             
             {colorPickerOpen && (
-              <Box sx={{ position: 'absolute', zIndex: 10 }}>
+            <Box sx={{
+              position: 'fixed',
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              zIndex: 1300,
+              backgroundColor: 'rgba(0,0,0,0.5)'
+            }}>
+              <Paper sx={{
+                p: 3,
+                borderRadius: 2,
+                width: 'auto',
+                maxWidth: '90%',
+                border: '1px solid rgba(94, 91, 91, 0.2)',
+                // ...getGlassmorphismStyle()
+              }}>
                 <Box sx={{ 
-                  position: 'absolute', 
-                  mt: 1,
                   display: 'flex',
                   flexDirection: 'column',
-                  gap: 1
+                  gap: 2
                 }}>
                   <ChromePicker
                     color={currentColor}
-                    onChangeComplete={(color) => setCurrentColor(color.hex)}
+                    onChangeComplete={(color) => {
+                      setCurrentColor(color.hex);
+                      // Auto-update color name when editing
+                      if (editingIndex !== null) {
+                        const colorName = getColorName(color.hex, variants);
+                        setTempColor({
+                          name: colorName,
+                          code: color.hex
+                        });
+                      }
+                    }}
                   />
-                  {/* {editingIndex !== null && (
+                  {editingIndex !== null && (
                     <TextField
                       size="small"
                       label="Color Name"
@@ -271,7 +422,7 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVa
                       })}
                       sx={{ backgroundColor: 'white' }}
                     />
-                  )} */}
+                  )}
                   <Box sx={{ display: 'flex', gap: 1 }}>
                     <Button
                       variant="outlined"
@@ -295,6 +446,7 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVa
                     </Button>
                   </Box>
                 </Box>
+                </Paper>
               </Box>
             )}
           </Box>
