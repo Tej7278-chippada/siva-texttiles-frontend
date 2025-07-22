@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Box, Typography, Button, TextField, Grid, Snackbar, Alert, Stepper, Step, StepLabel, List, ListItem, ListItemText, Paper, IconButton, Card, Avatar, CardContent, Tooltip, useMediaQuery } from "@mui/material";
 // import API, { addDeliveryAddresses, fetchProductById, fetchProductStockCount, saveOrder, sendOrderConfirmationEmail } from "../../api/api";
-import { useNavigate, useParams } from "react-router-dom";
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 // import Layout from "../Layout";
 // import SkeletonProductDetail from "./SkeletonProductDetail";
 // import PaymentForm from "./PaymentForm";
@@ -43,7 +43,7 @@ const OrderPage = ({ user }) => {
   const [stockCountId, setStockCountId] = useState(null); // Track only stock count
   const [isStockFetched, setIsStockFetched] = useState(false); // Track if stock data has been fetched
   const [isAddAddressBoxOpen, setIsAddAddressBoxOpen] = useState(false); // to toggle the Add Address button
-
+  const location = useLocation();
 
   useEffect(() => {
     const fetchUserDetails = async () => {
@@ -286,9 +286,28 @@ const OrderPage = ({ user }) => {
                       alt={product.title}
                       sx={{ width: 80, height: 120, margin: 2, borderRadius: '10px' }}
                     />
-                    <CardContent>
+                    <CardContent sx={{width: '100%'}}>
                       <Typography variant="h6">{product.title}</Typography>
-                      <Typography style={{ display: 'inline-block', float: 'right', marginBottom: '0.5rem' }}>Price: ₹{product.price}</Typography>
+                      <Box sx={{my: 1}}>
+                      <Typography sx={{ display: 'inline-block', float: 'right', marginBottom: '0.5rem' }}>Price: ₹{product.price}</Typography>
+                      {/* Display selected color and size if available */}
+                      {location.state?.selectedColor && location.state?.selectedSize && (
+                        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 1 }}>
+                          <Box 
+                            sx={{
+                              width: 20,
+                              height: 20,
+                              borderRadius: '50%',
+                              backgroundColor: location.state.selectedColor.colorCode,
+                              border: '1px solid #ddd'
+                            }}
+                          />
+                          <Typography variant="body2">
+                            {location.state.selectedColor.colorName} / {location.state.selectedSize}
+                          </Typography>
+                        </Box>
+                      )}
+                      </Box>
                       <Grid item xs={6} sm={4}>
                         {stockCountId ? 
                         <Typography variant="body2" color={stockCountId > 0 ? "green" : "red"}>

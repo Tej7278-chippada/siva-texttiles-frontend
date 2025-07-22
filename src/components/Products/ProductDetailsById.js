@@ -66,9 +66,9 @@ const getGlassmorphismStyle = (theme, darkMode) => ({
 });
 
 // Add this component inside ProductDetailsById.js (before the main component)
-const ColorVariantDisplay = ({ variants }) => {
-  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
-  const [selectedSize, setSelectedSize] = useState(null);
+const ColorVariantDisplay = ({ variants, selectedColorIndex, setSelectedColorIndex, selectedSize, setSelectedSize }) => {
+  // const [selectedColorIndex, setSelectedColorIndex] = useState(0);
+  // const [selectedSize, setSelectedSize] = useState(null);
 
   if (!variants || variants.length === 0) {
     return null;
@@ -78,17 +78,17 @@ const ColorVariantDisplay = ({ variants }) => {
 
   return (
     <Paper elevation={0} sx={{ 
-      p: 2, 
-      mb: 2, 
-      border: '1px solid #eee', 
-      borderRadius: 2,
+      // p: 2, 
+      my: 2, 
+      // border: '1px solid #eee', 
+      // borderRadius: 2,
       backgroundColor: 'transparent'
     }}>
-      <Typography variant="h6" sx={{ mb: 2 }}>Available Colors & Sizes</Typography>
+      {/* <Typography variant="body1" sx={{ mb: 0 }}>Available Colors & Sizes</Typography> */}
       
       {/* Color Selection */}
-      <Box sx={{ mb: 3 }}>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>Select Color:</Typography>
+      <Box sx={{ mb: 1 }}>
+        <Typography variant="body1" sx={{ mb: 1, fontWeight: 500 }} >Select Color:</Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
           {variants.map((variant, index) => (
             <Chip
@@ -99,14 +99,18 @@ const ColorVariantDisplay = ({ variants }) => {
                   bgcolor: variant.colorCode, 
                   width: 24, 
                   height: 24,
-                  border: selectedColorIndex === index ? '2px solid #3f51b5' : 'none'
+                  // border: selectedColorIndex === index ? '2px solid #3f51b5' : 'none'
                 }}>
                   <CircleIcon sx={{ color: variant.colorCode }} />
                 </Avatar>
               }
-              onClick={() => setSelectedColorIndex(index)}
+              onClick={() => {
+                setSelectedColorIndex(index);
+                setSelectedSize(null); // Reset size when color changes
+              }}
               variant={selectedColorIndex === index ? 'outlined' : 'filled'}
               sx={{
+                border: selectedColorIndex === index ? '2px solid #3f51b5' : 'none',
                 borderColor: selectedColorIndex === index ? '#3f51b5' : 'transparent',
                 '&:hover': {
                   borderColor: '#3f51b5'
@@ -119,12 +123,12 @@ const ColorVariantDisplay = ({ variants }) => {
 
       {/* Size Selection */}
       <Box>
-        <Typography variant="subtitle2" sx={{ mb: 1 }}>Available Sizes:</Typography>
+        <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>Available Sizes:</Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
           {currentVariant.sizes.map((sizeItem, sizeIndex) => (
             <Badge 
               key={sizeIndex}
-              badgeContent={sizeItem.count > 0 ? sizeItem.count : '0'}
+              badgeContent={sizeItem.count > 0 ? sizeItem.count : null} // '0'
               color={sizeItem.count > 0 ? 'primary' : 'error'}
               overlap="circular"
               anchorOrigin={{ vertical: 'top', horizontal: 'right' }}
@@ -135,6 +139,7 @@ const ColorVariantDisplay = ({ variants }) => {
                 variant={selectedSize === sizeItem.size ? 'outlined' : 'filled'}
                 disabled={sizeItem.count <= 0}
                 sx={{
+                  border: selectedSize === sizeItem.size ? '2px solid #3f51b5' : 'none',
                   borderColor: selectedSize === sizeItem.size ? '#3f51b5' : 'transparent',
                   minWidth: '60px',
                   opacity: sizeItem.count > 0 ? 1 : 0.6,
@@ -187,6 +192,9 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
   const tokenUsername = localStorage.getItem('tokenUsername');
   // const authToken = localStorage.getItem('authToken');
   // const [chatData, setChatData] = useState({});
+  const [selectedColorIndex, setSelectedColorIndex] = useState(0);
+  const [selectedSize, setSelectedSize] = useState(null);
+  // const [sizeError, setSizeError] = useState('');
   
 
 
@@ -425,12 +433,48 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
   };
 
   const handleBuyNow = () => {
-    if (!isAuthenticated || likeLoading ) return; // Prevent unauthenticated actions
-    if (product.totalStock > 0) {
-      navigate(`/order/${id}`, { state: { product } });
-    } else {
+    if (likeLoading ) return; // Prevent unauthenticated actions
+    if (!isAuthenticated) { // Prevent unauthenticated actions
+      setLoginMessage({
+        open: true,
+        message: 'Please log in first. Click here to login.',
+        severity: 'warning',
+      });
+      return;
+    } 
+    // Check if product has variants
+    if (product.variants && product.variants.length > 0) {
+      // Validate size selection
+      if (!selectedSize) {
+        setSnackbar({ open: true, message: "Please select a size.", severity: "warning" });
+        return;
+      }
+
+      // Check stock for selected size
+      const currentVariant = product.variants[selectedColorIndex];
+      const selectedSizeItem = currentVariant.sizes.find(s => s.size === selectedSize);
+      
+      if (selectedSizeItem.count <= 0) {
+        setSnackbar({ 
+          open: true, 
+          message: `Selected size (${selectedSize}) is out of stock.`, 
+          severity: "warning" 
+        });
+        return;
+      }
+    } else if (product.totalStock <= 0) {
       setSnackbar({ open: true, message: "Product is out of stock.", severity: "warning" });
+      return;
     }
+
+    // Navigate to order page with selected options
+    navigate(`/order/${id}`, { 
+      state: { 
+        product,
+        selectedColor: product.variants?.[selectedColorIndex],
+        selectedSize 
+      } 
+    });
   };
 
   const handleCloseSnackbar = () => {
@@ -682,7 +726,7 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                           ₹{product.price}
                         </Typography>
                       </Grid>
-                      <Grid item xs={12} sm={12}>
+                      {/* <Grid item xs={12} sm={12}> */}
                         {/* <Typography variant="body1" style={{ fontWeight: 500 }}>
                           {post.postType === 'HelpRequest' ? 'Post Status' : 'Service Status'}
                         </Typography> */}
@@ -692,13 +736,13 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                         {/* <Typography variant="body2" color={product.stockStatus === 'In Stock' ? 'green' : 'rgba(194, 28, 28, 0.89)'} style={{ display: 'inline-block', marginBottom: '0.5rem' }}>
                           {product.stockStatus} ({product?.totalStock || 0})
                         </Typography> */}
-                        <Typography variant="body2">Delivery in {product.deliveryDays} days</Typography>
+                        {/* <Typography variant="body2">Delivery in {product.deliveryDays} days</Typography>
                         {product.deliveryDays && (
                           <Typography color='grey' variant="body2">
                             {`Product will be delivered by ${calculateDeliveryDate(product.deliveryDays)}`}
                           </Typography>
-                        )}
-                      </Grid>
+                        )} */}
+                      {/* </Grid> */}
                       
                       {/* <Grid item xs={6} sm={4}>
                       <Typography variant="body1" style={{ fontWeight: 500 }}>
@@ -769,7 +813,21 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                     <Box sx={{ borderRadius: '8px', my: 1,
                       //  ...getGlassmorphismStyle(theme, darkMode) 
                        }}>
-                      <ColorVariantDisplay variants={product.variants} />
+                      <ColorVariantDisplay 
+                        variants={product.variants}
+                        selectedColorIndex={selectedColorIndex}
+                        setSelectedColorIndex={setSelectedColorIndex}
+                        selectedSize={selectedSize}
+                        setSelectedSize={setSelectedSize}
+                      />
+                    </Box>
+                    <Box>
+                      <Typography variant="body2">Delivery in {product.deliveryDays} days</Typography>
+                      {product.deliveryDays && (
+                        <Typography color='grey' variant="body2">
+                          {`Product will be delivered by ${calculateDeliveryDate(product.deliveryDays)}`}
+                        </Typography>
+                      )}
                     </Box>
                   </Box>
                   <Toolbar sx={{

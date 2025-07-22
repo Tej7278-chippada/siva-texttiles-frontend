@@ -27,7 +27,7 @@ import {
   Paper,
   // Stack,
 } from '@mui/material';
-import { Close as CloseIcon, } from '@mui/icons-material';
+import { Close as CloseIcon, Edit, } from '@mui/icons-material';
 import {
   // Add as AddIcon,
   Delete as DeleteIcon,
@@ -44,8 +44,7 @@ const AVAILABLE_SIZES = [
 ];
 
 // Add ColorVariantForm component inside PostProduct.js
-const ColorVariantForm = ({ variants, setVariants, removedVariants,
-  setRemovedVariants  }) => {
+const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVariants  }) => {
   const [expanded, setExpanded] = useState(false);
   const [colorPickerOpen, setColorPickerOpen] = useState(false);
   const [currentColor, setCurrentColor] = useState('#3f51b5');
@@ -169,8 +168,8 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants,
                         <Avatar 
                           sx={{ 
                             bgcolor: variant.colorCode, 
-                            width: 24, 
-                            height: 24,
+                            width: 34, 
+                            height: 34,
                             cursor: 'pointer'
                           }}
                           onClick={() => handleEditColor(colorIndex, variant)}
@@ -180,17 +179,29 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants,
                         size="small"
                         value={variant.colorName}
                         onChange={(e) => handleColorNameChange(colorIndex, e.target.value)}
-                        sx={{ minWidth: 150 }}
+                        sx={{ width: '100%' }}
                       />
                     </Box>
-                    <Button
-                      size="small"
-                      color="error"
-                      startIcon={<DeleteIcon />}
-                      onClick={() => handleRemoveVariant(colorIndex)}
-                    >
-                      Remove
-                    </Button>
+                    <Box sx={{display: 'flex', ml: 1, gap: 1}}>
+                      <IconButton
+                        size="small"
+                        color="info"
+                        // startIcon={<Edit />}
+                        onClick={() => handleEditColor(colorIndex, variant)}
+                      >
+                        {/* Remove */}
+                        <Edit/>
+                      </IconButton>
+                      <IconButton
+                        size="small"
+                        color="error"
+                        // startIcon={<DeleteIcon />}
+                        onClick={() => handleRemoveVariant(colorIndex)}
+                      >
+                        {/* Remove */}
+                        <DeleteIcon/>
+                      </IconButton>
+                    </Box>
                   </Box>
                   
                   <Typography variant="body2" sx={{ mb: 1 }}>Size Availability:</Typography>
@@ -208,10 +219,11 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants,
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
-                                <Typography variant="caption">{sizeItem.size}</Typography>
+                                {/* <Typography variant="caption">{sizeItem.size}</Typography> */}
                               </InputAdornment>
                             ),
                           }}
+                          sx={{borderRadius: '12px'}}
                         />
                       </Grid>
                     ))}
@@ -230,6 +242,7 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants,
                 setCurrentColor('#3f51b5');
                 setColorPickerOpen(true);
               }}
+              sx={{borderRadius: '12px'}}
             >
               Add Color Variant
             </Button>
@@ -268,7 +281,7 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants,
                         setEditingIndex(null);
                         setTempColor(null);
                       }}
-                      sx={{ flex: 1 }}
+                      sx={{ flex: 1, borderRadius: '12px' }}
                     >
                       Cancel
                     </Button>
@@ -276,7 +289,7 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants,
                       variant="contained"
                       size="small"
                       onClick={handleAddVariant}
-                      sx={{ flex: 1 }}
+                      sx={{ flex: 1, borderRadius: '12px' }}
                     >
                       {editingIndex !== null ? 'Update Color' : 'Add Color'}
                     </Button>
