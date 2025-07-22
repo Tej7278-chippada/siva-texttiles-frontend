@@ -499,12 +499,12 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
         totalStock: total,
         stockStatus: total === 0 ? 'Out-of-stock' :  'In Stock' // prev.stockStatus
       }));
-    } else {
-      setFormData(prev => ({ 
-        ...prev, 
-        totalStock: '',
-        stockStatus: 'Out-of-stock'
-      }));
+    // } else {
+      // setFormData(prev => ({ 
+      //   ...prev, 
+      //   totalStock: '',
+      //   stockStatus: 'Out-of-stock'
+      // }));
     }
   }, [variants]);
 
