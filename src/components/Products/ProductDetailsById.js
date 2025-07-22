@@ -108,9 +108,9 @@ const ColorVariantDisplay = ({ variants, selectedColorIndex, setSelectedColorInd
                 setSelectedColorIndex(index);
                 setSelectedSize(null); // Reset size when color changes
               }}
-              variant={selectedColorIndex === index ? 'outlined' : 'filled'}
+              variant={selectedColorIndex === index ? 'filled' : 'outlined'}
               sx={{
-                border: selectedColorIndex === index ? '2px solid #3f51b5' : 'none',
+                // border: selectedColorIndex === index ? '1.5px solid #3f51b5' : 'none',
                 borderColor: selectedColorIndex === index ? '#3f51b5' : 'transparent',
                 '&:hover': {
                   borderColor: '#3f51b5'
@@ -125,7 +125,9 @@ const ColorVariantDisplay = ({ variants, selectedColorIndex, setSelectedColorInd
       <Box>
         <Typography variant="subtitle2" sx={{ mb: 1, fontWeight: 500 }}>Available Sizes:</Typography>
         <Stack direction="row" spacing={1} sx={{ flexWrap: 'wrap', gap: 1 }}>
-          {currentVariant.sizes.map((sizeItem, sizeIndex) => (
+          {currentVariant.sizes
+          .filter(size => size.count > 0)  // Only show sizes with stock > 0
+          .map((sizeItem, sizeIndex) => (
             <Badge 
               key={sizeIndex}
               badgeContent={sizeItem.count > 0 ? sizeItem.count : null} // '0'
@@ -136,10 +138,10 @@ const ColorVariantDisplay = ({ variants, selectedColorIndex, setSelectedColorInd
               <Chip
                 label={sizeItem.size}
                 onClick={() => setSelectedSize(sizeItem.size)}
-                variant={selectedSize === sizeItem.size ? 'outlined' : 'filled'}
+                variant={selectedSize === sizeItem.size ? 'filled' : 'outlined'}
                 disabled={sizeItem.count <= 0}
                 sx={{
-                  border: selectedSize === sizeItem.size ? '2px solid #3f51b5' : 'none',
+                  // border: selectedSize === sizeItem.size ? '1.5px solid #3f51b5' : 'none',
                   borderColor: selectedSize === sizeItem.size ? '#3f51b5' : 'transparent',
                   minWidth: '60px',
                   opacity: sizeItem.count > 0 ? 1 : 0.6,
@@ -722,9 +724,70 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                         <Typography variant="body1" style={{ fontWeight: 500 }}>
                           Price:
                         </Typography>
-                        <Typography variant="body2" color="textSecondary" >
+                        {/* <Typography variant="body2" color="textSecondary" >
                           ₹{product.price}
                         </Typography>
+                        {product?.discount && <Typography variant="body2" color="textSecondary" >
+                          Original price :  ₹{product.originalPrice} (discount: {product.discount}%)
+                        </Typography>} */}
+                        {product?.discount > 0 ? (
+                        <>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                            <Typography 
+                              variant="body1" color="textSecondary"
+                              sx={{ 
+                                fontWeight: 700, 
+                                // color: 'primary.main' 
+                              }}
+                            >
+                              ₹{product.price?.toLocaleString('en-IN')}
+                            </Typography>
+                            <Typography 
+                              variant="body2" 
+                              sx={{ 
+                                textDecoration: 'line-through',
+                                color: 'text.disabled',
+                                fontWeight: 400
+                              }}
+                              component="span"
+                              aria-label={`Original price ${product.originalPrice} rupees`}
+                            >
+                              ₹{product.originalPrice?.toLocaleString('en-IN')}
+                            </Typography>
+                          </Box>
+                          <Chip 
+                            label={`${product.discount}% OFF`} 
+                            size="small" 
+                            color="success"
+                            sx={{ 
+                              fontWeight: 600,
+                              fontSize: '0.75rem', mr: '4px'
+                            }}
+                          />
+                          <Tooltip title="You save" arrow>
+                            <Chip 
+                              label={`You save ₹${(product.originalPrice - product.price).toFixed(2)}`}
+                              size="small"
+                              variant="outlined"
+                              sx={{ 
+                                fontSize: '0.65rem',
+                                height: '20px'
+                              }}
+                            />
+                          </Tooltip>
+                        </>
+                        ) : (
+                          <Typography 
+                            variant="body2" color="textSecondary"
+                            // sx={{ 
+                            //   fontWeight: 700, 
+                            //   color: 'text.primary' 
+                            // }}
+                          >
+                            ₹{product.price}
+                          </Typography>
+                        )}
+
                       </Grid>
                       {/* <Grid item xs={12} sm={12}> */}
                         {/* <Typography variant="body1" style={{ fontWeight: 500 }}>

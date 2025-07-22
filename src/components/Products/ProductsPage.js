@@ -1372,10 +1372,27 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                             />
                           )}
                         </div>
-                        {post.media && post.media.length > 5 && (
+                        {/* {post.media && post.media.length > 5 && (
                           <Typography variant="body2" color="error" style={{ textAlign: 'center', marginTop: '0.5rem' }}>
                             Media exceeds its maximum count
                           </Typography>
+                        )} */}
+                        {/* Discount Badge */}
+                        {post.discount > 0 && (
+                          <Chip
+                            // icon={<WorkIcon sx={{ fontSize: 16 }} />}
+                            label={`${post.discount}% OFF`} 
+                            size="small"
+                            sx={{
+                              position: 'absolute',
+                              top: 12,
+                              right: 12,
+                              backgroundColor: '#006064',
+                              color: 'white',
+                              fontWeight: 600,
+                              fontSize: '0.75rem'
+                            }}
+                          />
                         )}
                       </CardMedia>
                       
@@ -1402,14 +1419,15 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                                 
                                 <Chip
                                 className="price-chip"
-                                icon={<PriceChangeIcon sx={{ fontSize: 16 }} />}
+                                icon={<PriceChangeIcon sx={{ fontSize: 16, pl: 1 }} />}
                                 label={`₹${post.price}`}
                                 variant="filled"
                                 sx={{
                                     backgroundColor: alpha(theme.palette.success.main, 0.1),
                                     color: 'success.main',
                                     fontWeight: 700,
-                                    fontSize: '0.875rem', p: '1px 6px',
+                                    fontSize: '0.875rem',
+                                    // p: '1px 6px',
                                     transition: 'transform 0.2s ease'
                                 }}
                                 />

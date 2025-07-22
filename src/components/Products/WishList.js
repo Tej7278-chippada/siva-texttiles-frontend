@@ -15,9 +15,9 @@ import { useTheme } from '@emotion/react';
 // import ShoppingCartIcon from '@mui/icons-material/ShoppingCart';
 // import VisibilityIcon from '@mui/icons-material/Visibility';
 import PersonIcon from '@mui/icons-material/Person';
-// import CategoryIcon from '@mui/icons-material/Category';
+import CategoryIcon from '@mui/icons-material/Category';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
-import WorkIcon from '@mui/icons-material/Work';
+// import WorkIcon from '@mui/icons-material/Work';
 import Layout from '../Layout/Layout';
 import { fetchWishlist, removeFromWishlist } from '../Apis/UserApis';
 import SkeletonCards from '../Layout/SkeletonCards';
@@ -262,30 +262,30 @@ const WishList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
                             {loadingPostRemove[post._id] ? <CircularProgress size={20}/> : <HeartBrokenIcon />}
                           </IconButton>
                           {/* Status Badge */}
-                          <Chip
-                            label={post.postStatus}
+                          {/* <Chip
+                            label={post.stockStatus}
                             size="small"
                             sx={{
                               position: 'absolute',
                               top: 12,
                               left: 12,
-                              backgroundColor: post.postStatus === 'Active' ? 'success.main' : 'error.main',
+                              backgroundColor: post.stockStatus === 'In Stock' ? 'success.main' : 'error.main',
                               color: 'white',
                               fontWeight: 600,
                               fontSize: '0.75rem'
                             }}
-                          />
+                          /> */}
                           {/* Full Time Badge */}
-                          {post.isFullTime && (
+                          {post.discount > 0 && (
                             <Chip
-                              icon={<WorkIcon sx={{ fontSize: 16 }} />}
-                              label="Full Time"
+                              // icon={<WorkIcon sx={{ fontSize: 16 }} />}
+                              label={`${post.discount}% OFF`} 
                               size="small"
                               sx={{
                                 position: 'absolute',
                                 top: 12,
                                 right: 12,
-                                backgroundColor: 'info.main',
+                                backgroundColor: '#006064',
                                 color: 'white',
                                 fontWeight: 600,
                                 fontSize: '0.75rem'
@@ -371,7 +371,7 @@ const WishList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
                                 
                                 <Chip
                                   className="price-chip"
-                                  icon={<PriceChangeIcon sx={{ fontSize: 16 }} />}
+                                  icon={<PriceChangeIcon sx={{ fontSize: 16, pl: 1 }} />}
                                   label={`₹${post.price}`}
                                   variant="filled"
                                   sx={{
@@ -385,7 +385,7 @@ const WishList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
                               </Box>
 
                               {/* Category and People Count */}
-                              <Box display="flex" gap={1} flexWrap="wrap">
+                              <Box display="flex" gap={1} flexWrap="wrap" sx={{justifyContent: 'space-between'}}>
                                 {/* <Chip
                                   icon={<CategoryIcon sx={{ fontSize: 14 }} />}
                                   label={post.categories}
@@ -404,6 +404,17 @@ const WishList = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
                                   size="small"
                                   variant="outlined"
                                   sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+                                />
+                                <Chip
+                                  icon={<CategoryIcon sx={{ fontSize: 14 }} />}
+                                  label={post.stockStatus}
+                                  size="small"
+                                  variant="outlined"
+                                  sx={{
+                                      borderColor: post.stockStatus !== 'In Stock' ? 'error.main' : 'divider',
+                                      color: post.stockStatus !== 'In Stock' ? 'error.main' : 'text.secondary',
+                                      fontSize: '0.75rem'
+                                  }}
                                 />
                               </Box>
 
