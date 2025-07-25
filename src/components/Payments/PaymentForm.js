@@ -23,9 +23,12 @@ const PaymentForm = ({amount, onPaymentComplete, stockCountId, name, email, cont
 
   const handlePayment = async () => {
     setLoading(true);
-    try {                              // "https://tej-pay-d30700a52203.herokuapp.com/api/payments"
+    try {
+      // Round the amount to 2 decimal places before sending
+      const roundedAmount = Math.round(amount * 100) / 100;
+
       const { data } = await axios.post(`${process.env.REACT_APP_API_URL}/api/payments`,
-      { amount,
+      { amount: roundedAmount,
         sellerId: sellerId, // Pass sellerId
         userId: localStorage.getItem('userId'), // Pass userId from local storage
         productId: productId, // Pass productId
