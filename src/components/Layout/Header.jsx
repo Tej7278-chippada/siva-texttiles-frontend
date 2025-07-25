@@ -25,6 +25,7 @@ import InstallMobileIcon from '@mui/icons-material/InstallMobile';
 // import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
 import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 // import FeedbackDialog from './Feedback/FeedbackDialog';
+import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
 
 
 // Enhanced scrolling behavior
@@ -402,6 +403,7 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
     // { label: 'My Posts', icon: <PostAddIcon />, path: '/userPosts', activeColor: '#2196F3', bgColor:'rgba(33, 150, 243, 0.1)' },
     // { label: 'Chats', icon: <ChatIcon />, path: '/chatsOfUser', activeColor: '#FF5722', bgColor: 'rgba(255, 87, 34, 0.1)' },
     { label: 'Wishlist', icon: <FavoriteIcon />, path: '/wishlist', activeColor: '#E91E63', bgColor: 'rgba(233, 30, 99, 0.1)' },
+    { label: 'My Orders', icon: <LocalMallRoundedIcon />, path: '/my-orders', activeColor: '#FF5722', bgColor: 'rgba(255, 87, 34, 0.1)' },
     // { label: 'Notifications', icon: <NotificationsIcon />, path: '/notifications', activeColor: '#9C27B0', bgColor: 'rgba(156, 39, 176, 0.1)' },
   ];
 

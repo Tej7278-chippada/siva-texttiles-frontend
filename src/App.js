@@ -33,6 +33,9 @@ import TermsConditions from './components/PolicyPages/TermsConditions';
 import CancellationRefund from './components/PolicyPages/CancellationRefund';
 import ShippingDelivery from './components/PolicyPages/ShippingDelivery';
 import ProductsPage from './components/Products/ProductsPage';
+import MyOrders from './components/Orders/MyOrders';
+import OrderDetails from './components/Orders/OrderDetails';
+import SellerOrders from './components/Seller/SellerOrders';
 // import NotificationsPage from './components/Helper/NotificationsPage';
 // import NearPostsNotification from './components/Helper/NearPostsNotification';
 // import HelperHome from './components/Helper/HelperHome';
@@ -378,6 +381,17 @@ function App() {
           <Route path="/terms-conditions" element={<TermsConditions />} />
           <Route path="/cancellation-refund" element={<CancellationRefund />} />
           <Route path="/shipping-delivery" element={<ShippingDelivery />} />
+          <Route path="/my-orders" element={
+            <PrivateRoute>
+              <MyOrders/>
+            </PrivateRoute>
+          } />
+          <Route path="/order-details/:id" element={<OrderDetails />} />
+          <Route path="/sellerorders" element={
+            <PrivateRoute>
+              <SellerOrders />
+            </PrivateRoute>
+          } />
           {/* <Route path="/userPosts" element={
             <PrivateRoute>
               <PostService darkMode={darkMode} toggleDarkMode={toggleDarkMode} username={username} unreadCount={unreadCount} shouldAnimate={shouldAnimate}/>

@@ -206,3 +206,16 @@ export const sendOrderConfirmationEmail = async (payload) => {
   const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
   return await API.post("/api/orders/send-email", payload, { headers });
 };
+
+export const fetchUserOrders = async () => {
+  const authToken = localStorage.getItem("authToken");
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  return await API.get("/api/orders/my-orders", { headers });
+};
+
+export const fetchOrderById = async (id) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.get(`/api/orders/${id}`, { headers });
+};

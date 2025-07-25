@@ -60,3 +60,26 @@ export const getProductCounts = () => {
   };
   return API.get('/api/products/productCounts', { headers });
 };
+
+export const fetchSellerorders = (skip = 0, limit = 12, filters = {}, searchQuery = '') => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+  const params = { skip, limit,
+    // categoriesFemale: filters.categoriesFemale,
+    // categoriesMale: filters.categoriesMale,
+    // categoriesKids: filters.categoriesKids,
+    // gender: filters.gender,
+    orderStatus: filters.orderStatus,
+    orderPrice: `${filters.priceRange[0]}-${filters.priceRange[1]}`,
+    // postType: filters.serviceType ? 'ServiceOffering' : 'HelpRequest' // added this line for only shows the Helper posts on ALL section
+  };
+
+  // Add search query parameter
+  if (searchQuery && searchQuery.trim()) {
+    params.search = searchQuery.trim();
+  }
+  
+  return API.get('/api/seller/sellerOrders', { headers, params });
+};

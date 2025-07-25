@@ -611,7 +611,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                         </Typography>
                       </Tooltip>
                       <Typography variant="body1" style={{ display: 'inline-block', float: 'right', fontWeight: '500', color: '#333', }}>
-                        {post.stockStatus} ({post?.totalStock || 0})
+                        {post.orderStatus} ({post?.totalStock || 0})
                       </Typography>
                       {/* <Box sx={{ mb: 2 }}>
                     <Chip 

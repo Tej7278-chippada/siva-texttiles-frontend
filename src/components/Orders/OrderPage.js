@@ -8,11 +8,10 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 // import PaymentForm from "./PaymentForm";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import { useTheme } from "@emotion/react";
-import API, { addDeliveryAddresses, fetchProductById, fetchProductStockCount,
-  //  saveOrder, sendOrderConfirmationEmail 
-  } from "../Apis/UserApis";
+import API, { addDeliveryAddresses, fetchProductById, fetchProductStockCount, saveOrder, sendOrderConfirmationEmail } from "../Apis/UserApis";
 import Layout from "../Layout/Layout";
 import SkeletonProductDetail from "../Layout/SkeletonProductDetail";
+import PaymentForm from "../Payments/PaymentForm";
 
 const OrderPage = ({ user }) => {
   const [activeStep, setActiveStep] = useState(0);
@@ -44,8 +43,14 @@ const OrderPage = ({ user }) => {
   const [isStockFetched, setIsStockFetched] = useState(false); // Track if stock data has been fetched
   const [isAddAddressBoxOpen, setIsAddAddressBoxOpen] = useState(false); // to toggle the Add Address button
   const location = useLocation();
+  // const [selectedItem, setSelectedItem] = useState(() => {
+  //   const selectedColor = location.state?.selectedColor?.colorName;
+  //   const selectedSize = location.state?.selectedSize;
+  //   return selectedItem ? (selectedSize, selectedColor) : null;
+  // });
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchUserDetails = async () => {
 
       try {
@@ -146,73 +151,83 @@ const OrderPage = ({ user }) => {
     }
   };
 
-  // const handlePaymentComplete = async (paymentStatus, razorpay_order_id) => {
-  //   if (paymentStatus === "success") {
-  //     console.log("Selected Address for Order:", selectedAddress);
+  const handlePaymentComplete = async (paymentStatus, razorpay_order_id) => {
+    if (paymentStatus === "success") {
+      // console.log("Selected Address for Order:", selectedAddress);
 
-  //     try {
-  //       const userSelectedAddress = {
-  //         name: selectedAddress.name,
-  //         phone: selectedAddress.phone,
-  //         email: selectedAddress.email,
-  //         address: {
-  //           street: selectedAddress.address.street,
-  //           area: selectedAddress.address.area,
-  //           city: selectedAddress.address.city,
-  //           state: selectedAddress.address.state,
-  //           pincode: selectedAddress.address.pincode,
-  //         },
-  //       };
+      try {
+        const userSelectedAddress = {
+          name: selectedAddress.name,
+          phone: selectedAddress.phone,
+          email: selectedAddress.email,
+          address: {
+            street: selectedAddress.address.street,
+            area: selectedAddress.address.area,
+            city: selectedAddress.address.city,
+            state: selectedAddress.address.state,
+            pincode: selectedAddress.address.pincode,
+          },
+        };
   
-  //       const orderData = {
-  //         productId: product._id,
-  //         productTitle: product.title,
-  //         productPic: product.media[0], // Include the first product image
-  //         orderPrice: product.price,
-  //         deliveryAddress: userSelectedAddress,
-  //         paymentStatus: "Completed",
-  //         sellerTitle: product.sellerTitle,
-  //         sellerId: product.sellerId,
-  //         razorpay_order_id,
-  //       };
+        const orderData = {
+          productId: product._id,
+          productTitle: product.title,
+          productPic: product.media[0], // Include the first product image
+          orderPrice: product.price,
+          selectedItem: location.state?.selectedColor?.colorName ? {
+            size: location.state?.selectedSize,
+            colorName: location.state?.selectedColor?.colorName,
+            colorCode: location.state?.selectedColor?.colorCode
+          } : undefined,
+          deliveryAddress: userSelectedAddress,
+          paymentStatus: "Completed",
+          sellerTitle: product.user.username,
+          sellerId: product.userId,
+          razorpay_order_id,
+        };
   
-  //       const response = await saveOrder(orderData);
-  //       setActiveStep(2); // Move to order confirmation step
+        const response = await saveOrder(orderData);
+        setActiveStep(2); // Move to order confirmation step
 
-  //       if (response.status === 201) {
-  //         try {
-  //           const emailPayload = {
-  //             email: selectedAddress.email,
-  //             product: {
-  //               title: product.title,
-  //               price: product.price,
-  //               media: product.media[0], // Send as Base64 string .toString("base64")
-  //             },
-  //             deliverTo: selectedAddress.name,
-  //             contactTo: selectedAddress.phone,
-  //             deliveryAddress: userSelectedAddress,
-  //             deliveryDate: product.deliveryDays,
-  //             sellerTitle: product.sellerTitle,
-  //           };
+        if (response.status === 201) {
+          try {
+            const emailPayload = {
+              email: selectedAddress.email,
+              product: {
+                title: product.title,
+                price: product.price,
+                media: product.media[0], // Send as Base64 string .toString("base64")
+                selectedItem: {
+                  size: location.state?.selectedSize,
+                  colorName: location.state?.selectedColor?.colorName,
+                  colorCode: location.state?.selectedColor?.colorCode
+                },
+              },
+              deliverTo: selectedAddress.name,
+              contactTo: selectedAddress.phone,
+              deliveryAddress: userSelectedAddress,
+              deliveryDate: product.deliveryDays,
+              sellerTitle: product.user.username,
+            };
   
-  //           await sendOrderConfirmationEmail(emailPayload);
-  //           console.log("Order email sent successfully");
-  //         } catch (emailError) {
-  //           console.error("Failed to send email:", emailError);
-  //           alert("Order placed, but email sending failed.");
-  //         }
-  //       } else {
-  //         console.error("Error saving the order");
-  //         alert("Failed to place the order. Please try again.");
-  //       }
-  //     } catch (err) {
-  //       console.error("Error completing the order:", err);
-  //       alert("Failed to place the order. Please try again.");
-  //     }
-  //   } else {
-  //     alert("Payment failed. Please try again.");
-  //   }
-  // };
+            await sendOrderConfirmationEmail(emailPayload);
+            console.log("Order email sent successfully");
+          } catch (emailError) {
+            console.error("Failed to send email:", emailError);
+            alert("Order placed, but email sending failed.");
+          }
+        } else {
+          console.error("Error saving the order");
+          alert("Failed to save the order. Please try again.");
+        }
+      } catch (err) {
+        console.error("Error completing the order:", err);
+        alert("Failed to place the order. Please try again.");
+      }
+    } else {
+      alert("Payment failed. Please try again.");
+    }
+  };
   
 
   const calculateDeliveryDate = (days) => {
@@ -498,18 +513,19 @@ const OrderPage = ({ user }) => {
                       </Box>
                       {stockWarningMessage && <p style={{ color: 'red', float: 'right', marginRight: '10px' }}>{stockWarningMessage}</p>}
                     </Box>
-                    {/* <PaymentForm
+                    <PaymentForm
                       amount={product.price}
                       stockCountId={stockCountId}
                       name={selectedAddress.name}
                       email={selectedAddress.email}
                       contact={selectedAddress.phone}
                       productDesc={product.title}
-                      sellerTitle={product.sellerTitle}
-                      sellerId={product.sellerId} // Pass sellerId
+                      // selectedItem={(location.state?.selectedSize, location.state?.selectedColor?.colorName)}
+                      sellerTitle={product.user.username}
+                      sellerId={product.user.id} // Pass sellerId
                       productId={product._id} // Pass productId
                       onPaymentComplete={handlePaymentComplete} // Updated logic
-                    /> */}
+                    />
                   </Box>
                 )}
                 {activeStep === 2 && (

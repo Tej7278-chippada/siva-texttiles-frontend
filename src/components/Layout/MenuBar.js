@@ -7,6 +7,7 @@ import { useTheme } from '@mui/material/styles';
 // import ChatIcon from '@mui/icons-material/Chat';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
 
 const navItems = [
   {
@@ -42,6 +43,15 @@ const navItems = [
     activeColor: '#E91E63',
     description: 'View saved posts',
     bgColor: 'rgba(233, 30, 99, 0.1)'
+  },
+  {
+    label: 'My Orders',
+    icon: <LocalMallRoundedIcon />,
+    path: '/my-orders',
+    activeColor: '#FF5722',
+    description: 'Open my orders',
+    bgColor: 'rgba(255, 87, 34, 0.1)',
+    badgeCount: 0 // For unread messages
   },
 ];
 

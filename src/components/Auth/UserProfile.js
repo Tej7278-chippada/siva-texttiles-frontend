@@ -111,6 +111,7 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
   const [isDeliveryAddressBoxOpen, setIsDeliveryAddressBoxOpen] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
     const fetchUserDetails = async () => {
       try {
         setLoading(true);
