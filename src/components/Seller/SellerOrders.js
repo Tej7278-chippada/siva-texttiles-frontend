@@ -1341,7 +1341,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                       // },
                       // transition: 'transform 0.1s ease, box-shadow 0.1s ease', // Smooth transition for hover
                       position: 'relative',
-                      height: isMobile ? '280px' : '340px', // Fixed height for consistency
+                      height: isMobile ? '340px' : '340px', // Fixed height for consistency
                       overflow: 'hidden',
                     }}
                     //   onClick={() => openPostDetail(post)}
