@@ -1,7 +1,8 @@
 // src/components/Products/PaymentForm.js
 import React, { useState } from "react";
-import { Button, Typography, Box, useMediaQuery, ThemeProvider, createTheme, Snackbar, Alert } from "@mui/material";
+import { Button, Typography, Box, useMediaQuery, ThemeProvider, createTheme, Snackbar, Alert, Divider, Grid } from "@mui/material";
 import axios from "axios";
+import PaymentIcon from '@mui/icons-material/Payment';
 
 const theme = createTheme({
   breakpoints: {
@@ -15,7 +16,7 @@ const theme = createTheme({
   },
 });
 
-const PaymentForm = ({amount, onPaymentComplete, stockCountId, name, email, contact, productDesc, selectedItem, sellerTitle, sellerId, productId}) => {
+const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockCountId, name, email, contact, productDesc, selectedItem, sellerTitle, sellerId, productId, onPaymentInitiated, onPaymentModalClosed }) => {
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: "", severity: "info" });
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm')); // Media query for small screens
@@ -71,6 +72,7 @@ const PaymentForm = ({amount, onPaymentComplete, stockCountId, name, email, cont
               message: `Payment successful but failed to update details. Order ID: ${response.razorpay_order_id}`,
               severity: "warning",
             });
+            onPaymentComplete("success", data.id);
           }
           setAlert({
             open: true,
@@ -90,12 +92,16 @@ const PaymentForm = ({amount, onPaymentComplete, stockCountId, name, email, cont
               message: `Payment cancelled by User on Order ID: ${data.id}`,
               severity: "warning",
             });
-            onPaymentComplete("Decliened", data.id);
+            // Call the callback to update parent state
+            if (onPaymentModalClosed) {
+              onPaymentModalClosed();
+            }
+            onPaymentComplete("Declined", data.id);
             try {
               await axios.post(`${process.env.REACT_APP_API_URL}/api/payments/update`, {
                 razorpay_order_id: data.id,
                 razorpay_payment_id: data.razorpay_payment_id,
-                status: "Decliened",
+                status: "declined",
                 contact: data.contact, // Replace with actual user contact
                 email: data.email, // Replace with actual user email
                 payment_method: data.payment_method, // Replace with actual payment method if applicable
@@ -124,8 +130,13 @@ const PaymentForm = ({amount, onPaymentComplete, stockCountId, name, email, cont
         } catch (error) {
           console.error("Error updating failed payment:", error);
         }
-        onPaymentComplete("failure");
+        onPaymentComplete("failure", data.id);
       });
+
+      // Call callback to indicate payment initiated
+      if (onPaymentInitiated) {
+        onPaymentInitiated();
+      }
       
       rzp.open();
     } catch (error) {
@@ -142,17 +153,136 @@ const PaymentForm = ({amount, onPaymentComplete, stockCountId, name, email, cont
       <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" minHeight="30vh" sx={{ maxWidth: 500, margin: "auto", textAlign: "center" }}
       padding={isMobile ? 2 : 4} // Adjust padding for mobile
       >
-        <Typography variant={isMobile ? "h6" : "h5"} mb={2}>Order Payment amount</Typography>
+        {/* <Typography variant={isMobile ? "h6" : "h5"} mb={2}>Order Payment amount</Typography> */}
         {/* <Typography variant="h5" mb={2}>{sellerTitle}</Typography>
         <Typography variant="h5" mb={2}>{sellerId}</Typography>
         <Typography variant="h5" mb={2}>{userId}</Typography>
         <Typography variant="h5" mb={2}>{productId}</Typography>
         <Typography variant="h5" mb={2}>{productDesc}</Typography>
         <Typography variant="h5" mb={2}>{selectedItem}</Typography> */}
-        <Typography variant="h5" mb={2}>Pay ₹{amount}</Typography>
+        {/* <Typography variant="h5" mb={2}>Pay ₹{amount}</Typography> */}
         {/* <Button variant="contained" color="primary" onClick={handlePayment} disabled={loading || stockCountId === 0}>
           {loading ? "Processing..." : "Pay Now"}
         </Button> */}
+        <PaymentIcon color="primary" sx={{ fontSize: 60, mb: 2 }} />
+        <Typography variant={isMobile ? "h6" : "h5"} mb={1}>
+          Complete Your Purchase
+        </Typography>
+        <Box
+          sx={{
+            p: 3,
+            borderRadius: 2,
+            width: '100%', maxWidth: isMobile ? '250px' : '300px',
+            mb: 3,
+            border: '1px solid',
+            borderColor: 'divider',
+            backgroundColor: 'background.paper',
+          }}
+        >
+          <Box sx={{ mb: 2 }}>
+            {discount > 0 ? (
+              <Grid container spacing={1}>
+                <Grid item xs={12} sm={12}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Original Price:
+                    </Typography>
+                    <Typography variant="body2" 
+                    // sx={{ textDecoration: 'line-through' }}
+                    >
+                      ₹{originalPrice.toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={12}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Discount:
+                    </Typography>
+                    <Typography variant="body2" color="success.main">
+                      {discount}%
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      You Save:
+                    </Typography>
+                    <Typography variant="body2" color="success.main" fontWeight="bold">
+                      ₹{(originalPrice - amount).toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={12}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Delivery charges:
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      ₹00.00
+                    </Typography>
+                  </Box>
+                </Grid>
+              </Grid>
+            ) : (
+              <Grid container spacing={1}>
+                <Grid item xs={12} sm={12}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Original Price:
+                    </Typography>
+                    <Typography variant="body2" >
+                      ₹{amount.toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={12}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      Delivery charges:
+                    </Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      ₹00.00
+                    </Typography>
+                  </Box>
+                </Grid>
+                {/* <Grid item xs={12}>
+                  <Box display="flex" justifyContent="space-between">
+                    <Typography variant="body2" color="text.secondary">
+                      You Save:
+                    </Typography>
+                    <Typography variant="body2" color="success.main" fontWeight="bold">
+                      ₹{(originalPrice - amount).toFixed(2)}
+                    </Typography>
+                  </Box>
+                </Grid> */}
+              </Grid>
+            )}
+          
+            </Box>
+
+          <Divider sx={{ my: 2 }} />
+
+          <Box textAlign="center">
+            <Typography variant="overline" color="text.secondary">
+              Total amount to be paid
+            </Typography>
+            <Typography 
+              variant="h4" 
+              color="primary" 
+              sx={{ 
+                fontWeight: 'bold',
+                mt: 1,
+                background: theme => `linear-gradient(135deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.dark} 100%)`,
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+              }}
+            >
+              ₹{amount}
+            </Typography>
+          </Box>
+        </Box>
         <Button
           variant="contained"
           // size="small"
@@ -161,18 +291,54 @@ const PaymentForm = ({amount, onPaymentComplete, stockCountId, name, email, cont
               background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
               textTransform: 'none',
               fontWeight: 'medium',
+              fontSize: '16px',
+              py: 1.5,
+              px: 4,
               '&:hover': {
-              background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
-              transform: 'translateY(-2px)',
-              boxShadow: '0 8px 20px rgba(67, 97, 238, 0.3)',
+                background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 20px rgba(67, 97, 238, 0.3)',
               },
               transition: 'all 0.3s ease',
           }}
           onClick={handlePayment}
           disabled={loading || stockCountId === 0}
+          // startIcon={loading ? null : <PaymentIcon />}
         >
-          {loading ? "Processing..." : "Pay Now"}
+          {loading ? 
+            <Box display="flex" alignItems="center" gap={1}>
+              <Box 
+                sx={{
+                  width: 16,
+                  height: 16,
+                  border: '2px solid #ffffff30',
+                  borderTop: '2px solid #ffffff',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite',
+                  '@keyframes spin': {
+                    '0%': { transform: 'rotate(0deg)' },
+                    '100%': { transform: 'rotate(360deg)' }
+                  }
+                }}
+              />
+              Processing...
+            </Box> 
+            : "Pay Now"
+          }
         </Button>
+        {/* Security Notice */}
+        <Typography 
+          variant="caption" 
+          sx={{ 
+            mt: 4, 
+            color: 'text.secondary',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1
+          }}
+        >
+          🔒 Secure payment powered by Razorpay
+        </Typography>
       </Box>
       <Snackbar
           open={alert.open}
