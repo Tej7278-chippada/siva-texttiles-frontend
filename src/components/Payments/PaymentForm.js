@@ -38,7 +38,7 @@ const PaymentForm = ({amount, onPaymentComplete, stockCountId, name, email, cont
         order_title: productDesc,
       });
       const options = {
-        key: "rzp_test_TDaoSZ9d4v5hio",
+        key: process.env.REACT_APP_RAZORPAY_KEY,
         amount: data.amount,
         currency: data.currency,
         name: "Siva Textiles",

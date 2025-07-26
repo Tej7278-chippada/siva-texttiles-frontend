@@ -36,6 +36,7 @@ import ProductsPage from './components/Products/ProductsPage';
 import MyOrders from './components/Orders/MyOrders';
 import OrderDetails from './components/Orders/OrderDetails';
 import SellerOrders from './components/Seller/SellerOrders';
+import { useEffect } from 'react';
 // import NotificationsPage from './components/Helper/NotificationsPage';
 // import NearPostsNotification from './components/Helper/NearPostsNotification';
 // import HelperHome from './components/Helper/HelperHome';
@@ -248,26 +249,21 @@ function App() {
   //   sessionStorage.setItem('hasShownSplash', 'true');
   // };
 
-  // useEffect(() => {
-  //   if ('serviceWorker' in navigator && 'PushManager' in window) {
-  //     (async () => {
-  //       try {
-  //         // const registration = 
-  //         await navigator.serviceWorker.register('/service-worker.js');
-  //         console.log('ServiceWorker registration successful');
-  //         // console.log('Scope is:', registration.scope);
-  //       } catch (err) {
-  //         console.error('ServiceWorker registration failed:', err);
-  //       }
-  //     })();
-  //     // registerServiceWorker();
-  //   }
-
-  //   // Apply dark mode class on initial load
-  //   if (darkMode) {
-  //     document.documentElement.classList.add('dark-mode');
-  //   }
-  // }, [darkMode]);
+  useEffect(() => {
+    if ('serviceWorker' in navigator && 'PushManager' in window) {
+      (async () => {
+        try {
+          // const registration = 
+          await navigator.serviceWorker.register('/service-worker.js');
+          console.log('ServiceWorker registration successful');
+          // console.log('Scope is:', registration.scope);
+        } catch (err) {
+          console.error('ServiceWorker registration failed:', err);
+        }
+      })();
+      // registerServiceWorker();
+    }
+  }, []);
 
   // Fetch initial notification count
   // useEffect(() => {

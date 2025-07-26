@@ -253,7 +253,7 @@ function OrderDetails() {
                     <Typography variant="body1" style={{ fontWeight: 500 }}>
                       Order Status:
                     </Typography>
-                    <Typography variant="body2" color={order.orderStatus === 'Completed' ? 'green' : 'rgba(194, 28, 28, 0.89)'}>
+                    <Typography variant="body2" color={order.orderStatus === 'Created' ? 'green' : 'rgba(194, 28, 28, 0.89)'}>
                       {order.orderStatus}
                     </Typography>
                   </Grid>

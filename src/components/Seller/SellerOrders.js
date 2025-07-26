@@ -34,9 +34,11 @@ import ClearIcon from '@mui/icons-material/Clear';
 // import Layout from '../Layout/Layout';
 // import SkeletonCards from '../Layout/SkeletonCards';
 // import LazyImage from './LazyImage';
-import { fetchSellerorders } from '../Apis/SellerApis';
+import API, { fetchSellerorders } from '../Apis/SellerApis';
 import Layout from '../Layout/Layout';
 import SkeletonCards from '../Layout/SkeletonCards';
+import { NotificationsActiveRounded, NotificationsOffRounded } from '@mui/icons-material';
+import { urlBase64ToUint8Array } from '../utils/pushNotifications';
 // import LazyImage from '../Products/LazyImage';
 
 // Gender selection images
@@ -152,6 +154,8 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
 //   const [locationDetails, setLocationDetails] = useState(null);
   // const distanceOptions = [2, 5, 10, 20, 30, 50, 70, 100, 120, 150, 200];
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' }); // Snackbar state
+  const [notificationsEnabled, setNotificationsEnabled] = useState(false);
+  const [loadingToggle, setLoadingToggle] = useState(false);
   const [showDistanceRanges, setShowDistanceRanges] = useState(false);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -553,6 +557,109 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     };
   }, []);
 
+  const checkNotificationStatus = async () => {
+    try {
+      const authToken = localStorage.getItem('authToken');
+      const response = await API.get('/api/notifications/notification-status', {
+        headers: {
+          Authorization: `Bearer ${authToken}`
+        }
+      });
+      setNotificationsEnabled(response.data.notificationEnabled);
+    } catch (error) {
+      console.error('Error checking notification status:', error);
+    }
+  };
+
+  const handleOpenFilters = () => {
+    checkNotificationStatus();
+    setShowDistanceRanges(true);
+  };
+
+  // Add this function to request notification permissions
+  const toggleNotifications  = async () => {
+    setLoadingToggle(true);
+    try {
+      // Check if service worker and push manager are supported
+      if (!('serviceWorker' in navigator)) {
+        throw new Error('Service workers not supported in this browser');
+      }
+      if (!('PushManager' in window)) {
+        throw new Error('Push notifications not supported in this browser');
+      }
+
+      if (loadingToggle) return null;
+
+      if (!notificationsEnabled) {
+  
+        // Request permission
+        const permission = await Notification.requestPermission();
+        if (permission !== 'granted') {
+          throw new Error(' Browser Notifications Permission not granted');
+        }
+        // console.log('VAPID Public Key:', process.env.REACT_APP_VAPID_PUBLIC_KEY);
+    
+        // Register service worker and get subscription
+        const registration = await navigator.serviceWorker.ready;
+        const subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: urlBase64ToUint8Array(process.env.REACT_APP_VAPID_PUBLIC_KEY)
+        });
+    
+        // Send to backend with proper auth header
+        await API.post('/api/notifications/enable-push', {
+          token: JSON.stringify(subscription),
+          enabled: true
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          }
+        });
+    
+        setNotificationsEnabled(true);
+        setSnackbar({ 
+          open: true, 
+          message: 'Notifications enabled successfully!', 
+          severity: 'success' 
+        });
+
+        // // Reconnect socket to ensure notifications are received
+        // if (socket) {
+        //   socket.emit('joinRoom', userId);
+        // }
+
+      } else {
+        // Disable notifications
+        await API.post('/api/notifications/enable-push', {
+          token: null,
+          enabled: false
+        }, {
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          }
+        });
+
+        setNotificationsEnabled(false);
+        setSnackbar({ 
+          open: true, 
+          message: 'Notifications Disabled!', 
+          severity: 'info' 
+        });
+      }
+    } catch (error) {
+      console.error('Error toggling notifications:', error);
+      setSnackbar({ 
+        open: true, 
+        message: `Failed to toggling notifications: ${error.message}`,
+        severity: 'error' 
+      });
+    } finally {
+      setLoadingToggle(false);
+    }
+  };
+
 
   const handleCloseSnackbar = () => setSnackbar({ ...snackbar, open: false });
 
@@ -816,7 +923,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
           <Box sx={{display:'flex', justifyContent:'space-between', marginRight:'-6px', marginLeft:'8px'}}>
           {/* Button to Open Distance Menu */}
           <IconButton 
-           onClick={() => setShowDistanceRanges(true)}
+           onClick={handleOpenFilters}
             sx={{
               minWidth: '40px',
               minHeight: '40px',
@@ -898,8 +1005,13 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                     <Typography variant="h6"  >
                         Filters
                     </Typography>
-                    <Box sx={{ position: 'absolute', top: '10px', right: '10px', marginLeft: 'auto', display:'flex', alignItems:'center' }}>
-                     
+                    <Box sx={{ position: 'absolute', top: '10px', right: '10px', marginLeft: 'auto', display:'flex', alignItems:'center', gap: 2 }}>
+                      <IconButton 
+                        onClick={toggleNotifications} disabled={loading}
+                        sx={{ backgroundColor: notificationsEnabled ? '#2e7d32' : '#d32f2f', color: '#fff', '&:hover': { backgroundColor: '#1565c0', opacity: 0.8 } }}
+                      >
+                        {!loadingToggle ?  (notificationsEnabled ? <NotificationsActiveRounded /> : <NotificationsOffRounded />) : <CircularProgress size={24} />}
+                      </IconButton>
                       <IconButton
                         onClick={() => setShowDistanceRanges(false)}
                         variant="text"

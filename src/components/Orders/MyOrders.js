@@ -1,6 +1,6 @@
 // src/components/orders/MyOrders.js
 import React, { useEffect, useState } from "react";
-import { Box, Typography, Grid, Card, CardContent, Tooltip, CardMedia, Avatar } from "@mui/material";
+import { Box, Typography, Grid, Card, CardContent, Tooltip, CardMedia, Avatar, Chip } from "@mui/material";
 // import { fetchUserOrders } from "../../api/api";
 // import Header from "../Header";
 // import Footer from "../Footer";
@@ -75,16 +75,16 @@ const MyOrders = () => {
                           e.currentTarget.style.transform = 'scale(1)'; // Revert zoom
                           e.currentTarget.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)'; // Revert shadow
                         }} >
-                          <CardMedia sx={{ position: 'relative', margin: '0rem 0', borderRadius: '8px', overflow: 'hidden', height: '200px', backgroundColor: '#f5f5f5' }} >
+                          <CardMedia sx={{ position: 'relative', margin: '0rem 0', borderRadius: '8px', overflow: 'hidden', height: '180px', backgroundColor: '#f5f5f5', display: 'flex', flexDirection: 'row', gap: 1 }} >
                           <div style={{
-                            display: 'flex',
-                            overflowX: 'auto',
+                            // display: 'flex',
+                            // overflowX: 'auto',
                             scrollbarWidth: 'thin',
                             scrollbarColor: '#888 transparent',
                             borderRadius: '8px',
                             gap: '0.1rem',
                             // marginBottom: '1rem'
-                            height: '210px'
+                            height: 'auto', width: '100vh',
                           }} >
                             {/* {order.product.media && order.product.media.map((base64Image, index) => (
                               <img
@@ -104,7 +104,7 @@ const MyOrders = () => {
                               <Avatar
                                 src={`data:image/jpeg;base64,${order.productPic}`} // Render the image
                                 alt={order.productTitle}
-                                sx={{ width: 140, height: 180, margin: 1, borderRadius: '10px' }}
+                                sx={{ width: 140, height: 180,  borderRadius: '10px' }}
                               />
                             ) : (
                               <Typography variant="body2" color="grey" align="center" marginLeft="1rem" marginTop="1rem" gutterBottom>
@@ -112,7 +112,24 @@ const MyOrders = () => {
                               </Typography>
                             )}
                           </div>
-                          
+                          <Box>
+                              <Typography variant="body1" style={{ fontWeight: 500 }}>
+                                  Delivery Address Details:
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
+                                  Name: {order.userDeliveryAddresses[0]?.name || "N/A"}
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
+                                  Phone: {order.userDeliveryAddresses[0]?.phone || "N/A"}
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
+                                  Email: {order.userDeliveryAddresses[0]?.email || "N/A"}
+                              </Typography>
+                              <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
+                                  Address: {`${order.userDeliveryAddresses[0]?.address.street || "N/A"}, ${order.userDeliveryAddresses[0]?.address.area || "N/A"}, ${order.userDeliveryAddresses[0]?.address.city || "N/A"}`},
+                                  <br /> {`${order.userDeliveryAddresses[0]?.address.state || "N/A"} - ${order.userDeliveryAddresses[0]?.address.pincode || "N/A"}`}
+                              </Typography>
+                          </Box>
                         </CardMedia>
                         <CardContent style={{ padding: '1rem' }}>
                           <Tooltip title={order.product.title} placement="top" arrow>
@@ -126,17 +143,56 @@ const MyOrders = () => {
                           <Typography variant="body1" color="textSecondary" style={{ display: 'inline-block', float: 'right', fontWeight: '500' }}>
                             Price: ₹{order.orderPrice}
                           </Typography>
-                          <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
+                          
+                          {/* Category and People Count */}
+                          <Box display="flex" gap={1} flexWrap="wrap" sx={{justifyContent: 'space-between'}}>
+                              <Box sx={{display: 'flex'}}>
+                                  <Box 
+                                      sx={{
+                                          width: 20,
+                                          height: 20,
+                                          borderRadius: '50%',
+                                          backgroundColor: order.selectedItem[0]?.colorCode,
+                                          border: '1px solid #ddd'
+                                      }}
+                                  />
+                                  <Chip
+                                  // icon={<PersonIcon sx={{ fontSize: 14 }} />}
+                                  label={`${order?.selectedItem[0]?.colorName} (${order?.selectedItem[0]?.size || order.categoriesMale})`}
+                                  size="small"
+                                  variant="outlined"
+                                  sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+                                  />
+                              </Box>
+                              {/* <Typography variant="body2" color={post.paymentStatus === 'Completed' ? 'green' : 'rgba(194, 28, 28, 0.89)'}>
+                                {post.paymentId.status}
+                              </Typography> */}
+
+                              
+                              
+                          </Box>
+                          <Typography variant="body2" color="textSecondary" sx={{ my: '0.5rem' }}>
                             Order Status: 
                             <span
                               style={{
-                                color: order.paymentStatus === "Completed" ? 'green' : 'rgba(194, 28, 28, 0.89)',
+                                color: order.orderStatus === "Created" ? 'green' : 'rgba(194, 28, 28, 0.89)',
                               }}
                             >
-                              {order.paymentStatus || "N/A"}
+                              {order.orderStatus || "N/A"}
                             </span>
                           </Typography>
-                          <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
+                          {/* <Chip
+                            icon={<CategoryIcon sx={{ fontSize: 14 }} />}
+                            label={order.orderStatus}
+                            size="small"
+                            variant="outlined"
+                            sx={{
+                                borderColor: order.orderStatus === 'Created' ? 'error.main' : 'divider',
+                                color: order.orderStatus === 'Created' ? 'text.primary' ? (order.orderStatus === 'Delivered') ? 'success.main' : 'text.secondary'  : 'error.main' : '',
+                                fontSize: '0.75rem'
+                            }}
+                          /> */}
+                          <Typography variant="body2" color="textSecondary" >
                             Ordered on: {new Date(order.createdAt).toLocaleString()}
                           </Typography>
                           {/* <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
