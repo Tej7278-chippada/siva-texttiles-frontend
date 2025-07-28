@@ -15,6 +15,7 @@ import PinOutlinedIcon from '@mui/icons-material/PinOutlined';
 import Layout from '../Layout/Layout';
 import GoogleOAuth from '../GoogleOAuth/GoogleOAuth';
 import ForgotPassword from './ForgotPassword';
+import TermsPolicyBar from '../PolicyPages/TermsPolicyBar';
 // import DemoPosts from './Banners/DemoPosts';
 // import GoogleOAuth from './GoogleOAuth/GoogleOAuth';
 
@@ -200,7 +201,7 @@ const Login = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
     <Layout darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}>
       
         
-    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center"
+    <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" mb={2}
     padding={isMobile ? 2 : 4} // Adjust padding for mobile
     // sx={{...getGlassmorphismStyle(theme),}}
     >
@@ -413,6 +414,7 @@ const Login = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => {
             <Button onClick={handleResetPassword} color="primary">Reset Password</Button>
           </DialogActions>
         </Dialog> */}
+        <TermsPolicyBar/>
     </Layout>
     </ThemeProvider>
   );

@@ -1,11 +1,11 @@
 // src/components/Header.js
 import React, { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { AppBar, Toolbar, Typography, Box, useMediaQuery, IconButton, Menu, MenuItem, Dialog, ListItemIcon, Avatar, Divider, Badge, useScrollTrigger, Tooltip, Fade, Slide, Button, } from '@mui/material';
+import { AppBar, Toolbar, Typography, Box, useMediaQuery, IconButton, Menu, MenuItem, Dialog, ListItemIcon, Avatar, Divider, useScrollTrigger, Tooltip, Fade, Slide, Button, } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 // import { userData } from '../utils/userData';
 import PersonIcon from '@mui/icons-material/Person';
-import NotificationsIcon from '@mui/icons-material/Notifications';
+// import NotificationsIcon from '@mui/icons-material/Notifications';
 import LogoutIcon from '@mui/icons-material/Logout';
 // import { fetchUnreadNotificationsCount } from './api/api';
 import {
@@ -17,13 +17,13 @@ import {
   // MoreVert as MoreVertIcon
 } from '@mui/icons-material';
 // import { io } from 'socket.io-client';
-import GetAppIcon from '@mui/icons-material/GetApp';
-import InstallMobileIcon from '@mui/icons-material/InstallMobile';
+// import GetAppIcon from '@mui/icons-material/GetApp';
+// import InstallMobileIcon from '@mui/icons-material/InstallMobile';
 // import LightModeRoundedIcon from '@mui/icons-material/LightModeRounded';
 // import NightsStayRoundedIcon from '@mui/icons-material/NightsStayRounded';
 // import FullscreenIcon from '@mui/icons-material/Fullscreen';
 // import FullscreenExitIcon from '@mui/icons-material/FullscreenExit';
-import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
+// import ReportProblemRoundedIcon from '@mui/icons-material/ReportProblemRounded';
 // import FeedbackDialog from './Feedback/FeedbackDialog';
 import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
 
@@ -71,166 +71,166 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   // const [socket, setSocket] = useState(null);
   // PWA Install states
-  const [deferredPrompt, setDeferredPrompt] = useState(null);
-  const [isInstallable, setIsInstallable] = useState(false);
-  const [isInstalled, setIsInstalled] = useState(false);
+  // const [deferredPrompt, setDeferredPrompt] = useState(null);
+  // const [isInstallable, setIsInstallable] = useState(false);
+  // const [isInstalled, setIsInstalled] = useState(false);
   // const [feedbackDialogOpen, setFeedbackDialogOpen] = useState(false);
 
   const getTextColor = () => darkMode ? '#ffffff' : '#000000';
   // const getSecondaryTextColor = () => darkMode ? 'rgba(255, 255, 255, 0.7)' : 'rgba(0, 0, 0, 0.6)';
 
   // PWA Install Logic
-  useEffect(() => {
-    // Check if app is already installed
-    const checkIfInstalled = () => {
-      if (window.matchMedia('(display-mode: standalone)').matches) {
-        setIsInstalled(true);
-        localStorage.setItem('pwa-installed', 'true');
-        return true;
-      }
+  // useEffect(() => {
+  //   // Check if app is already installed
+  //   const checkIfInstalled = () => {
+  //     if (window.matchMedia('(display-mode: standalone)').matches) {
+  //       setIsInstalled(true);
+  //       localStorage.setItem('pwa-installed', 'true');
+  //       return true;
+  //     }
       
-      // Check for iOS Safari
-      if (window.navigator.standalone === true) {
-        setIsInstalled(true);
-        localStorage.setItem('pwa-installed', 'true');
-        return true;
-      }
+  //     // Check for iOS Safari
+  //     if (window.navigator.standalone === true) {
+  //       setIsInstalled(true);
+  //       localStorage.setItem('pwa-installed', 'true');
+  //       return true;
+  //     }
       
-      // Check for Chrome/Edge
-      if (document.referrer.startsWith('android-app://')) {
-        setIsInstalled(true);
-        localStorage.setItem('pwa-installed', 'true');
-        return true;
-      }
+  //     // Check for Chrome/Edge
+  //     if (document.referrer.startsWith('android-app://')) {
+  //       setIsInstalled(true);
+  //       localStorage.setItem('pwa-installed', 'true');
+  //       return true;
+  //     }
 
-      // Check localStorage for previous install status
-      const wasInstalled = localStorage.getItem('pwa-installed') === 'true';
-      if (wasInstalled) {
-        setIsInstalled(true);
-        return true;
-      }
+  //     // Check localStorage for previous install status
+  //     const wasInstalled = localStorage.getItem('pwa-installed') === 'true';
+  //     if (wasInstalled) {
+  //       setIsInstalled(true);
+  //       return true;
+  //     }
 
-      return false;
-    };
+  //     return false;
+  //   };
 
-    const isCurrentlyInstalled = checkIfInstalled();
+  //   const isCurrentlyInstalled = checkIfInstalled();
 
-    // If not installed, check for cached installability or browser support
-    if (!isCurrentlyInstalled) {
-      // Check if we previously detected installability
-      const cachedInstallable = localStorage.getItem('pwa-installable') === 'true';
-      const cachedPrompt = localStorage.getItem('pwa-deferred-prompt');
+  //   // If not installed, check for cached installability or browser support
+  //   if (!isCurrentlyInstalled) {
+  //     // Check if we previously detected installability
+  //     const cachedInstallable = localStorage.getItem('pwa-installable') === 'true';
+  //     const cachedPrompt = localStorage.getItem('pwa-deferred-prompt');
       
-      if (cachedInstallable) {
-        setIsInstallable(true);
+  //     if (cachedInstallable) {
+  //       setIsInstallable(true);
         
-        // Try to restore deferred prompt if available
-        if (cachedPrompt && window.deferredInstallPrompt) {
-          setDeferredPrompt(window.deferredInstallPrompt);
-        }
-      } else {
-        // Check if browser supports PWA installation
-        const supportsPWA = 'serviceWorker' in navigator && 
-                           ('BeforeInstallPromptEvent' in window || 
-                            navigator.userAgent.includes('Chrome') || 
-                            navigator.userAgent.includes('Edge'));
+  //       // Try to restore deferred prompt if available
+  //       if (cachedPrompt && window.deferredInstallPrompt) {
+  //         setDeferredPrompt(window.deferredInstallPrompt);
+  //       }
+  //     } else {
+  //       // Check if browser supports PWA installation
+  //       const supportsPWA = 'serviceWorker' in navigator && 
+  //                          ('BeforeInstallPromptEvent' in window || 
+  //                           navigator.userAgent.includes('Chrome') || 
+  //                           navigator.userAgent.includes('Edge'));
         
-        if (supportsPWA) {
-          setIsInstallable(true);
-          localStorage.setItem('pwa-installable', 'true');
-        }
-      }
-    }
+  //       if (supportsPWA) {
+  //         setIsInstallable(true);
+  //         localStorage.setItem('pwa-installable', 'true');
+  //       }
+  //     }
+  //   }
 
-    // Listen for beforeinstallprompt event
-    const handleBeforeInstallPrompt = (e) => {
-      e.preventDefault();
-      setDeferredPrompt(e);
-      setIsInstallable(true);
+  //   // Listen for beforeinstallprompt event
+  //   const handleBeforeInstallPrompt = (e) => {
+  //     e.preventDefault();
+  //     setDeferredPrompt(e);
+  //     setIsInstallable(true);
       
-      // Cache the installability state and prompt
-      localStorage.setItem('pwa-installable', 'true');
-      window.deferredInstallPrompt = e; // Store globally for navigation persistence
+  //     // Cache the installability state and prompt
+  //     localStorage.setItem('pwa-installable', 'true');
+  //     window.deferredInstallPrompt = e; // Store globally for navigation persistence
       
-      console.log('PWA install prompt available');
-    };
+  //     console.log('PWA install prompt available');
+  //   };
 
-    // Listen for appinstalled event
-    const handleAppInstalled = () => {
-      setIsInstalled(true);
-      setIsInstallable(false);
-      setDeferredPrompt(null);
+  //   // Listen for appinstalled event
+  //   const handleAppInstalled = () => {
+  //     setIsInstalled(true);
+  //     setIsInstallable(false);
+  //     setDeferredPrompt(null);
       
-      // Update localStorage
-      localStorage.setItem('pwa-installed', 'true');
-      localStorage.removeItem('pwa-installable');
-      localStorage.removeItem('pwa-deferred-prompt');
+  //     // Update localStorage
+  //     localStorage.setItem('pwa-installed', 'true');
+  //     localStorage.removeItem('pwa-installable');
+  //     localStorage.removeItem('pwa-deferred-prompt');
       
-      // Clear global reference
-      if (window.deferredInstallPrompt) {
-        delete window.deferredInstallPrompt;
-      }
+  //     // Clear global reference
+  //     if (window.deferredInstallPrompt) {
+  //       delete window.deferredInstallPrompt;
+  //     }
       
-      console.log('PWA was installed');
-    };
+  //     console.log('PWA was installed');
+  //   };
 
-    // Only add event listeners if not already installed
-    if (!isCurrentlyInstalled) {
-      window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-      window.addEventListener('appinstalled', handleAppInstalled);
-    }
+  //   // Only add event listeners if not already installed
+  //   if (!isCurrentlyInstalled) {
+  //     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  //     window.addEventListener('appinstalled', handleAppInstalled);
+  //   }
 
-    return () => {
-      if (!isCurrentlyInstalled) {
-        window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-        window.removeEventListener('appinstalled', handleAppInstalled);
-      }
-    };
-  }, []);
+  //   return () => {
+  //     if (!isCurrentlyInstalled) {
+  //       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  //       window.removeEventListener('appinstalled', handleAppInstalled);
+  //     }
+  //   };
+  // }, []);
 
-  // Handle PWA installation
-  const handleInstallClick = async () => {
-    // Check for globally stored prompt first
-    const globalPrompt = window.deferredInstallPrompt || deferredPrompt;
+  // // Handle PWA installation
+  // const handleInstallClick = async () => {
+  //   // Check for globally stored prompt first
+  //   const globalPrompt = window.deferredInstallPrompt || deferredPrompt;
     
-    if (!globalPrompt) {
-      // For iOS Safari or other browsers
-      if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
-        alert('To install this app on iOS:\n1. Tap the Share button (⬆️)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to install');
-        return;
-      }
+  //   if (!globalPrompt) {
+  //     // For iOS Safari or other browsers
+  //     if (navigator.userAgent.includes('Safari') && !navigator.userAgent.includes('Chrome')) {
+  //       alert('To install this app on iOS:\n1. Tap the Share button (⬆️)\n2. Scroll down and tap "Add to Home Screen"\n3. Tap "Add" to install');
+  //       return;
+  //     }
       
-      // For other browsers that don't support install prompt
-      if (navigator.userAgent.includes('Firefox')) {
-        alert('To install this app in Firefox:\n1. Click the menu button (☰)\n2. Look for "Install" or "Add to Home Screen" option');
-        return;
-      }
+  //     // For other browsers that don't support install prompt
+  //     if (navigator.userAgent.includes('Firefox')) {
+  //       alert('To install this app in Firefox:\n1. Click the menu button (☰)\n2. Look for "Install" or "Add to Home Screen" option');
+  //       return;
+  //     }
       
-      // Generic fallback
-      alert('To install this app:\n1. Look for "Install" option in your browser menu\n2. Or try "Add to Home Screen" from browser options\n3. This feature may not be supported in your current browser');
-      return;
-    }
+  //     // Generic fallback
+  //     alert('To install this app:\n1. Look for "Install" option in your browser menu\n2. Or try "Add to Home Screen" from browser options\n3. This feature may not be supported in your current browser');
+  //     return;
+  //   }
 
-    try {
-      // Show the install prompt
-      // const result = await globalPrompt.prompt();
+  //   try {
+  //     // Show the install prompt
+  //     // const result = await globalPrompt.prompt();
       
-      // Wait for the user to respond to the prompt
-      const { outcome } = await globalPrompt.userChoice;
+  //     // Wait for the user to respond to the prompt
+  //     const { outcome } = await globalPrompt.userChoice;
       
-      if (outcome === 'accepted') {
-        console.log('User accepted the install prompt');
-        // Don't immediately clear state, let the 'appinstalled' event handle it
-      } else {
-        console.log('User dismissed the install prompt');
-        // Keep the installable state since user just declined this time
-      }
+  //     if (outcome === 'accepted') {
+  //       console.log('User accepted the install prompt');
+  //       // Don't immediately clear state, let the 'appinstalled' event handle it
+  //     } else {
+  //       console.log('User dismissed the install prompt');
+  //       // Keep the installable state since user just declined this time
+  //     }
       
-    } catch (error) {
-      console.error('Error showing install prompt:', error);
-      // If prompt fails, keep installable state for retry
-    }
-  };
+  //   } catch (error) {
+  //     console.error('Error showing install prompt:', error);
+  //     // If prompt fails, keep installable state for retry
+  //   }
+  // };
 
   
 //   // Initialize socket connection
@@ -519,7 +519,7 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
             {currentUsername && (
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 {/* Notifications Badge */}
-                <Tooltip title="Notifications" arrow>
+                {/* <Tooltip title="Notifications" arrow>
                   <IconButton
                     component={Link}
                     to="/notifications"
@@ -562,7 +562,7 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
                       <NotificationsIcon />
                     </Badge>
                   </IconButton>
-                </Tooltip>
+                </Tooltip> */}
 
                 {/* Profile Avatar */}
                 <Tooltip title={`${currentUsername}`} arrow>
@@ -700,7 +700,7 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
         </MenuItem> */}
 
         {/* Install App Menu Item */}
-        {(isInstallable || (!isInstalled && !isInstallable)) && (
+        {/* {(isInstallable || (!isInstalled && !isInstallable)) && (
           <MenuItem onClick={() => { handleInstallClick(); handleClose(); }}>
             <ListItemIcon>
               {isMobile ? 
@@ -710,10 +710,10 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
             </ListItemIcon>
             {isInstallable ? 'Install App' : 'Add to Home Screen'}
           </MenuItem>
-        )}
+        )} */}
 
         {/* App Installed Menu Item */}
-        {isInstalled && (
+        {/* {isInstalled && (
           <MenuItem disabled>
             <ListItemIcon>
               {isMobile ? 
@@ -723,9 +723,9 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
             </ListItemIcon>
             App Installed ✓
           </MenuItem>
-        )}
+        )} */}
 
-        <Divider sx={{ my: 1 }} />
+        {/* <Divider sx={{ my: 1 }} />
 
         <MenuItem
           // onClick={() => { setFeedbackDialogOpen(true);  handleClose(); }}
@@ -740,7 +740,7 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
             <ReportProblemRoundedIcon fontSize="small" sx={{ color: '#d32f2f' }} />
           </ListItemIcon>
           Feedback
-        </MenuItem>
+        </MenuItem> */}
 
         <Divider sx={{ my: 1 }} />
 
