@@ -1304,7 +1304,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                       // },
                       // transition: 'transform 0.1s ease, box-shadow 0.1s ease', // Smooth transition for hover
                       position: 'relative',
-                      height: isMobile ? '280px' : '280px', // Fixed height for consistency
+                      height: isMobile ? '300px' : '300px', // Fixed height for consistency
                       overflow: 'hidden',
                     }}
                       onClick={() => openPostDetail(post)}
@@ -1335,23 +1335,23 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                       // }}
                       >
                       {/* CardMedia for Images with Scroll */}
-                      <CardMedia mx={isMobile ? "-12px" : "-2px"} sx={{ margin: '0rem 0', borderRadius: '8px', overflow: 'hidden', height: '160px', backgroundColor: '#f5f5f5' }}>
+                      <CardMedia mx={isMobile ? "-12px" : "-2px"} sx={{ margin: '0rem 0', borderRadius: '8px', overflow: 'hidden', height: '180px', backgroundColor: '#f5f5f5' }}>
                         <div style={{
                           display: 'flex',
                           overflowX: 'auto', overflowY: 'hidden',
                           scrollbarWidth: 'none',
                           scrollbarColor: '#888 transparent',
                           borderRadius: '8px',
-                          gap: '0.1rem',
+                          // gap: '0.1rem',
                           // marginBottom: '1rem'
-                          height: '170px'
+                          height: '190px'
                         }} 
                         // onClick={() => openProductDetail(product)}
                         >
                           {(post.media).length > 0 ? (
                             post.media && post.media.slice(0, 5).map((base64Image, index) => (
                               <LazyImage key={index} base64Image={base64Image} alt={`Post ${index}`} style={{
-                                height: '160px',
+                                height: '180px',
                                 borderRadius: '8px',
                                 objectFit: 'cover',
                                 flexShrink: 0,
@@ -1364,7 +1364,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                               src='https://placehold.co/56x56?text=No+Imag'
                               alt="No media available"
                               style={{
-                                height: '160px',
+                                height: '180px',
                                 borderRadius: '8px',
                                 objectFit: 'cover',
                                 flexShrink: 0,
@@ -1440,7 +1440,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                                 label={`${post.gender} (${post.categoriesFemale || post.categoriesMale})`}
                                 size="small"
                                 variant="outlined"
-                                sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+                                sx={{ fontSize: '0.75rem', color: 'text.secondary', borderColor: 'transparent' }}
                                 />
 
                                 <Chip
@@ -1449,7 +1449,8 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                                 size="small"
                                 variant="outlined"
                                 sx={{
-                                    borderColor: post.stockStatus !== 'In Stock' ? 'error.main' : 'divider',
+                                    // borderColor: post.stockStatus !== 'In Stock' ? 'error.main' : 'divider',
+                                    borderColor: 'transparent',
                                     color: post.stockStatus !== 'In Stock' ? 'error.main' : 'text.secondary',
                                     fontSize: '0.75rem'
                                 }}

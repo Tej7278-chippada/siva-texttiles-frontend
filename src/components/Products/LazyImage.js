@@ -13,8 +13,8 @@ const LazyImage = React.memo(({ base64Image, alt }) => {
       alt={alt}
       loading="lazy" // Lazy loading enabled
       style={{
-        height: '160px',
-        borderRadius: '8px',
+        height: '180px',
+        // borderRadius: '8px',
         objectFit: 'cover',
         flexShrink: 0,
         cursor: 'pointer', // Make the image look clickable
