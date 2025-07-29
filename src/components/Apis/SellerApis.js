@@ -83,3 +83,19 @@ export const fetchSellerorders = (skip = 0, limit = 12, filters = {}, searchQuer
   
   return API.get('/api/seller/sellerOrders', { headers, params });
 };
+
+export const updateOrderStatus = (orderId, status) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+  return API.patch(`/api/seller/orders/${orderId}/status`, { status }, { headers });
+};
+
+export const fetchPaymentDetails = (paymentId) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = {
+    Authorization: `Bearer ${authToken}`,
+  };
+  return API.get(`/api/seller/payments/${paymentId}`, { headers });
+};

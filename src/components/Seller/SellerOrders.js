@@ -1,6 +1,6 @@
 // components/Products/ProductsPage.js
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {Alert, alpha, Box, Button, Card, CardContent, CardActions, CardMedia, CircularProgress, FormControl, Grid, IconButton, InputAdornment, InputLabel,  MenuItem,  Select, Snackbar, styled,  TextField, Toolbar, Tooltip, Typography, useMediaQuery, Stack, Chip, Avatar} from '@mui/material';
+import {Alert, alpha, Box, Button, Card, CardContent, CardMedia, CircularProgress, FormControl, Grid, IconButton, InputAdornment, InputLabel,  MenuItem,  Select, Snackbar, styled,  TextField, Toolbar, Tooltip, Typography, useMediaQuery, Stack, Chip, Avatar} from '@mui/material';
 // import Layout from '../Layout';
 // import SkeletonCards from './SkeletonCards';
 // import LazyImage from './LazyImage';
@@ -39,6 +39,7 @@ import Layout from '../Layout/Layout';
 import SkeletonCards from '../Layout/SkeletonCards';
 import { NotificationsActiveRounded, NotificationsOffRounded } from '@mui/icons-material';
 import { urlBase64ToUint8Array } from '../utils/pushNotifications';
+import OrderData from './OrderData';
 // import LazyImage from '../Products/LazyImage';
 
 // Gender selection images
@@ -126,15 +127,15 @@ const SearchTextField = styled(TextField)(({ theme, expanded, darkMode }) => ({
 //   boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
 // });
 
-const GenderSelectionCard = styled(Card)(({ theme, selected }) => ({
-  cursor: 'pointer',
-  transition: 'all 0.3s ease',
-  border: selected ? `2px solid ${theme.palette.primary.main}` : '2px solid transparent',
-  '&:hover': {
-    transform: 'translateY(-5px)',
-    boxShadow: theme.shadows[4],
-  },
-}));
+// const GenderSelectionCard = styled(Card)(({ theme, selected }) => ({
+//   cursor: 'pointer',
+//   transition: 'all 0.3s ease',
+//   border: selected ? `2px solid ${theme.palette.primary.main}` : '2px solid transparent',
+//   '&:hover': {
+//     transform: 'translateY(-5px)',
+//     boxShadow: theme.shadows[4],
+//   },
+// }));
 
 const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=> {
   const tokenUsername = localStorage.getItem('tokenUsername');
@@ -195,19 +196,19 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
   }, [filters]);
 
   // Handle gender selection
-  const handleGenderSelect = (gender) => {
-    const newFilters = { 
-      ...DEFAULT_FILTERS, // Reset to default when changing gender
-      gender: gender,
-    };
+  // const handleGenderSelect = (gender) => {
+  //   const newFilters = { 
+  //     ...DEFAULT_FILTERS, // Reset to default when changing gender
+  //     gender: gender,
+  //   };
     
-    setFilters(newFilters);
-    setLocalFilters(newFilters);
-    setSelectedCategory(''); // Reset category when changing gender
-    setSkip(0);
-    globalCache.lastCacheKey = null;
-    localStorage.setItem('helperFilters', JSON.stringify(newFilters));
-  };
+  //   setFilters(newFilters);
+  //   setLocalFilters(newFilters);
+  //   setSelectedCategory(''); // Reset category when changing gender
+  //   setSkip(0);
+  //   globalCache.lastCacheKey = null;
+  //   localStorage.setItem('helperFilters', JSON.stringify(newFilters));
+  // };
 
   // Handle filter changes
   const handleFilterChange = (e) => {
@@ -531,14 +532,14 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     navigate(`/product/${post.product}`);
   };
 
-  const openOrderDetail = (post) => {
-    // Save both to global cache and localStorage as backup
-    globalCache.lastViewedPostId = post._id;
-    globalCache.lastScrollPosition = window.scrollY;
-    localStorage.setItem('lastHelperScroll', window.scrollY);
-    localStorage.setItem('lastViewedPostId', post._id);
-    navigate(`/order-details/${post._id}`);
-  };
+  // const openOrderDetail = (post) => {
+  //   // Save both to global cache and localStorage as backup
+  //   globalCache.lastViewedPostId = post._id;
+  //   globalCache.lastScrollPosition = window.scrollY;
+  //   localStorage.setItem('lastHelperScroll', window.scrollY);
+  //   localStorage.setItem('lastViewedPostId', post._id);
+  //   navigate(`/order-details/${post._id}`);
+  // };
 
   // Initialize scroll position and post ID from localStorage if needed
   useEffect(() => {
@@ -728,12 +729,26 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     'Other',
   ];
 
+  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const openOrderData = (post) => {
+    setSelectedOrder(post);
+    setOrderDialogOpen(true);
+  };
+  const handleStatusUpdate = (orderId, newStatus) => {
+    setPosts(prevPosts => 
+      prevPosts.map(post => 
+        post._id === orderId ? { ...post, orderStatus: newStatus } : post
+      )
+    );
+  };
+
 
   return (
     <Layout username={tokenUsername} darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}>
        
       {/* Gender Selection Section */}
-      <Box sx={{ 
+      {/* <Box sx={{ 
         display: 'flex', 
         justifyContent: 'center', 
         gap: isMobile ? 2 : 4, 
@@ -784,7 +799,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             </Typography>
           </CardContent>
         </GenderSelectionCard>
-      </Box>
+      </Box> */}
 
       {/* Category Bar */}
       {filters.gender && (
@@ -1341,10 +1356,10 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                       // },
                       // transition: 'transform 0.1s ease, box-shadow 0.1s ease', // Smooth transition for hover
                       position: 'relative',
-                      height: isMobile ? '340px' : '340px', // Fixed height for consistency
+                      height: isMobile ? '280px' : '280px', // Fixed height for consistency
                       overflow: 'hidden',
                     }}
-                    //   onClick={() => openPostDetail(post)}
+                      onClick={() => openOrderData(post)}
                     //   onMouseEnter={(e) => {
                     //     e.currentTarget.style.transform = 'scale(1.02)'; // Slight zoom on hover
                     //     e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)'; // Enhance shadow
@@ -1372,11 +1387,11 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                       // }}
                       >
                       {/* CardMedia for Images with Scroll */}
-                      <CardMedia mx={isMobile ? "-12px" : "-2px"} sx={{ margin: '0rem 0', borderRadius: '8px', overflow: 'hidden', height: '160px', backgroundColor: '#f5f5f5', display: 'flex', flexDirection: 'row', gap: 1 }}>
+                      <CardMedia mx={isMobile ? "-12px" : "-2px"} sx={{ margin: '0rem 0', borderRadius: '8px', overflow: 'hidden', height: '140px', display: 'flex',  gap: 1, p: 1 }}>
                         <Box sx={{
                         //   display: 'flex',
                         //   overflowX: 'auto',
-                           overflowY: 'hidden',
+                          //  overflowY: 'hidden',
                           scrollbarWidth: 'none',
                           scrollbarColor: '#888 transparent',
                           borderRadius: '8px',
@@ -1413,7 +1428,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                             <Avatar
                                 src={`data:image/jpeg;base64,${post.productPic}`} // Render the image
                                 alt={post.productTitle}
-                                sx={{ width: 140, height: 160,  borderRadius: '10px' }}
+                                sx={{ width: 120, height: 140,  borderRadius: '10px' }}
                             />
                             ) : (
                             <Typography variant="body2" color="grey" align="center" marginLeft="1rem" marginTop="1rem" gutterBottom>
@@ -1443,19 +1458,19 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                             }}
                           />
                         )}
-                        <Box>
-                            <Typography variant="body1" style={{ fontWeight: 500 }}>
+                        <Box >
+                            {/* <Typography variant="body1" style={{ fontWeight: 500 }}>
                                 Delivery Address Details:
-                            </Typography>
+                            </Typography> */}
                             <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
-                                Name: {post.userDeliveryAddresses[0]?.name || "N/A"}
+                                {post.userDeliveryAddresses[0]?.name || "N/A"}
                             </Typography>
-                            <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
-                                Phone: {post.userDeliveryAddresses[0]?.phone || "N/A"}
+                            {/* <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
+                                {post.userDeliveryAddresses[0]?.phone || "N/A"}
                             </Typography>
                             <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
                                 Email: {post.userDeliveryAddresses[0]?.email || "N/A"}
-                            </Typography>
+                            </Typography> */}
                             <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
                                 Address: {`${post.userDeliveryAddresses[0]?.address.street || "N/A"}, ${post.userDeliveryAddresses[0]?.address.area || "N/A"}, ${post.userDeliveryAddresses[0]?.address.city || "N/A"}`},
                                 <br /> {`${post.userDeliveryAddresses[0]?.address.state || "N/A"} - ${post.userDeliveryAddresses[0]?.address.pincode || "N/A"}`}
@@ -1589,7 +1604,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                             Description: {post.description}
                         </Typography> */}
                         </CardContent>
-                        <CardActions sx={{
+                        {/* <CardActions sx={{
                             justifyContent: 'space-between', padding: '12px 1rem', position: 'absolute', borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                             bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.95)', mt: 2, backdropFilter: 'blur(10px)',
                             left: 0,
@@ -1641,7 +1656,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                             >
                                 View Order
                             </Button>
-                        </CardActions>
+                        </CardActions> */}
                     </Card>
 
                   </Grid>
@@ -1708,6 +1723,14 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
 
 
       </Box>
+
+      <OrderData
+        order={selectedOrder}
+        open={orderDialogOpen}
+        onClose={() => setOrderDialogOpen(false)}
+        onStatusUpdate={handleStatusUpdate}
+        openProductDetail={openProductDetail}
+      />
 
       <Snackbar
         open={snackbar.open}

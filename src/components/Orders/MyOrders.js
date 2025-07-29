@@ -75,7 +75,7 @@ const MyOrders = () => {
                           e.currentTarget.style.transform = 'scale(1)'; // Revert zoom
                           e.currentTarget.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)'; // Revert shadow
                         }} >
-                          <CardMedia sx={{ position: 'relative', margin: '0rem 0', borderRadius: '8px', overflow: 'hidden', height: '180px', backgroundColor: '#f5f5f5', display: 'flex', flexDirection: 'row', gap: 1 }} >
+                          <CardMedia sx={{ position: 'relative', margin: '0rem 0', borderRadius: '8px', overflow: 'hidden', height: '160px',  display: 'flex', flexDirection: 'row', gap: 1 , p: 1}} >
                           <div style={{
                             // display: 'flex',
                             // overflowX: 'auto',
@@ -104,7 +104,7 @@ const MyOrders = () => {
                               <Avatar
                                 src={`data:image/jpeg;base64,${order.productPic}`} // Render the image
                                 alt={order.productTitle}
-                                sx={{ width: 140, height: 180,  borderRadius: '10px' }}
+                                sx={{ width: 120, height: 160,  borderRadius: '10px' }}
                               />
                             ) : (
                               <Typography variant="body2" color="grey" align="center" marginLeft="1rem" marginTop="1rem" gutterBottom>
