@@ -112,7 +112,7 @@ const MyOrders = () => {
                               </Typography>
                             )}
                           </div>
-                          <Box>
+                          {/* <Box>
                               <Typography variant="body1" style={{ fontWeight: 500 }}>
                                   Delivery Address Details:
                               </Typography>
@@ -129,7 +129,7 @@ const MyOrders = () => {
                                   Address: {`${order.userDeliveryAddresses[0]?.address.street || "N/A"}, ${order.userDeliveryAddresses[0]?.address.area || "N/A"}, ${order.userDeliveryAddresses[0]?.address.city || "N/A"}`},
                                   <br /> {`${order.userDeliveryAddresses[0]?.address.state || "N/A"} - ${order.userDeliveryAddresses[0]?.address.pincode || "N/A"}`}
                               </Typography>
-                          </Box>
+                          </Box> */}
                         </CardMedia>
                         <CardContent style={{ padding: '1rem' }}>
                           <Tooltip title={order.product.title} placement="top" arrow>

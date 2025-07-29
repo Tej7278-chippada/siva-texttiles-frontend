@@ -264,7 +264,8 @@ function OrderDetails() {
                         }
                       }}
                     >
-                      {step.label}
+                      {step.label} <br/>
+                      {(step.label === 'Delivered' && order.orderStatus !== 'Delivered') && <Typography variant="caption" color="textSecondary" sx={{ mb: 2,  }}>Estimated delivery on {new Date(order.deliveryBy[0]?.date).toDateString()}</Typography>}
                       {isActive && (
                         <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
                           {getStatusDescription(order.orderStatus)}
@@ -572,6 +573,14 @@ function OrderDetails() {
                     <Typography variant="body2" color="textSecondary">
                       ₹{order.orderPrice}
                     </Typography> */}
+                  </Grid>
+                  <Grid item xs={12} sm={12} alignItems="center" display="flex">
+                    <Typography variant="body1" style={{ fontWeight: 500, float:'inline-start', marginRight:'1rem' }}>
+                      Estimated delivery date:
+                    </Typography>
+                    <Typography variant="body2" color="textSecondary" >
+                      {new Date(order.deliveryBy[0]?.date).toDateString()}
+                    </Typography>
                   </Grid>
                   <Grid item xs={12} sm={12}>
                     <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>

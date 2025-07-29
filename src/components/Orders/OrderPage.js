@@ -184,9 +184,9 @@ const OrderPage = ({ user }) => {
   
         const orderData = {
           productId: product._id,
-          productTitle: product.title,
-          productPic: product.media[0], // Include the first product image
-          orderPrice: product.price,
+          // productTitle: product.title,
+          // productPic: product.media[0], // Include the first product image
+          // orderPrice: product.price,
           selectedItem: location.state?.selectedColor?.colorName ? {
             size: location.state?.selectedSize,
             colorName: location.state?.selectedColor?.colorName,
@@ -195,7 +195,7 @@ const OrderPage = ({ user }) => {
           deliveryAddress: userSelectedAddress,
           paymentStatus: "Completed",
           sellerTitle: product.user.username,
-          sellerId: product.userId,
+          // sellerId: product.userId,
           razorpay_order_id,
         };
   
