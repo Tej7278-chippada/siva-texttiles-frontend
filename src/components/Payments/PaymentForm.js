@@ -16,13 +16,21 @@ const theme = createTheme({
   },
 });
 
-const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockCountId, name, email, contact, productDesc, selectedItem, sellerTitle, sellerId, productId, onPaymentInitiated, onPaymentModalClosed }) => {
+const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockData, name, email, contact, productDesc, selectedItem, sellerTitle, sellerId, productId, onPaymentInitiated, onPaymentModalClosed }) => {
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: "", severity: "info" });
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm')); // Media query for small screens
   // const userId = localStorage.getItem('userId');
 
   const handlePayment = async () => {
+    if (stockData?.selectedItemStock === 0 || stockData?.totalStock === 0) {
+      setAlert({
+        open: true,
+        message: stockData.selectedItemStock ? 'Selected size/color is out of stock' : 'Product is out of stock',
+        severity: "warning"
+      });
+      return;
+    }
     setLoading(true);
     try {
       // Round the amount to 2 decimal places before sending
@@ -302,7 +310,7 @@ const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockC
               transition: 'all 0.3s ease',
           }}
           onClick={handlePayment}
-          disabled={loading || stockCountId === 0}
+          disabled={loading || stockData?.selectedItemStock === 0 || stockData?.totalStock === 0}
           // startIcon={loading ? null : <PaymentIcon />}
         >
           {loading ? 

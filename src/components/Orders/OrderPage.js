@@ -42,8 +42,8 @@ const OrderPage = ({ user }) => {
   const [timer, setTimer] = useState(600); // 10 minutes in seconds
   const navigate = useNavigate();
   const [stockWarningMessage, setStockWarningMessage] = useState('');
-  const [stockCountId, setStockCountId] = useState(null); // Track only stock count
-  const [isStockFetched, setIsStockFetched] = useState(false); // Track if stock data has been fetched
+  // const [stockCountId, setStockCountId] = useState(null); // Track only stock count
+  // const [isStockFetched, setIsStockFetched] = useState(false); // Track if stock data has been fetched
   const [isAddAddressBoxOpen, setIsAddAddressBoxOpen] = useState(false); // to toggle the Add Address button
   const location = useLocation();
   const [paymentProcessing, setPaymentProcessing] = useState(false);
@@ -55,6 +55,16 @@ const OrderPage = ({ user }) => {
   //   const selectedSize = location.state?.selectedSize;
   //   return selectedItem ? (selectedSize, selectedColor) : null;
   // });
+  const [stockData, setStockData] = useState({
+    selectedItemStock: null,
+    totalStock: null
+  });
+  const [selectedItem, setSelectedItem] = useState(() => {
+    return location.state?.selectedColor && location.state?.selectedSize ? {
+      size: location.state.selectedSize,
+      color: location.state.selectedColor.colorName
+    } : null;
+  });
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -72,8 +82,15 @@ const OrderPage = ({ user }) => {
         const addresses = response.data.deliveryAddresses || [];
         // Sort addresses by `createdAt` in descending order
         setDeliveryAddresses(addresses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
-        setStockCountId(productResponse.data.stockCount); // Set initial stock count
-        setIsStockFetched(true); // Mark stock data as fetched
+        // setStockCountId(productResponse.data.stockCount); // Set initial stock count
+        // setIsStockFetched(true); // Mark stock data as fetched
+        if (location.state?.selectedColor && location.state?.selectedSize) {
+          setSelectedItem({ size: location.state.selectedSize, color: location.state.selectedColor.colorName });
+        };
+        setStockData({
+          selectedItemStock: location.state.selectedSizeCount || null,
+          totalStock: location.state.productStockCount || null,
+        });
 
 
       } catch (err) {
@@ -87,41 +104,59 @@ const OrderPage = ({ user }) => {
     fetchUserDetails();
     const countdown = setInterval(() => setTimer((prev) => prev - 1), 1000);
     return () => clearInterval(countdown);
-  }, [user, id]);
+  }, [user, id, location.state.selectedColor, location.state.selectedSize, location.state.selectedSizeCount, location.state.productStockCount]);
 
   useEffect(() => {
     // Periodically fetch stock count
     const interval = setInterval(async () => {
       try {
-        const stockResponse = await fetchProductStockCount(id);
-        setStockCountId(stockResponse.data.stockCount);
+        const response = await fetchProductStockCount(id, selectedItem?.size, selectedItem?.color);
+        // setStockCountId(stockResponse.data.stockCount);
+        setStockData({
+          selectedItemStock: response.data.stockCount,
+          totalStock: response.data.totalStock
+        });
       } catch (err) {
         console.error("Error fetching product stock count:", err);
       }
     }, 5000); // Fetch every 5 seconds
 
     return () => clearInterval(interval);
-  }, [id]);
+  }, [id, selectedItem ]);
 
   useEffect(() => {
-    if (isStockFetched) {
-      if (stockCountId === 0) {
-        setStockWarningMessage("Product is Out of stock");
+    if (selectedItem) {
+      if (stockData.selectedItemStock === 0) {
+        setStockWarningMessage("Selected size/color is out of stock");
+      } else if (stockData.selectedItemStock !== null && stockData.selectedItemStock > 0) {
+        setStockWarningMessage("");
+      }
+    } else {
+      if (stockData.totalStock === 0) {
+        setStockWarningMessage("Product is out of stock");
       } else {
         setStockWarningMessage("");
       }
     }
-  }, [stockCountId, isStockFetched]);
+  }, [selectedItem, stockData]);
 
   useEffect(() => {
-    if (timer <= 0) {
-      // alert("Time expired! Redirecting to product page.");
+    if (timer <= 60 && timer > 0) { // Last minute warning
+      setAlert({
+        open: true,
+        message: `Hurry! Only ${timer} seconds left to complete your order.`,
+        severity: "warning"
+      });
+    } else if (timer <= 0) {
       setAlert({
         open: true,
         message: "Time expired! Redirecting to product page.",
-        severity: "warning"
+        severity: "error"
       });
-      navigate(`/product/${id}`);
+      const redirectTimer = setTimeout(() => {
+        navigate(`/product/${id}`);
+      }, 300);
+      return () => clearTimeout(redirectTimer);
     }
   }, [timer, id, navigate]);
 
@@ -305,7 +340,20 @@ const OrderPage = ({ user }) => {
 
   const handleNext = () => {
     if (activeStep === 0 && !selectedAddress) {
-      alert("Please select a delivery address.");
+      // alert("Please select a delivery address.");
+      setAlert({
+        open: true,
+        message: 'Please select a delivery address.',
+        severity: "warning"
+      });
+      return;
+    }
+    if (stockData?.selectedItemStock === 0 || stockData?.totalStock === 0) {
+      setAlert({
+        open: true,
+        message: stockData.selectedItemStock ? 'Selected size/color is out of stock' : 'Product is out of stock',
+        severity: "warning"
+      });
       return;
     }
     setActiveStep((prev) => prev + 1);
@@ -448,13 +496,24 @@ const OrderPage = ({ user }) => {
                       
                       </Box>
                       <Grid item xs={6} sm={4}>
-                        {stockCountId ? 
-                        <Typography variant="body2" color={stockCountId > 0 ? "green" : "red"}>
-                          {stockCountId > 0 ? `In Stock (${stockCountId} available)` : "Out of Stock"}
-                        </Typography>
-                        : <Typography variant="body2" color={product.totalStock > 0 ? "green" : "red"}>
-                          {product.totalStock > 0 ? `In Stock (${product.totalStock} available)` : "Out of Stock"}
-                        </Typography>}
+                        {selectedItem ? (
+                          <Typography variant="body2" color={stockData.selectedItemStock > 0 ? "green" : "red"}>
+                            {stockData.selectedItemStock > 0 
+                              ? `In Stock (${stockData.selectedItemStock} available) `  //  for ${selectedItem.size}/${selectedItem.color})
+                              : `Out of Stock for ${selectedItem.size}/${selectedItem.color}`}
+                            {stockData.totalStock > 0 && stockData.selectedItemStock === 0 && (
+                              <Typography variant="caption" display="block" color="text.secondary">
+                                (Other sizes/colors may be available)
+                              </Typography>
+                            )}
+                          </Typography>
+                        ) : (
+                          <Typography variant="body2" color={stockData.totalStock > 0 ? "green" : "red"}>
+                            {stockData.totalStock > 0 
+                              ? `In Stock (${stockData.totalStock} available)` 
+                              : "Out of Stock"}
+                          </Typography>
+                        )}
                       </Grid>
                       <Typography variant="body2" mt={2}>Delivery in {product.deliveryDays} days</Typography>
                       {product.deliveryDays && (
@@ -611,7 +670,7 @@ const OrderPage = ({ user }) => {
                       {stockWarningMessage && <p style={{ color: 'red', float: 'inline-start', marginRight: '10px' }}>{stockWarningMessage}</p>}
                       <Button
                         variant="contained"
-                        disabled={!selectedAddress || stockCountId === 0}
+                        disabled={!selectedAddress || stockData?.selectedItemStock === 0 || stockData?.totalStock === 0}
                         onClick={handleNext}
                         sx={{ m: 1, mb: 2, mt: 3, float: 'right', borderRadius: '12px' }}
                       >
@@ -787,7 +846,8 @@ const OrderPage = ({ user }) => {
                         amount={product.price}
                         discount={product.discount}
                         originalPrice={product.originalPrice}
-                        stockCountId={stockCountId}
+                        // stockCountId={stockCountId}
+                        stockData={stockData}
                         name={selectedAddress.name}
                         email={selectedAddress.email}
                         contact={selectedAddress.phone}
@@ -943,16 +1003,39 @@ const OrderPage = ({ user }) => {
         {/* Global Alert Snackbar */}
         <Snackbar
           open={alert.open}
-          autoHideDuration={6000}
+          autoHideDuration={timer <= 60 ? 5000 : 3000} // Longer display for last minute warnings
           onClose={() => setAlert({...alert, open: false})}
           anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
+          sx={{
+            '& .MuiAlert-root': {
+              backgroundColor: alert.severity === 'warning' ? '#ff9800' : undefined,
+              color: alert.severity === 'warning' ? '#fff' : undefined,
+            }
+          }}
         >
           <Alert 
             severity={alert.severity} 
-            sx={{ width: '100%' }}
+            sx={{ width: '100%', borderRadius: '12px' }}
             onClose={() => setAlert({...alert, open: false})}
           >
             {alert.message}
+            {timer <= 60 && timer > 0 && (
+              <Box sx={{ 
+                width: '100%',
+                height: '4px',
+                backgroundColor: 'rgba(255,255,255,0.5)',
+                mt: 1,
+                borderRadius: '2px'
+              }}>
+                <Box sx={{ 
+                  width: `${(timer / 60) * 100}%`,
+                  height: '100%',
+                  backgroundColor: '#fff',
+                  borderRadius: '2px',
+                  transition: 'width 1s linear'
+                }} />
+              </Box>
+            )}
           </Alert>
         </Snackbar>
       </Box>

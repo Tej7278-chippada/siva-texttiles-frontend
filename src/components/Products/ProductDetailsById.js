@@ -66,7 +66,7 @@ const getGlassmorphismStyle = (theme, darkMode) => ({
 });
 
 // Add this component inside ProductDetailsById.js (before the main component)
-const ColorVariantDisplay = ({ variants, selectedColorIndex, setSelectedColorIndex, selectedSize, setSelectedSize }) => {
+const ColorVariantDisplay = ({ variants, selectedColorIndex, setSelectedColorIndex, selectedSize, setSelectedSize, setSelectedSizeCount }) => {
   // const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   // const [selectedSize, setSelectedSize] = useState(null);
 
@@ -107,6 +107,7 @@ const ColorVariantDisplay = ({ variants, selectedColorIndex, setSelectedColorInd
               onClick={() => {
                 setSelectedColorIndex(index);
                 setSelectedSize(null); // Reset size when color changes
+                setSelectedSizeCount(0);
               }}
               variant={selectedColorIndex === index ? 'filled' : 'outlined'}
               sx={{
@@ -137,7 +138,7 @@ const ColorVariantDisplay = ({ variants, selectedColorIndex, setSelectedColorInd
             >
               <Chip
                 label={sizeItem.size}
-                onClick={() => setSelectedSize(sizeItem.size)}
+                onClick={() => {setSelectedSize(sizeItem.size); setSelectedSizeCount(sizeItem.count); }}
                 variant={selectedSize === sizeItem.size ? 'filled' : 'outlined'}
                 disabled={sizeItem.count <= 0}
                 sx={{
@@ -196,6 +197,8 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
   // const [chatData, setChatData] = useState({});
   const [selectedColorIndex, setSelectedColorIndex] = useState(0);
   const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedSizeCount, setSelectedSizeCount] = useState(0);
+  const [productStockCount, setProductStockCount] = useState(0);
   // const [sizeError, setSizeError] = useState('');
   
 
@@ -225,6 +228,7 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
           likes: likesCount,
         });
         // setStockCountId(response.data.stockCount); // Set initial stock count
+        setProductStockCount(response.data.totalStock);
 
       } catch (error) {
         if (error.response && error.response.status === 404) {
@@ -474,7 +478,9 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
       state: { 
         product,
         selectedColor: product.variants?.[selectedColorIndex],
-        selectedSize 
+        selectedSize,
+        selectedSizeCount,
+        productStockCount
       } 
     });
   };
@@ -882,6 +888,7 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                         setSelectedColorIndex={setSelectedColorIndex}
                         selectedSize={selectedSize}
                         setSelectedSize={setSelectedSize}
+                        setSelectedSizeCount={setSelectedSizeCount}
                       />
                     </Box>
                     <Box>

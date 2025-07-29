@@ -187,11 +187,18 @@ export const addDeliveryAddresses = async (deliveryAddresses) => {
   }
 };
 
-export const fetchProductStockCount = async (id) => {
+export const fetchProductStockCount = async (id, size, color) => {
   const authToken = localStorage.getItem('authToken');
   const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  const params = {};
   
-  return await API.get(`/api/products/${id}/stock-count`, { headers });
+  if (size) params.size = size;
+  if (color) params.color = color;
+  
+  return await API.get(`/api/products/${id}/stock-count`, { 
+    headers,
+    params 
+  });
 };
 
 export const saveOrder = async (order) => {
