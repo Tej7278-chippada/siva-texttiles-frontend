@@ -74,6 +74,8 @@ export const fetchSellerorders = (skip = 0, limit = 12, filters = {}, searchQuer
     orderStatus: filters.orderStatus,
     orderPrice: `${filters.priceRange[0]}-${filters.priceRange[1]}`,
     // postType: filters.serviceType ? 'ServiceOffering' : 'HelpRequest' // added this line for only shows the Helper posts on ALL section
+    startDate: filters?.dateRange?.startDate,
+    endDate: filters?.dateRange?.endDate
   };
 
   // Add search query parameter

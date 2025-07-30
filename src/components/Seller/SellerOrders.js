@@ -66,6 +66,10 @@ const DEFAULT_FILTERS = {
   orderStatus: '',
   priceRange: [0, 100000],
 //   postType: 'HelpRequest' // added this line for only shows the Helper posts on ALL section
+  // dateRange: {
+  //   startDate: new Date(new Date().setDate(new Date().getDate() - 7)).toISOString().split('T')[0], // Last 7 days
+  //   endDate: new Date().toISOString().split('T')[0] // Today
+  // }
 };
 
 // const getGlassmorphismStyle = (theme, darkMode) => ({
@@ -243,7 +247,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
       // Clear cache for the old filter combination
       globalCache.lastCacheKey = null;
     }
-    // setShowDistanceRanges(false);
+    setShowDistanceRanges(false);
   };
 
   // const [selectedCategory, setSelectedCategory] = useState(() => {
@@ -284,11 +288,23 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     // Clear cache for the old filter combination
     globalCache.lastCacheKey = null;
     localStorage.removeItem('helperFilters');
+    setShowDistanceRanges(false);
   };
 
+  // Date handling functions
+  const formatDate = (date) => {
+    return date.toISOString().split('T')[0];
+  };
 
-
-  
+  const handleDateChange = (date, type) => {
+    setLocalFilters(prev => ({
+      ...prev,
+      dateRange: {
+        ...prev.dateRange,
+        [type]: date ? formatDate(new Date(date)) : ''
+      }
+    }));
+  };
 
   // Add search state at the top with other state declarations
   const [searchQuery, setSearchQuery] = useState(() => {
@@ -322,7 +338,9 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     //   lng: userLocation?.longitude,
     //   distance: distanceRange,
       search: searchQuery, // Add search query to cache key
-      ...filters
+      ...filters,
+      startDate: filters?.dateRange?.startDate,
+      endDate: filters?.dateRange?.endDate
     });
   }, [ filters, searchQuery]);
 
@@ -790,6 +808,14 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     }
   };
 
+  const formatDisplayDate = (dateString) => {
+  const date = new Date(dateString);
+  return date.toLocaleDateString(undefined, {
+    month: 'short',
+    day: 'numeric'
+  });
+};
+
 
   return (
     <Layout username={tokenUsername} darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}>
@@ -937,15 +963,29 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
           {/* <Typography variant="h6" style={{ flexGrow: 1, marginRight: '2rem' }}>
             Posts
           </Typography> */}
-          <Box display="flex" justifyContent="flex-start" sx={{flexGrow: 1, marginRight: '6px', marginLeft: isMobile ? '-12px' : '-14px'}}>
-          
+          <Box display="flex" justifyContent="flex-start" sx={{flexGrow: 1, marginRight: '6px' }}>
+            <Chip
+              // label={`orders: ${totalPosts}`}
+              label={
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+                  <LocalMallRoundedIcon fontSize="small" />
+                  <Typography variant="body2" component="span">
+                    {totalPosts}
+                  </Typography>
+                </Box>
+              }
+              color="secondary"
+              // color={filters?.orderStatus === 'All' ? 'primary' : getStatusColor(filters?.orderStatus)}
+              // size="small"
+              variant="outlined"
+              // sx={{ fontWeight: 600 }}
+            />
           </Box>
-          <Box>
-          
-          
-          </Box>
+          {/* <Box>
+            
+          </Box> */}
           {/* Search Bar */}
-          <SearchContainer>
+          {!isMobile &&  <SearchContainer>
             <Box>
             <SearchTextField
               variant="outlined"
@@ -957,38 +997,8 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
               inputRef={inputRef}
               expanded={expanded} darkMode={darkMode}
               InputProps={{
-                // startAdornment: (
-                //   <InputAdornment position="start">
-                //     <IconButton 
-                //       onClick={!expanded ? handleSearchClick : undefined}
-                //       sx={{
-                //         minWidth: '40px',
-                //         minHeight: '40px',
-                //         // marginLeft: expanded ? '8px' : '0px',
-                //       }}
-                //     >
-                //       {isSearching ? (
-                //         <CircularProgress size={16} />
-                //       ) : (
-                //         <SearchIcon color="action" />
-                //       )}
-                //     </IconButton>
-                //   </InputAdornment>
-                // ),
-                endAdornment: 
-                
-                  <>
-                  {expanded && searchQuery && (
-                  <InputAdornment position="end">
-                    <IconButton 
-                      onClick={handleClearClick}
-                      size="small"
-                      sx={{ mr: '6px' }}
-                    >
-                      <ClearIcon color="action" fontSize="small" />
-                    </IconButton>
-                  </InputAdornment>)}
-                  <InputAdornment position="center">
+                startAdornment: (
+                  <InputAdornment position="start">
                     <IconButton 
                       onClick={!expanded ? handleSearchClick : undefined}
                       sx={{
@@ -1004,6 +1014,36 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                       )}
                     </IconButton>
                   </InputAdornment>
+                ),
+                endAdornment: 
+                
+                  <>
+                  {expanded && searchQuery && (
+                  <InputAdornment position="end">
+                    <IconButton 
+                      onClick={handleClearClick}
+                      size="small"
+                      sx={{ mr: '6px' }}
+                    >
+                      <ClearIcon color="action" fontSize="small" />
+                    </IconButton>
+                  </InputAdornment>)}
+                  {!expanded && <InputAdornment position="center">
+                    <IconButton 
+                      onClick={!expanded ? handleSearchClick : undefined}
+                      sx={{
+                        minWidth: '40px',
+                        minHeight: '40px',
+                        // marginLeft: expanded ? '8px' : '0px',
+                      }}
+                    >
+                      {isSearching ? (
+                        <CircularProgress size={16} />
+                      ) : (
+                        <SearchIcon color="action" />
+                      )}
+                    </IconButton>
+                  </InputAdornment>}
                   </>
                 ,
                 sx: {
@@ -1013,8 +1053,8 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             />
             
             </Box>
-          </SearchContainer>
-          {/* {isMobile && !expanded && <IconButton 
+          </SearchContainer>}
+          {isMobile && !expanded && <IconButton 
             onClick={!expanded ? handleSearchClick : undefined}
             sx={{
               minWidth: '40px',
@@ -1027,19 +1067,98 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             ) : (
               <SearchIcon color="action" />
             )}
-          </IconButton>} */}
-          <Box sx={{display:'flex', justifyContent:'space-between', marginRight:'-6px', marginLeft:'8px'}}>
+          </IconButton>}
+          <Box sx={{display:'flex', justifyContent:'space-between', marginLeft:'8px'}}>
           {/* Button to Open Distance Menu */}
-          <IconButton 
-           onClick={handleOpenFilters}
-            sx={{
-              minWidth: '40px',
-              minHeight: '40px',
-              marginLeft: expanded ? '8px' : '0px',
-            }}
-          >
-            <FilterListRoundedIcon color="action" />
-          </IconButton>
+          <Box sx={{ position: 'relative' }}>
+            {/* <Tooltip title="Filter orders by date range" arrow> */}
+              <Button
+                onClick={handleOpenFilters}
+                // variant="outlined"
+                // size="small"
+                sx={{
+                  minWidth: 'auto',
+                  height: '40px',
+                  // marginLeft: expanded ? '8px' : '0px',
+                  borderRadius: '20px',
+                  // padding: '0 12px',
+                  // borderColor: theme.palette.mode === 'dark' ? 
+                  //   alpha(theme.palette.divider, 0.3) : 
+                  //   alpha(theme.palette.divider, 0.5),
+                  backgroundColor: theme.palette.mode === 'dark' ? 
+                    alpha(theme.palette.background.paper, 0.7) : 
+                    alpha(theme.palette.background.paper, 0.9),
+                  '&:hover': {
+                    // backgroundColor: theme.palette.mode === 'dark' ? 
+                    //   alpha(theme.palette.primary.main, 0.1) : 
+                    //   alpha(theme.palette.primary.light, 0.2),
+                    // borderColor: theme.palette.primary.main,
+                    // boxShadow: `0 0 0 1px ${theme.palette.primary.main}`
+                  },
+                  transition: 'all 0.2s ease',
+                }}
+                startIcon={
+                  <FilterListRoundedIcon 
+                    // fontSize="small" 
+                    color={filters?.dateRange?.startDate !== filters?.dateRange?.endDate ? 
+                      'primary' : 'action'} 
+                  />
+                }
+                endIcon={ filters?.dateRange &&
+                  <Box sx={{ 
+                    display: 'flex', 
+                    alignItems: 'center',
+                    // ml: 1,
+                    px: 1,
+                    py: 0.5,
+                    borderRadius: '12px',
+                    backgroundColor: theme.palette.mode === 'dark' ? 
+                      alpha(theme.palette.primary.main, 0.2) : 
+                      alpha(theme.palette.primary.light, 0.3),
+                  }}>
+                    <Typography variant="caption" sx={{ 
+                      fontWeight: 600,
+                      color: filters?.dateRange?.startDate !== filters?.dateRange?.endDate ? 
+                        theme.palette.primary.main : 
+                        theme.palette.text.secondary
+                    }}>
+                      {formatDisplayDate(filters?.dateRange?.startDate)} - {formatDisplayDate(filters?.dateRange?.endDate)}
+                    </Typography>
+                  </Box>
+                }
+              >
+              </Button>
+            {/* </Tooltip> */}
+
+            {/* Date range indicator badge */}
+            {filters?.dateRange?.startDate !== filters?.dateRange?.endDate && (
+              <Box sx={{
+                position: 'absolute',
+                top: -6,
+                right: -6,
+                width: 'auto', p: '2px 6px',
+                height: 16,
+                borderRadius: '12px',
+                backgroundColor: theme.palette.primary.main,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxShadow: `0 0 0 2px ${theme.palette.background.paper}`
+              }}>
+                <Typography variant="caption" sx={{ 
+                  color: theme.palette.primary.contrastText,
+                  fontSize: '0.6rem',
+                  fontWeight: 'bold',
+                  lineHeight: 1
+                }}>
+                  {Math.ceil(
+                    (new Date(filters.dateRange.endDate) - new Date(filters.dateRange.startDate)) / 
+                    (1000 * 60 * 60 * 24)
+                  )}d
+                </Typography>
+              </Box>
+            )}
+          </Box>
           {/* Distance Button */}
           {/* <Button
             variant="contained"
@@ -1311,6 +1430,71 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                           </Select>
                         </FormControl> */}
 
+                        {/* Date Range */}
+                        <Box display="flex" gap={2} flexWrap="wrap" sx={{ mt: 2 }}>
+                          <Box sx={{display: 'flex', gap: 1, width: '100%'}}>
+                            <TextField
+                              label="Start Date"
+                              type="date"
+                              size="small"
+                              value={localFilters?.dateRange?.startDate}
+                              onChange={(e) => handleDateChange(e.target.value, 'startDate')}
+                              fullWidth
+                              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                              InputLabelProps={{
+                                shrink: true,
+                              }}
+                            />
+                            <Button
+                              variant="outlined"
+                              onClick={() => {
+                                const today = formatDate(new Date());
+                                const last7Days = formatDate(new Date(new Date().setDate(new Date().getDate() - 7)));
+                                setLocalFilters(prev => ({
+                                  ...prev,
+                                  dateRange: {
+                                    startDate: last7Days,
+                                    endDate: today
+                                  }
+                                }));
+                              }}
+                              sx={{ borderRadius:'8px', textTransform: 'none' }}
+                            >
+                              7
+                            </Button>
+                          </Box>
+                          <Box sx={{display: 'flex', gap: 1, width: '100%'}}>
+                            <TextField
+                              label="End Date"
+                              type="date"
+                              size="small"
+                              value={localFilters?.dateRange?.endDate}
+                              onChange={(e) => handleDateChange(e.target.value, 'endDate')}
+                              fullWidth
+                              sx={{ '& .MuiOutlinedInput-root': { borderRadius: '12px' } }}
+                              InputLabelProps={{
+                                shrink: true,
+                              }}
+                            />
+                            <Button
+                              variant="outlined"
+                              onClick={() => {
+                                const today = formatDate(new Date());
+                                setLocalFilters(prev => ({
+                                  ...prev,
+                                  dateRange: {
+                                    startDate: today,
+                                    endDate: today
+                                  }
+                                }));
+                              }}
+                              sx={{ borderRadius:'8px', textTransform: 'none' }}
+                            >
+                              Today
+                            </Button>
+                          </Box>
+                        </Box>
+
                         {/* Price Range */}
                         <Box display="flex" gap={2} flex="1 1 auto">
                           <TextField
@@ -1360,7 +1544,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
           
         </Toolbar>
         {/* Search Bar */}
-         {/* {isMobile && expanded &&  <SearchContainer sx={{mx : 2}}>
+         {isMobile && expanded &&  <SearchContainer sx={{mx : 2, mb: 2}}>
             <Box>
             <SearchTextField
               variant="outlined"
@@ -1408,10 +1592,10 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             />
             
             </Box>
-          </SearchContainer> } */}
+          </SearchContainer> }
 
 
-        <Box mb={1} sx={{ background: 'rgba(255, 255, 255, 0)',  backdropFilter: 'blur(10px)', paddingTop: '1rem', paddingBottom: '1rem', mx: isMobile ? '6px' : '8px', paddingInline: isMobile ? '8px' : '10px', borderRadius: '10px' }} > {/* sx={{ p: 2 }} */}
+        <Box mb={1} sx={{ background: '#f5f5f5', paddingTop: '1rem', paddingBottom: '1rem', mx: isMobile ? '6px' : '8px', paddingInline: isMobile ? '8px' : '10px', borderRadius: '10px' }} > {/* sx={{ p: 2 }} */}
           {loading ? (
               <SkeletonCards/>
             ) : 

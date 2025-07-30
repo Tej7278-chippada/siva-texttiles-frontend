@@ -1266,7 +1266,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
           </SearchContainer> } */}
 
 
-        <Box mb={1} sx={{ background: 'rgba(255, 255, 255, 0)',  backdropFilter: 'blur(10px)', paddingTop: '1rem', paddingBottom: '1rem', mx: isMobile ? '6px' : '8px', paddingInline: isMobile ? '8px' : '10px', borderRadius: '10px' }} > {/* sx={{ p: 2 }} */}
+        <Box mb={1} sx={{ background: '#f5f5f5',  paddingTop: '1rem', paddingBottom: '1rem', mx: isMobile ? '6px' : '8px', paddingInline: isMobile ? '8px' : '10px', borderRadius: '10px' }} > {/* sx={{ p: 2 }} */}
           {loading ? (
               <SkeletonCards/>
             ) : 
