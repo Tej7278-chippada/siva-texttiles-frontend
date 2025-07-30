@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Layout from "../Layout/Layout";
-import { Alert, alpha, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Snackbar, Tooltip, useMediaQuery, useTheme, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress, Chip } from "@mui/material";
+import { Alert, alpha, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Snackbar, Tooltip, useMediaQuery, useTheme, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress, Chip, Avatar } from "@mui/material";
 import PostProduct from "./PostProduct";
 import { deleteProduct, filterProductsByGender, getProductCounts, searchProducts } from "../Apis/SellerApis";
 import {
@@ -39,6 +39,7 @@ import DeleteSweepRoundedIcon from '@mui/icons-material/DeleteSweepRounded';
 import PostAddRoundedIcon from '@mui/icons-material/PostAddRounded';
 import SkeletonCards from "../Layout/SkeletonCards";
 import { useNavigate } from "react-router-dom";
+import ShoppingCartRoundedIcon from '@mui/icons-material/ShoppingCartRounded';
 
 const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }) => {
   const [searchQuery, setSearchQuery] = useState("");
@@ -352,10 +353,28 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
   return (
     <Layout>
       <Box sx={{ m: isMobile ? '12px' : '18px' }}>
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 2 }}>
-          <Typography variant={isMobile ? 'h6' : 'h5'} >
-            Seller Products
+        {/* Header Section */}
+        <Box sx={{ mb: 4, textAlign: 'center' }}>
+          <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 2 }}>
+            <Avatar sx={{ 
+              bgcolor: 'primary.main', 
+              width: isMobile ? 40 : 56, 
+              height: isMobile ? 40 : 56 
+            }}>
+              <ShoppingCartRoundedIcon sx={{ fontSize: isMobile ? 24 : 32 }} />
+            </Avatar>
+            <Typography variant={isMobile ? 'h5' : 'h4'} gutterBottom sx={{ m: 0 }}>
+              Products Page
+            </Typography>
+          </Stack>
+          <Typography variant="body1" color="text.secondary">
+            Add and Manage Products.
           </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'right', alignItems: 'center', mb: 2 }}>
+          {/* <Typography variant={isMobile ? 'h6' : 'h5'} >
+            Seller Products
+          </Typography> */}
           <Button
             variant="contained"
             onClick={() => handleOpenDialog()}

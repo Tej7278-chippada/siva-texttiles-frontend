@@ -40,6 +40,7 @@ import SkeletonCards from '../Layout/SkeletonCards';
 import { NotificationsActiveRounded, NotificationsOffRounded } from '@mui/icons-material';
 import { urlBase64ToUint8Array } from '../utils/pushNotifications';
 import OrderData from './OrderData';
+import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
 // import LazyImage from '../Products/LazyImage';
 
 // Gender selection images
@@ -67,18 +68,18 @@ const DEFAULT_FILTERS = {
 //   postType: 'HelpRequest' // added this line for only shows the Helper posts on ALL section
 };
 
-const getGlassmorphismStyle = (theme, darkMode) => ({
-  background: darkMode 
-    ? 'rgba(30, 30, 30, 0.85)' 
-    : 'rgba(255, 255, 255, 0.15)',
-  backdropFilter: 'blur(20px)',
-  border: darkMode 
-    ? '1px solid rgba(255, 255, 255, 0.1)' 
-    : '1px solid rgba(255, 255, 255, 0.2)',
-  boxShadow: darkMode 
-    ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
-    : '0 8px 32px rgba(0, 0, 0, 0.1)',
-});
+// const getGlassmorphismStyle = (theme, darkMode) => ({
+//   background: darkMode 
+//     ? 'rgba(30, 30, 30, 0.85)' 
+//     : 'rgba(255, 255, 255, 0.15)',
+//   backdropFilter: 'blur(20px)',
+//   border: darkMode 
+//     ? '1px solid rgba(255, 255, 255, 0.1)' 
+//     : '1px solid rgba(255, 255, 255, 0.2)',
+//   boxShadow: darkMode 
+//     ? '0 8px 32px rgba(0, 0, 0, 0.3)' 
+//     : '0 8px 32px rgba(0, 0, 0, 0.1)',
+// });
 
 const SearchContainer = styled(Box)(({ theme }) => ({
   display: 'flex', 
@@ -819,12 +820,32 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
           </CardContent>
         </GenderSelectionCard>
       </Box> */}
+      {/* Header Section */}
+      <Box sx={{ mb: 4, mt: 2, textAlign: 'center' }}>
+        <Stack direction="row" alignItems="center" justifyContent="center" spacing={2} sx={{ mb: 2 }}>
+          <Avatar sx={{ 
+            bgcolor: 'primary.main', 
+            width: isMobile ? 40 : 56, 
+            height: isMobile ? 40 : 56 
+          }}>
+            <LocalMallRoundedIcon sx={{ fontSize: isMobile ? 24 : 32 }} />
+          </Avatar>
+          <Typography variant={isMobile ? 'h5' : 'h4'} gutterBottom sx={{ m: 0 }}>
+            Orders Page
+          </Typography>
+        </Stack>
+        <Typography variant="body1" color="text.secondary">
+          Manage Orders and Delivery the Products.
+        </Typography>
+      </Box>
 
       {/* Category Bar */}
       {filters.gender && (
         <Box sx={{ 
           display: 'flex', 
-          overflowX: 'auto', ...getGlassmorphismStyle(), m: 1, borderRadius: '12px',
+          overflowX: 'auto', 
+          // ...getGlassmorphismStyle(), 
+          m: 1, borderRadius: '12px',
           gap: 1,
           px: 2,
           py: 1,
