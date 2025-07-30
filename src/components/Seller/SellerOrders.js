@@ -1,6 +1,6 @@
 // components/Products/ProductsPage.js
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import {Alert, alpha, Box, Button, Card, CardContent, CardMedia, CircularProgress, FormControl, Grid, IconButton, InputAdornment, InputLabel,  MenuItem,  Select, Snackbar, styled,  TextField, Toolbar, Tooltip, Typography, useMediaQuery, Stack, Chip, Avatar} from '@mui/material';
+import {Alert, alpha, Box, Button, Card, CardContent, CardMedia, CircularProgress, Grid, IconButton, InputAdornment, Snackbar, styled,  TextField, Toolbar, Tooltip, Typography, useMediaQuery, Stack, Chip, Avatar} from '@mui/material';
 // import Layout from '../Layout';
 // import SkeletonCards from './SkeletonCards';
 // import LazyImage from './LazyImage';
@@ -59,10 +59,10 @@ const globalCache = {
 
 // Default filter values
 const DEFAULT_FILTERS = {
-  categoriesFemale: '',
-  categoriesMale: '',
+  // categoriesFemale: '',
+  // categoriesMale: '',
 //   categoriesKids: '',
-  gender: 'Female',
+  // gender: 'Female',
   orderStatus: '',
   priceRange: [0, 100000],
 //   postType: 'HelpRequest' // added this line for only shows the Helper posts on ALL section
@@ -212,10 +212,10 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
   // };
 
   // Handle filter changes
-  const handleFilterChange = (e) => {
-    const { name, value } = e.target;
-    setLocalFilters(prev => ({ ...prev, [name]: value }));
-  };
+  // const handleFilterChange = (e) => {
+  //   const { name, value } = e.target;
+  //   setLocalFilters(prev => ({ ...prev, [name]: value }));
+  // };
 
   // Handle price range changes
   const handlePriceChange = (e, type) => {
@@ -246,39 +246,39 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     // setShowDistanceRanges(false);
   };
 
-  const [selectedCategory, setSelectedCategory] = useState(() => {
-    const savedFilters = localStorage.getItem('helperFilters');
-    return savedFilters 
-      ? JSON.parse(savedFilters).categoriesFemale || JSON.parse(savedFilters).categoriesMale || '' 
-      : '';
-  });
+  // const [selectedCategory, setSelectedCategory] = useState(() => {
+  //   const savedFilters = localStorage.getItem('helperFilters');
+  //   return savedFilters 
+  //     ? JSON.parse(savedFilters).categoriesFemale || JSON.parse(savedFilters).categoriesMale || '' 
+  //     : '';
+  // });
   // useEffect to sync selectedCategory with filters
   // useEffect(() => {
   //   setSelectedCategory(filters.categories || filters.serviceType  || '');
   // }, [filters.categories, filters.serviceType]);
 
   // function to handle category selection
-  const handleCategorySelect = (value) => {
-    setSelectedCategory(value);
+  // const handleCategorySelect = (value) => {
+  //   setSelectedCategory(value);
     
-    const newFilters = { 
-      ...filters,
-      categoriesFemale: filters.gender === 'Female' ? value : '',
-      categoriesMale: filters.gender === 'Male' ? value : '',
-    };
+  //   const newFilters = { 
+  //     ...filters,
+  //     categoriesFemale: filters.gender === 'Female' ? value : '',
+  //     categoriesMale: filters.gender === 'Male' ? value : '',
+  //   };
 
-    setFilters(newFilters);
-    setLocalFilters(newFilters);
-    setSkip(0);
-    globalCache.lastCacheKey = null;
-    localStorage.setItem('helperFilters', JSON.stringify(newFilters));
-  };
+  //   setFilters(newFilters);
+  //   setLocalFilters(newFilters);
+  //   setSkip(0);
+  //   globalCache.lastCacheKey = null;
+  //   localStorage.setItem('helperFilters', JSON.stringify(newFilters));
+  // };
 
   // Reset filters
   const handleResetFilters = () => {
     setLocalFilters(DEFAULT_FILTERS);
     setFilters(DEFAULT_FILTERS);
-    setSelectedCategory(''); // for category bar 'ALL' selection 
+    // setSelectedCategory(''); // for category bar 'ALL' selection 
     setSkip(0);
     setPosts([]);
     // Clear cache for the old filter combination
@@ -345,6 +345,33 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     setSearchQuery('');
     setSkip(0);
     globalCache.lastCacheKey = null;
+  };
+
+  // Order status categories
+  const orderStatusCategories = [
+    'All',
+    'Created',
+    'Packing',
+    'Ready to Deliver',
+    'On Delivery',
+    'Delivered',
+    'Cancelled',
+    'Returned',
+    'Refunded'
+  ];
+
+  // Function to handle status selection
+  const handleStatusSelect = (status) => {
+    const newFilters = { 
+      ...filters,
+      orderStatus: status === 'All' ? '' : status
+    };
+
+    setFilters(newFilters);
+    setLocalFilters(newFilters);
+    setSkip(0);
+    globalCache.lastCacheKey = null;
+    localStorage.setItem('helperFilters', JSON.stringify(newFilters));
   };
 
   // Fetch posts data
@@ -670,65 +697,65 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
 
   // Gender categories
   // const femaleCategories = ['All', 'Saari', 'Dress', 'Accessories'];
-  const femaleCategories = [
-    'All',
-    'Uppada Pattu',
-    'Kuppadam Sarees',
-    'Kanchi Pattu',
-    'Mangalagiri Pattu',
-    'Silk Sarees',
-    'Wedding Sarees',
-    'Banarasi Sarees',
-    'Chanderi Sarees',
-    // 'Maheshwari Sarees',
-    // 'Tussar Silk',
-    // 'Organza Sarees',
-    // 'Linen Sarees',
-    'Cotton Sarees',
-    'Printed Sarees',
-    // 'Designer Sarees',
-    // 'Bollywood Sarees',
-    'Party Wear Sarees',
-    // 'Traditional Sarees',
-    // 'Modern Sarees',
-    // 'Handloom Sarees',
-    'Other'
-  ];
-  // const maleCategories = ['All', 'Sports', 'Top', 'Bottom'];
-  const maleCategories = [
-    'All', 
-    // Tops
-    'Round Neck T-Shirt (Half Sleeves)',
-    'Round Neck T-Shirt (Full Sleeves)',
-    'Collar T-Shirt (Half Sleeves)',
-    'Collar T-Shirt (Full Sleeves)',
-    // 'Polo T-Shirt',
-    // 'Sleeveless Shirt',
-    // 'Tank Top',
-    'Sports Jacket',
-    // 'Hoodie',
-    // 'Sweatshirt',
+  // const femaleCategories = [
+  //   'All',
+  //   'Uppada Pattu',
+  //   'Kuppadam Sarees',
+  //   'Kanchi Pattu',
+  //   'Mangalagiri Pattu',
+  //   'Silk Sarees',
+  //   'Wedding Sarees',
+  //   'Banarasi Sarees',
+  //   'Chanderi Sarees',
+  //   // 'Maheshwari Sarees',
+  //   // 'Tussar Silk',
+  //   // 'Organza Sarees',
+  //   // 'Linen Sarees',
+  //   'Cotton Sarees',
+  //   'Printed Sarees',
+  //   // 'Designer Sarees',
+  //   // 'Bollywood Sarees',
+  //   'Party Wear Sarees',
+  //   // 'Traditional Sarees',
+  //   // 'Modern Sarees',
+  //   // 'Handloom Sarees',
+  //   'Other'
+  // ];
+  // // const maleCategories = ['All', 'Sports', 'Top', 'Bottom'];
+  // const maleCategories = [
+  //   'All', 
+  //   // Tops
+  //   'Round Neck T-Shirt (Half Sleeves)',
+  //   'Round Neck T-Shirt (Full Sleeves)',
+  //   'Collar T-Shirt (Half Sleeves)',
+  //   'Collar T-Shirt (Full Sleeves)',
+  //   // 'Polo T-Shirt',
+  //   // 'Sleeveless Shirt',
+  //   // 'Tank Top',
+  //   'Sports Jacket',
+  //   // 'Hoodie',
+  //   // 'Sweatshirt',
     
-    // Bottoms
-    'Track Pants',
-    'Shorts',
-    // 'Joggers',
-    // 'Sports Tights',
-    // 'Three-Fourths',
-    // 'Cargo Pants',
+  //   // Bottoms
+  //   'Track Pants',
+  //   'Shorts',
+  //   // 'Joggers',
+  //   // 'Sports Tights',
+  //   // 'Three-Fourths',
+  //   // 'Cargo Pants',
     
-    // // Sets
-    // 'Sports Set (Top+Bottom)',
-    // 'Track Suit',
+  //   // // Sets
+  //   // 'Sports Set (Top+Bottom)',
+  //   // 'Track Suit',
     
-    // // Specialized
-    // 'Compression Wear',
-    // 'Swimwear',
-    // 'Cycling Shorts',
-    // 'Gym Wear'
+  //   // // Specialized
+  //   // 'Compression Wear',
+  //   // 'Swimwear',
+  //   // 'Cycling Shorts',
+  //   // 'Gym Wear'
 
-    'Other',
-  ];
+  //   'Other',
+  // ];
 
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [orderDialogOpen, setOrderDialogOpen] = useState(false);
@@ -839,8 +866,34 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
         </Typography>
       </Box>
 
+      {/* Order Status Bar */}
+      <Box sx={{ 
+        display: 'flex', 
+        overflowX: 'auto', 
+        m: 1, 
+        borderRadius: '12px',
+        gap: 1,
+        px: 2,
+        py: 1,
+        mb: 2,
+        '&::-webkit-scrollbar': { display: 'none' }
+      }}>
+        {orderStatusCategories.map((status) => (
+          <Chip
+            key={status}
+            label={status}
+            onClick={() => handleStatusSelect(status)}
+            variant={filters.orderStatus === (status === 'All' ? '' : status) ? 'filled' : 'outlined'}
+            color={status === 'All' ? 'primary' : getStatusColor(status)}
+            sx={{ 
+              fontWeight: filters.orderStatus === (status === 'All' ? '' : status) ? 600 : 400,
+            }}
+          />
+        ))}
+      </Box>
+
       {/* Category Bar */}
-      {filters.gender && (
+      {/* {filters.gender && (
         <Box sx={{ 
           display: 'flex', 
           overflowX: 'auto', 
@@ -868,7 +921,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
             />
           ))}
         </Box>
-      )}
+      )} */}
       {/* <CategoryBar selectedCategory={selectedCategory} onCategorySelect={handleCategorySelect} darkMode={darkMode} isMobile={isMobile}/> */}
       <Box>
       <Toolbar sx={{display:'flex', justifyContent:'space-between',
@@ -1239,7 +1292,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                         
 
                         {/* Status Filter */}
-                        <FormControl size='small' sx={{ flex: '1 1 180px', '& .MuiOutlinedInput-root': { borderRadius: '12px',} }}>
+                        {/* <FormControl size='small' sx={{ flex: '1 1 180px', '& .MuiOutlinedInput-root': { borderRadius: '12px',} }}>
                           <InputLabel>Order Status</InputLabel>
                           <Select
                             name="orderStatus"
@@ -1256,7 +1309,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                             <MenuItem value="Returned">Returned</MenuItem>
                             <MenuItem value="Refunded">Refunded</MenuItem>
                           </Select>
-                        </FormControl>
+                        </FormControl> */}
 
                         {/* Price Range */}
                         <Box display="flex" gap={2} flex="1 1 auto">
