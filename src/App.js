@@ -37,6 +37,7 @@ import MyOrders from './components/Orders/MyOrders';
 import OrderDetails from './components/Orders/OrderDetails';
 import SellerOrders from './components/Seller/SellerOrders';
 import { useEffect } from 'react';
+import SellerPage from './components/Seller/SellerPage';
 // import NotificationsPage from './components/Helper/NotificationsPage';
 // import NearPostsNotification from './components/Helper/NearPostsNotification';
 // import HelperHome from './components/Helper/HelperHome';
@@ -217,7 +218,7 @@ function App() {
   // const username = localStorage.getItem('tokenUsername');
   // const [unreadCount, setUnreadCount] = useState(0);
   // const userId = localStorage.getItem('userId');
-  // const userName = localStorage.getItem('tokenUsername');
+  const userName = localStorage.getItem('tokenUsername');
   // const [shouldAnimate, setShouldAnimate] = useState(false);
   // // Enhanced loading state management for splash screen
   // const [isLoading, setIsLoading] = useState(() => {
@@ -354,11 +355,6 @@ function App() {
               <UserProfile />
             </PrivateRoute>}
           />
-          <Route path="/sellerProducts" element={
-            <PrivateRoute>
-              <SellerProducts />
-            </PrivateRoute>
-          } />
           <Route path="/product/:id" element={<ProductDetailsById />} />
           <Route path="/wishlist" element={
             <PrivateRoute>
@@ -382,10 +378,24 @@ function App() {
               <MyOrders/>
             </PrivateRoute>
           } />
-          <Route path="/order-details/:id" element={<OrderDetails />} />
-          <Route path="/sellerorders" element={
+          <Route path="/order-details/:id" element={
             <PrivateRoute>
+              <OrderDetails />
+            </PrivateRoute>
+          } />
+          <Route path="/sellerProducts" element={
+            <PrivateRoute adminOnly>
+              <SellerProducts />
+            </PrivateRoute>
+          } />
+          <Route path="/sellerorders" element={
+            <PrivateRoute adminOnly>
               <SellerOrders />
+            </PrivateRoute>
+          } />
+          <Route path="/sellerPage" element={
+            <PrivateRoute adminOnly>
+              <SellerPage userName={userName}/>
             </PrivateRoute>
           } />
           {/* <Route path="/userPosts" element={
@@ -438,11 +448,7 @@ function App() {
               <Feedbacks darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate} userName={userName}/>
             </PrivateRoute>
           } />
-          <Route path="/adminPage" element={
-            <PrivateRoute adminOnly>
-              <AdminPage darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate} userName={userName}/>
-            </PrivateRoute>
-          } /> */}
+           */}
         </Routes>
       </Router>
     </ThemeProvider>

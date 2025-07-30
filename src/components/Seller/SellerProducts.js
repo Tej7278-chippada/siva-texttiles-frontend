@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from "react";
 import Layout from "../Layout/Layout";
-import { Alert, alpha, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Snackbar, Tooltip, useMediaQuery, useTheme, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress } from "@mui/material";
+import { Alert, alpha, Box, Button, Card, CardActions, CardContent, CardMedia, Grid, Snackbar, Tooltip, useMediaQuery, useTheme, Dialog, DialogActions, DialogContent, DialogTitle, CircularProgress, Chip } from "@mui/material";
 import PostProduct from "./PostProduct";
 import { deleteProduct, filterProductsByGender, getProductCounts, searchProducts } from "../Apis/SellerApis";
 import {
@@ -557,7 +557,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                         scrollbarWidth: 'none',
                         scrollbarColor: '#888 transparent',
                         borderRadius: '8px',
-                        gap: '0.1rem',
+                        // gap: '0.1rem',
                         // marginBottom: '1rem'
                         height: '170px'
                       }}
@@ -587,15 +587,32 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                           />
                         )}
                       </div>
-                      {post.media && post.media.length > 5 && (
+                      {/* {post.media && post.media.length > 5 && (
                         <Typography variant="body2" color="error" style={{ textAlign: 'center', marginTop: '0.5rem' }}>
                           Media exceeds its maximum count
                         </Typography>
+                      )} */}
+                      {/* Discount Badge */}
+                      {post.discount > 0 && (
+                        <Chip
+                          // icon={<WorkIcon sx={{ fontSize: 16 }} />}
+                          label={`${post.discount}% OFF`} 
+                          size="small"
+                          sx={{
+                            position: 'absolute',
+                            top: 12,
+                            right: 12,
+                            backgroundColor: '#006064',
+                            color: 'white',
+                            fontWeight: 600,
+                            fontSize: '0.75rem'
+                          }}
+                        />
                       )}
                     </CardMedia>
                     <CardContent sx={{
                       position: 'absolute',
-                      bottom: 40,
+                      bottom: post.updatedAt ? 100 : 80,
                       left: 0,
                       right: 0,
                       padding: '16px',
@@ -610,9 +627,15 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                           {post.title.split(" ").length > 5 ? `${post.title.split(" ").slice(0, 5).join(" ")}...` : post.title}
                         </Typography>
                       </Tooltip>
-                      <Typography variant="body1" style={{ display: 'inline-block', float: 'right', fontWeight: '500', color: '#333', }}>
-                        {post.orderStatus} ({post?.totalStock || 0})
-                      </Typography>
+                      {/* <Typography variant="body1" style={{ display: 'inline-block', float: 'right', fontWeight: '500', color: post.stockStatus !== 'In Stock' ? 'red' : 'green', }}>
+                        {post.stockStatus} ({post?.totalStock || 0})
+                      </Typography> */}
+                      <Chip
+                        label={`${post.stockStatus} ${post?.totalStock ? ` (${post.totalStock})` : ''}`}
+                        color={post.stockStatus !== 'In Stock' ? 'error' : 'success'}
+                        size="small"
+                        sx={{ fontWeight: 600, ml: 1,  float: 'right', alignItems: 'center' }}
+                      />
                       {/* <Box sx={{ mb: 2 }}>
                     <Chip 
                       label={post.gender}
@@ -625,8 +648,8 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                       }}
                     />
                   </Box> */}
-                      <Typography variant="body2" sx={{ marginBottom: '0.5rem', color: '#333', }}>
-                        {post.gender} ({post?.categoriesFemale || post?.categoriesMale || post?.categoriesKids})
+                      <Typography variant="body2" sx={{  color: '#333', }}>
+                        {post?.categoriesFemale || post?.categoriesMale || post?.categoriesKids}
                       </Typography>
                       {/* <Typography variant="body2" style={{ display: 'inline-block', float: 'right', marginBottom: '0.5rem', color: '#333' }}>
                         {post.stockStatus} ({post?.totalStock || 0})
@@ -641,15 +664,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                   <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
                     Time from - To : {new Date(post.timeFrom).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })} - {new Date(post.timeTo).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </Typography> */}
-                      <Typography variant="body2" style={{ marginBottom: '0.5rem', color: '#333' }}>
-                        Added on : {new Date(post.createdAt).toLocaleString() || 'Invalid date'}
-                      </Typography>
-                      {/* {!(post.createdAt === post.updatedAt) && ( */}
-                      {post.updatedAt && (
-                        <Typography variant="body2" style={{ marginBottom: '0.5rem', color: '#333' }}>
-                          Updated on : {new Date(post.updatedAt).toLocaleString() || 'Invalid date'}
-                        </Typography>
-                      )}
+                      
                       {/* )} */}
                       {/* )} */}
                       {/* <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
@@ -670,8 +685,7 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                     Description: {post.description}
                   </Typography> */}
                     </CardContent>
-                    <CardActions sx={{
-                      justifyContent: 'space-between', padding: '12px 1rem', position: 'absolute', borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
+                    <CardActions sx={{ display: 'flow', padding: '12px 1rem', position: 'absolute', borderTop: `1px solid ${alpha(theme.palette.divider, 0.1)}`,
                       bottom: 0, backgroundColor: 'rgba(255, 255, 255, 0.95)', mt: 2, backdropFilter: 'blur(10px)',
                       left: 0,
                       right: 0,
@@ -679,52 +693,65 @@ const SellerProducts = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate }
                       color: 'white'
                     }}>
                       {/* <Box> */}
+                      <Box>
+                        <Typography variant="body2" style={{ marginBottom: '0.5rem', color: '#333' }}>
+                          Added on : {new Date(post.createdAt).toLocaleString() || 'Invalid date'}
+                        </Typography>
+                        {/* {!(post.createdAt === post.updatedAt) && ( */}
+                        {post.updatedAt && (
+                          <Typography variant="body2" style={{ marginBottom: '0.5rem', color: '#333' }}>
+                            Updated on : {new Date(post.updatedAt).toLocaleString() || 'Invalid date'}
+                          </Typography>
+                        )}
+                      </Box>
 
-                      <Button color="error" size="small" variant="outlined" startIcon={<DeleteSweepRoundedIcon />} key={post._id}
-                        sx={{
-                          borderRadius: '8px', textTransform: 'none', fontWeight: 'medium',
-                          '&:hover': {
-                            backgroundColor: 'rgba(244, 67, 54, 0.1)',
-                            transform: 'translateY(-2px)',
-                          }
-                        }} onClick={(event) => handleDeleteClick(post, event)}>Delete</Button>
-                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                        <Button color="primary" size="small" variant="outlined" startIcon={<EditNoteRoundedIcon />}
+                      <Box sx={{ display: 'flex', justifyContent: 'space-between', mx: 1}}>
+                        <Button color="error" size="small" variant="outlined" startIcon={<DeleteSweepRoundedIcon />} key={post._id}
                           sx={{
-                            borderRadius: '8px',
-                            textTransform: 'none',
-                            fontWeight: 'medium', mx: 1,
+                            borderRadius: '8px', textTransform: 'none', fontWeight: 'medium',
                             '&:hover': {
-                              backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                              backgroundColor: 'rgba(244, 67, 54, 0.1)',
                               transform: 'translateY(-2px)',
                             }
-                          }}
-                          onClick={(event) => {
-                            event.stopPropagation(); // Prevent triggering the parent onClick
-                            handleEdit(post);
-                          }}>Edit</Button>
-                        <Button
-                          variant="contained"
-                          size="small"
-                          sx={{
-                            borderRadius: '8px',
-                            background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
-                            textTransform: 'none',
-                            fontWeight: 'medium',
-                            '&:hover': {
+                          }} onClick={(event) => handleDeleteClick(post, event)}>Delete</Button>
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Button color="primary" size="small" variant="outlined" startIcon={<EditNoteRoundedIcon />}
+                            sx={{
+                              borderRadius: '8px',
+                              textTransform: 'none',
+                              fontWeight: 'medium', mx: 1,
+                              '&:hover': {
+                                backgroundColor: 'rgba(25, 118, 210, 0.1)',
+                                transform: 'translateY(-2px)',
+                              }
+                            }}
+                            onClick={(event) => {
+                              event.stopPropagation(); // Prevent triggering the parent onClick
+                              handleEdit(post);
+                            }}>Edit</Button>
+                          <Button
+                            variant="contained"
+                            size="small"
+                            sx={{
+                              borderRadius: '8px',
                               background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
-                              transform: 'translateY(-2px)',
-                              boxShadow: '0 8px 20px rgba(67, 97, 238, 0.3)',
-                            },
-                            transition: 'all 0.3s ease',
-                          }}
-                          onClick={(e) => {
-                            e.stopPropagation(); openProductDetail(post);
-                            // Handle view
-                          }}
-                        >
-                          View
-                        </Button>
+                              textTransform: 'none',
+                              fontWeight: 'medium',
+                              '&:hover': {
+                                background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
+                                transform: 'translateY(-2px)',
+                                boxShadow: '0 8px 20px rgba(67, 97, 238, 0.3)',
+                              },
+                              transition: 'all 0.3s ease',
+                            }}
+                            onClick={(e) => {
+                              e.stopPropagation(); openProductDetail(post);
+                              // Handle view
+                            }}
+                          >
+                            View
+                          </Button>
+                        </Box>
                       </Box>
                       {/* </Box> */}
                       {/* <Badge

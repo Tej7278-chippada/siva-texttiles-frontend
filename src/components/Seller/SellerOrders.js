@@ -11,7 +11,7 @@ import { useNavigate } from 'react-router-dom';
 import CloseIcon from '@mui/icons-material/Close';
 // import PersonIcon from '@mui/icons-material/Person';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
-import CategoryIcon from '@mui/icons-material/Category';
+// import CategoryIcon from '@mui/icons-material/Category';
 // import LocationOnIcon from '@mui/icons-material/LocationOn';
 // import RefreshIcon from '@mui/icons-material/Refresh';
 // import MyLocationRoundedIcon from '@mui/icons-material/MyLocationRounded';
@@ -741,6 +741,25 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
         post._id === orderId ? { ...post, orderStatus: newStatus } : post
       )
     );
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case 'Delivered':
+        return 'success';
+      case 'Cancelled':
+      case 'Failed':
+      case 'Declined':
+        return 'error';
+      case 'Packing':
+      case 'Ready to Deliver':
+      case 'On Delivery':
+        return 'warning';
+      case 'Created':
+        return 'info';
+      default:
+        return 'primary';
+    }
   };
 
 
@@ -1532,23 +1551,31 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                                     label={`${post?.selectedItem[0]?.colorName} (${post?.selectedItem[0]?.size || post.categoriesMale})`}
                                     size="small"
                                     variant="outlined"
-                                    sx={{ fontSize: '0.75rem', color: 'text.secondary' }}
+                                    sx={{ fontSize: '0.75rem', color: 'text.secondary', borderColor: 'transparent' }}
                                     />
                                 </Box>
                                 {/* <Typography variant="body2" color={post.paymentStatus === 'Completed' ? 'green' : 'rgba(194, 28, 28, 0.89)'}>
                                   {post.paymentId.status}
                                 </Typography> */}
 
-                                <Chip
+                                {/* <Chip
                                 icon={<CategoryIcon sx={{ fontSize: 14 }} />}
                                 label={post.orderStatus}
                                 size="small"
-                                variant="outlined"
+                                variant="contained"
                                 sx={{
-                                    borderColor: post.orderStatus === 'Created' ? 'error.main' : 'divider',
-                                    color: post.orderStatus === 'Created' ? 'text.primary' ? (post.orderStatus === 'Delivered') ? 'success.main' : 'text.secondary'  : 'error.main' : '',
+                                    // borderColor: post.orderStatus === 'Created' ? 'error.main' : 'divider',
+                                    borderColor: getStatusColor(post.orderStatus),
+                                    // color: post.orderStatus === 'Created' ? 'text.primary' ? (post.orderStatus === 'Delivered') ? 'success.main' : 'text.secondary'  : 'error.main' : '',
+                                    color:  getStatusColor(post.orderStatus),
                                     fontSize: '0.75rem'
                                 }}
+                                /> */}
+                                <Chip
+                                  label={post.orderStatus}
+                                  color={getStatusColor(post.orderStatus)}
+                                  size="small"
+                                  sx={{ fontWeight: 600, ml: 1 }}
                                 />
                                 
                             </Box>

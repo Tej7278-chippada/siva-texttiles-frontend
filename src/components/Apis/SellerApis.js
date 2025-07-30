@@ -12,7 +12,7 @@ export const addProduct = (data) => {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${authToken}`,
   };
-  return API.post('/api/products/add', data, { headers });
+  return API.post('/api/seller/add', data, { headers });
 };
 
 export const updateProduct = (id, data) => {
@@ -21,20 +21,20 @@ export const updateProduct = (id, data) => {
     'Content-Type': 'multipart/form-data',
     Authorization: `Bearer ${authToken}`,
   };
-  return API.put(`/api/products/${id}`, data, { headers });
+  return API.put(`/api/seller/${id}`, data, { headers });
 };
 
 export const deleteProduct = (id) => {
   const authToken = localStorage.getItem('authToken');
   const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
-  return API.delete(`/api/products/${id}`, { headers });
+  return API.delete(`/api/seller/${id}`, { headers });
 };
 
 // Fetch seller's own posts
 export const fetchSellerProducts = () => {
   const authToken = localStorage.getItem('authToken');
   const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
-  return API.get('/api/products/my-products', { headers });
+  return API.get('/api/seller/my-products', { headers });
 };
 
 export const searchProducts = (query, page = 1, limit = 20) => {
@@ -42,7 +42,7 @@ export const searchProducts = (query, page = 1, limit = 20) => {
   const headers = {
     Authorization: `Bearer ${authToken}`,
   };
-  return API.get(`/api/products/searchProducts?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`, { headers });
+  return API.get(`/api/seller/searchProducts?query=${encodeURIComponent(query)}&page=${page}&limit=${limit}`, { headers });
 };
 
 export const filterProductsByGender = (genderType, page = 1, limit = 20, search = '') => {
@@ -50,7 +50,7 @@ export const filterProductsByGender = (genderType, page = 1, limit = 20, search 
   const headers = {
     Authorization: `Bearer ${authToken}`,
   };
-  return API.get(`/api/products/filterProducts?genderType=${genderType}&page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`, { headers });
+  return API.get(`/api/seller/filterProducts?genderType=${genderType}&page=${page}&limit=${limit}&search=${encodeURIComponent(search)}`, { headers });
 };
 
 export const getProductCounts = () => {
@@ -58,7 +58,7 @@ export const getProductCounts = () => {
   const headers = {
     Authorization: `Bearer ${authToken}`,
   };
-  return API.get('/api/products/productCounts', { headers });
+  return API.get('/api/seller/productCounts', { headers });
 };
 
 export const fetchSellerorders = (skip = 0, limit = 12, filters = {}, searchQuery = '') => {

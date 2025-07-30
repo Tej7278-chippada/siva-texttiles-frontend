@@ -1,6 +1,6 @@
 // components/UserProfile.js
 import React, { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Box, Typography, Avatar, Alert, useMediaQuery, Grid,  Snackbar, 
   Button,
   List,
@@ -109,6 +109,8 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
   const [addressFailedMessage, setAddressFailedMessage] = useState('');
   const [isAddAddressBoxOpen, setIsAddAddressBoxOpen] = useState(false); // to toggle the Add Address button
   const [isDeliveryAddressBoxOpen, setIsDeliveryAddressBoxOpen] = useState(false);
+  const navigate = useNavigate();
+  const userRole = (userData?.userRole );
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -222,10 +224,19 @@ const UserProfile = ({darkMode, toggleDarkMode, unreadCount, shouldAnimate}) => 
           {successMessage}
         </Alert>
       </Snackbar> */}
-      
-      <Typography variant="h6" sx={{ flexGrow: 1, mx: isMobile ? '10px' : '16px', mt: 1 }} >
-        User Profile
-      </Typography>
+      <Box sx={{ display: 'flex', justifyContent: 'space-between' , alignItems: 'center'}}>
+        <Typography variant="h6" sx={{ flexGrow: 1, mx: isMobile ? '10px' : '16px', mt: 1 }} >
+          User Profile
+        </Typography>
+        {userRole && <Button
+          variant="contained" size="small"
+          onClick={() => navigate('/sellerPage')}
+          sx={{borderRadius: '12px', mx: 2, mt: 1, textTransform: 'none',}}
+        >
+          Seller Page
+        </Button>}
+      </Box>
+
       {(loading || !userData) ?
         <Box sx={{ padding: '8px' }}>
           <SkeletonProductDetail />
