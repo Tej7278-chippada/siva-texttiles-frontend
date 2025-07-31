@@ -132,9 +132,9 @@ const MyOrders = () => {
                           </Box> */}
                         </CardMedia>
                         <CardContent style={{ padding: '1rem' }}>
-                          <Tooltip title={order.product.title} placement="top" arrow>
+                          <Tooltip title={order?.productTitle} placement="top" arrow>
                             <Typography variant="h5" component="div" style={{ fontWeight: 'bold', marginBottom: '0.5rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                              {order.product.title.split(" ").length > 5 ? `${order.product.title.split(" ").slice(0, 5).join(" ")}...` : order.product.title}
+                              {order?.productTitle.split(" ").length > 5 ? `${order?.productTitle.split(" ").slice(0, 5).join(" ")}...` : order?.productTitle}
                             </Typography>
                           </Tooltip>
                           {/* <Typography variant="body1" color="textSecondary" style={{ display: 'inline-block', float: 'right', fontWeight: '500' }}>
