@@ -82,6 +82,7 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
   useEffect(() => {
     if (open && order?.paymentId) {
       fetchPaymentData();
+      setCurrentStatus(order?.orderStatus || 'Created');
     }
   }, [open, order, fetchPaymentData]); // Added fetchPaymentData to dependencies
 
@@ -120,6 +121,7 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
   const handleClose = () => {
     onClose(false);
     setPaymentData(null);
+    setCurrentStatus(null);
   };
 
   const handleCloseSnackbar = () => {

@@ -658,12 +658,21 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
     }
 
     try {
+      let response;
       if (editingProduct) {
-        await updateProduct(editingProduct._id, data);
+        response = await updateProduct(editingProduct._id, data);
         setSnackbar({ open: true, message: `${formData.title} details updated successfully.`, severity: 'success' });
+        // Call success handler with updated product and isEdit flag
+        if (onProductSuccess) {
+          onProductSuccess(response.data.product, true);
+        }
       } else {
-        await addProduct(data);
+        response = await addProduct(data);
         setSnackbar({ open: true, message: `New Post "${formData.title}" is added successfully.`, severity: 'success' });
+        // Call success handler with new product and isEdit flag
+        if (onProductSuccess) {
+          onProductSuccess(response.data.product, false);
+        }
       }
       // Reset form after successful submission
       setFormData({
@@ -684,9 +693,9 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
       setExistingMedia([]);
       setNewMedia([]);
       // Call the success callback if provided
-      if (onProductSuccess) {
-        onProductSuccess();
-      }
+      // if (onProductSuccess) {
+      //   onProductSuccess(response);
+      // }
       handleCloseDialog();
     } catch (error) {
       console.error("Error submitting product:", error);
@@ -742,7 +751,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
       }
     }
 
-    const existingMediaCount = existingMedia.filter((media) => !media.remove).length;
+    const existingMediaCount = existingMedia?.filter((media) => !media.remove).length;
     const totalMediaCount = resizedFiles.length + newMedia.length + existingMediaCount;
 
     // Check conditions for file count
@@ -797,7 +806,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
                       <Typography color='grey' variant='body2'>Loading Existing Product Images</Typography>
                     </Box>
                     :
-                    (existingMedia.length > 0)
+                    (existingMedia?.length > 0)
                       ? existingMedia.map((media) => (
                         !media.remove && (
                           <Box key={media._id} style={{ position: 'relative', display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
@@ -992,6 +1001,10 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
             )}
           </div>
 
+          <div>
+            <ColorVariantForm variants={variants} setVariants={setVariants} removedVariants={removedVariants} setRemovedVariants={setRemovedVariants} />
+          </div>
+
           <div style={{ display: 'flex', gap: '1rem', flexDirection: 'column' }}>
             
             {/* {(formData.gender === 'Kids') && (
@@ -1030,10 +1043,6 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
               </Typography>
             )}
             {/* )} */}
-          </div>
-
-          <div>
-            <ColorVariantForm variants={variants} setVariants={setVariants} removedVariants={removedVariants} setRemovedVariants={setRemovedVariants} />
           </div>
 
           <div style={{ display: 'flex', gap: '1rem' }}>
