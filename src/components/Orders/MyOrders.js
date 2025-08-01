@@ -26,7 +26,7 @@ const MyOrders = () => {
       setLoading(true);
       try {
         const userOrders = await fetchUserOrders();
-        setOrders(userOrders.data.reverse() || []);
+        setOrders(userOrders.data || []); // userOrders.data.reverse()
       } catch (err) {
         console.error("Failed to fetch orders:", err);
       } finally {
