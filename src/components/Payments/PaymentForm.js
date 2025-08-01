@@ -1,8 +1,10 @@
 // src/components/Products/PaymentForm.js
 import React, { useState } from "react";
-import { Button, Typography, Box, useMediaQuery, ThemeProvider, createTheme, Snackbar, Alert, Divider, Grid } from "@mui/material";
+import { Button, Typography, Box, useMediaQuery, ThemeProvider, createTheme, Snackbar, Alert, Divider, Grid, CircularProgress } from "@mui/material";
 import axios from "axios";
 import PaymentIcon from '@mui/icons-material/Payment';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import CreditCardIcon from '@mui/icons-material/CreditCard';
 
 const theme = createTheme({
   breakpoints: {
@@ -17,6 +19,7 @@ const theme = createTheme({
 });
 
 const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockData, name, email, contact, productDesc, selectedItem, sellerTitle, sellerId, productId, onPaymentInitiated, onPaymentModalClosed }) => {
+  const [loadingPayment, setLoadingPayment] = useState(false);
   const [loading, setLoading] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: "", severity: "info" });
   const isMobile = useMediaQuery(theme => theme.breakpoints.down('sm')); // Media query for small screens
@@ -31,7 +34,7 @@ const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockD
       });
       return;
     }
-    setLoading(true);
+    setLoadingPayment(true);
     try {
       // Round the amount to 2 decimal places before sending
       const roundedAmount = Math.round(amount * 100) / 100;
@@ -150,6 +153,25 @@ const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockD
     } catch (error) {
       setAlert({ open: true, message: "Failed to initiate payment.", severity: "error" });
       console.error("Payment initiation failed:", error);
+    }
+    setLoadingPayment(false);
+  };
+
+  const handleCashOnDelivery = async () => {
+    if (stockData?.selectedItemStock === 0 || stockData?.totalStock === 0) {
+      setAlert({
+        open: true,
+        message: stockData.selectedItemStock ? 'Selected size/color is out of stock' : 'Product is out of stock',
+        severity: "warning"
+      });
+      return;
+    }
+    setLoading(true);
+    try {
+      onPaymentComplete("Pending", null);
+    } catch (error) {
+      setAlert({ open: true, message: "Failed to place Cash on Delivery.", severity: "error" });
+      console.error("Failed to place Cash on Delivery:", error);
     }
     setLoading(false);
   };
@@ -291,49 +313,119 @@ const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockD
             </Typography>
           </Box>
         </Box>
-        <Button
-          variant="contained"
-          // size="small"
-          sx={{
-              borderRadius: '8px',
-              background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
-              textTransform: 'none',
+        <Typography 
+          variant="overline"
+          sx={{ 
+            mb: 1,
+            color: 'text.secondary',
+            display: 'flex',
+            alignItems: 'center',
+            fontSize: { xs: '0.7rem', sm: '0.75rem' }, // Responsive font size
+            gap: 1
+          }}
+        >
+          <PaymentIcon fontSize="small" /> Choose your Payment Method
+        </Typography>
+        <Box sx={{display: 'flex', gap: 2, alignItems: 'center', flexDirection: { xs: 'column', sm: 'row' }, width: '100%'}}>
+          <Button
+            variant="contained" fullWidth={{ xs: true, sm: false }}
+            // size="small"
+            sx={{
+              borderRadius: '12px',
+              background: (theme) => theme.palette.mode === 'dark' 
+                ? 'linear-gradient(135deg, #3a56e8 0%, #2c3dd9 100%)' 
+                : 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',textTransform: 'none',
               fontWeight: 'medium',
-              fontSize: '16px',
+              fontSize: { xs: '14px', sm: '16px' },
               py: 1.5,
-              px: 4,
+              px: 3,
+              minWidth: { sm: '180px' }, maxWidth: isMobile ? '250px' : '300px',
               '&:hover': {
-                background: 'linear-gradient(135deg, #4361ee 0%, #3f37c9 100%)',
                 transform: 'translateY(-2px)',
                 boxShadow: '0 8px 20px rgba(67, 97, 238, 0.3)',
               },
-              transition: 'all 0.3s ease',
-          }}
-          onClick={handlePayment}
-          disabled={loading || stockData?.selectedItemStock === 0 || stockData?.totalStock === 0}
-          // startIcon={loading ? null : <PaymentIcon />}
-        >
-          {loading ? 
-            <Box display="flex" alignItems="center" gap={1}>
-              <Box 
-                sx={{
-                  width: 16,
-                  height: 16,
-                  border: '2px solid #ffffff30',
-                  borderTop: '2px solid #ffffff',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite',
-                  '@keyframes spin': {
-                    '0%': { transform: 'rotate(0deg)' },
-                    '100%': { transform: 'rotate(360deg)' }
-                  }
-                }}
-              />
-              Processing...
-            </Box> 
-            : "Pay Now"
-          }
-        </Button>
+              '&:active': {
+                transform: 'translateY(0)',
+              },
+              '&.Mui-disabled': {
+                background: '#e0e0e0',
+                color: '#a0a0a0'
+              },
+              transition: 'all 0.2s ease',
+            }}
+            onClick={handleCashOnDelivery}
+            disabled={loading || loadingPayment || stockData?.selectedItemStock === 0 || stockData?.totalStock === 0}
+            startIcon={!loading && <LocalShippingIcon />}
+          >
+            {loading ? (
+              <Box display="flex" alignItems="center" gap={1}>
+                <CircularProgress size={16} thickness={5} sx={{ color: 'white' }} />
+                Processing...
+              </Box>
+            ) : "Cash on Delivery"}
+          </Button>
+          <Typography 
+            variant="caption" 
+            sx={{ 
+              color: 'text.secondary',
+              display: { xs: 'none', sm: 'flex' }, // Hide "or" on mobile
+              alignItems: 'center',
+              gap: 1
+            }}
+          >
+            or
+          </Typography>
+          {/* Mobile-only divider */}
+          <Box sx={{ 
+            display: { xs: 'flex', sm: 'none' }, 
+            alignItems: 'center', 
+            // my: 2,
+            width: '100%', maxWidth: isMobile ? '220px' : '300px',
+          }}>
+            <Divider sx={{ flexGrow: 1 }} />
+            <Typography variant="caption" sx={{ px: 2, color: 'text.secondary' }}>or</Typography>
+            <Divider sx={{ flexGrow: 1 }} />
+          </Box>
+          <Button
+            fullWidth={{ xs: true, sm: false }} // Full width on mobile
+            variant="contained"
+            color="success"
+            sx={{
+              borderRadius: '12px',
+              background: (theme) => theme.palette.mode === 'dark' 
+                ? 'linear-gradient(135deg, #4CAF50 0%, #2E7D32 100%)' 
+                : 'linear-gradient(135deg, #66BB6A 0%, #43A047 100%)',
+              textTransform: 'none',
+              fontWeight: 'medium',
+              fontSize: { xs: '14px', sm: '16px' },
+              py: 1.5,
+              px: 3,
+              minWidth: { sm: '180px' }, maxWidth: isMobile ? '250px' : '300px',
+              '&:hover': {
+                transform: 'translateY(-2px)',
+                boxShadow: '0 8px 20px rgba(76, 175, 80, 0.3)',
+              },
+              '&:active': {
+                transform: 'translateY(0)',
+              },
+              '&.Mui-disabled': {
+                background: '#e0e0e0',
+                color: '#a0a0a0'
+              },
+              transition: 'all 0.2s ease',
+            }}
+            onClick={handlePayment}
+            disabled={loadingPayment || loading || stockData?.selectedItemStock === 0 || stockData?.totalStock === 0}
+            startIcon={!loadingPayment && <CreditCardIcon />}
+          >
+            {loadingPayment ? (
+              <Box display="flex" alignItems="center" gap={1}>
+                <CircularProgress size={16} thickness={5} sx={{ color: 'white' }} />
+                Processing...
+              </Box>
+            ) : "Pay Now"}
+          </Button>
+        </Box>
         {/* Security Notice */}
         <Typography 
           variant="caption" 

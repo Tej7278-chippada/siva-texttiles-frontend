@@ -340,52 +340,108 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                     <PaymentIcon sx={{ verticalAlign: 'middle', mr: 1 }} />
                     Payment Information
                   </Typography>
-                  {paymentData ? (
+                  {(order?.paymentMode === "Cash on Delivery") ? (
                     <>
-                      <Box display="flex" justifyContent="space-between" mb={1}>
-                        <Typography variant="body2">Payment ID:</Typography>
-                        <Typography variant="body2" fontWeight={500}>
-                          {paymentData.razorpay_payment_id || 'Pending'}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" justifyContent="space-between" mb={1}>
-                        <Typography variant="body2">Amount:</Typography>
-                        <Typography variant="body2" fontWeight={500}>
-                          ₹{paymentData.amount}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" justifyContent="space-between" mb={1}>
-                        <Typography variant="body2">Status:</Typography>
-                        <Chip
-                          label={paymentData.status}
-                          size="small"
-                          color={
-                            paymentData.status === 'captured'
-                              ? 'success'
-                              : paymentData.status === 'failed'
-                              ? 'error'
+                    <Box display="flex" justifyContent="space-between" mb={1}>
+                      <Typography variant="body2">Payment Mode:</Typography>
+                      {/* <Typography variant="body2" fontWeight={500}>
+                        {order?.paymentMode || 'N/A'}
+                      </Typography> */}
+                      <Chip
+                        label={order?.paymentMode || 'N/A'}
+                        size="small"
+                        color={
+                          order?.paymentMode === 'Online Payment'
+                            ? 'success'
                               : 'warning'
-                          }
-                        />
-                      </Box>
-                      <Box display="flex" justifyContent="space-between" mb={1}>
-                        <Typography variant="body2">Method:</Typography>
-                        <Typography variant="body2" fontWeight={500}>
-                          {paymentData.payment_method || 'N/A'}
-                        </Typography>
-                      </Box>
-                      <Box display="flex" justifyContent="space-between">
-                        <Typography variant="body2">Date:</Typography>
-                        <Typography variant="body2">
-                          {formatDate(paymentData.createdAt)}
-                        </Typography>
-                      </Box>
+                        }
+                      />
+                    </Box>
+                    <Box display="flex" justifyContent="space-between" mb={1}>
+                      <Typography variant="body2">Amount:</Typography>
+                      <Typography variant="body2" fontWeight={500}>
+                        ₹{order?.orderPrice}
+                      </Typography>
+                    </Box>
+                    <Box display="flex" justifyContent="space-between" mb={1}>
+                      <Typography variant="body2">Payment Status:</Typography>
+                      <Chip
+                        label={order?.paymentStatus}
+                        size="small"
+                        color={
+                          order?.paymentStatus === 'Completed'
+                            ? 'success'
+                            : order?.paymentStatus === 'Pending'
+                              ? 'warning'
+                              : 'error'
+                        }
+                      />
+                    </Box>
                     </>
                   ) : (
-                    <Typography variant="body2">
-                      {loading ? 'Loading payment details...' : 'No payment details available'}
-                    </Typography>
+                    paymentData ? (
+                      <>
+                        <Box display="flex" justifyContent="space-between" mb={1}>
+                          <Typography variant="body2">Payment Mode:</Typography>
+                          {/* <Typography variant="body2" fontWeight={500}>
+                            {order?.paymentMode || 'N/A'}
+                          </Typography> */}
+                          <Chip
+                            label={order?.paymentMode || 'N/A'}
+                            size="small"
+                            color={
+                              order?.paymentMode === 'Online Payment'
+                                ? 'success'
+                                  : 'warning'
+                            }
+                          />
+                        </Box>
+                        <Box display="flex" justifyContent="space-between" mb={1}>
+                          <Typography variant="body2">Payment ID:</Typography>
+                          <Typography variant="body2" fontWeight={500}>
+                            {paymentData.razorpay_payment_id || 'Pending'}
+                          </Typography>
+                        </Box>
+                        <Box display="flex" justifyContent="space-between" mb={1}>
+                          <Typography variant="body2">Amount:</Typography>
+                          <Typography variant="body2" fontWeight={500}>
+                            ₹{paymentData.amount}
+                          </Typography>
+                        </Box>
+                        <Box display="flex" justifyContent="space-between" mb={1}>
+                          <Typography variant="body2">Status:</Typography>
+                          <Chip
+                            label={paymentData.status}
+                            size="small"
+                            color={
+                              paymentData.status === 'captured'
+                                ? 'success'
+                                : paymentData.status === 'failed'
+                                  ? 'error'
+                                  : 'warning'
+                            }
+                          />
+                        </Box>
+                        <Box display="flex" justifyContent="space-between" mb={1}>
+                          <Typography variant="body2">Method:</Typography>
+                          <Typography variant="body2" fontWeight={500}>
+                            {paymentData.payment_method || 'N/A'}
+                          </Typography>
+                        </Box>
+                        <Box display="flex" justifyContent="space-between">
+                          <Typography variant="body2">Date:</Typography>
+                          <Typography variant="body2">
+                            {formatDate(paymentData.createdAt)}
+                          </Typography>
+                        </Box>
+                      </>
+                    ) : (
+                      <Typography variant="body2">
+                        {loading ? 'Loading payment details...' : 'No payment details available'}
+                      </Typography>
+                    )
                   )}
+                  
                 </CardContent>
               </Card>
             </Grid>

@@ -36,7 +36,7 @@ const MyOrders = () => {
     loadOrders();
   }, []);
 
-  const openProductDetail = (order) => {
+  const openOrderDetail = (order) => {
     // setSelectedProduct(product);
     navigate(`/order-details/${order._id}`);
   };
@@ -89,7 +89,7 @@ const MyOrders = () => {
                         boxShadow: '0 2px 5px rgba(0, 0, 0, 0.1)', // Default shadow
                         transition: 'transform 0.1s ease, box-shadow 0.1s ease', // Smooth transition for hover
                       }}
-                        onClick={() => openProductDetail(order)}
+                        onClick={() => openOrderDetail(order)}
                         onMouseEnter={(e) => {
                           e.currentTarget.style.transform = 'scale(1.02)'; // Slight zoom on hover
                           e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 0, 0, 0.2)'; // Enhance shadow

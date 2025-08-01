@@ -110,6 +110,7 @@ function OrderDetails() {
   const getPaymentStatusColor = (status) => {
     const colors = {
       'captured': '#4CAF50',
+      'Pending': '#9C27B0',
       'refunded': '#FF9800',
       'failed': '#F44336',
       'declined': '#F44336'
@@ -633,7 +634,7 @@ function OrderDetails() {
                 {/* Product Details */}
                 <Grid container spacing={0} mt={2}>
                    {/* Payment Details Section */}
-                {order.paymentId && (
+                {/* {order.paymentId && ( */}
                   <>
                     <Grid item xs={12} sm={12}>
                       <Typography variant="h6" sx={{ mb: 1, fontWeight: 600, color: '#333' }}>
@@ -646,28 +647,46 @@ function OrderDetails() {
                           <Typography variant="body2" color="textSecondary">
                             Payment Status
                           </Typography>
-                          <Chip
-                            label={order.paymentId.status}
-                            sx={{
-                              bgcolor: getPaymentStatusColor(order.paymentId.status),
-                              color: 'white',
-                              fontWeight: 600
-                            }}
-                          />
+                          {order?.paymentMode === "Cash on Delivery" ? (
+                            <Chip
+                              label={order.paymentStatus}
+                              sx={{
+                                bgcolor: getPaymentStatusColor(order.paymentStatus),
+                                color: 'white',
+                                fontWeight: 600
+                              }}
+                            />
+                          ) : (
+                            <Chip
+                              label={order?.paymentId?.status}
+                              sx={{
+                                bgcolor: getPaymentStatusColor(order?.paymentId?.status),
+                                color: 'white',
+                                fontWeight: 600
+                              }}
+                            />
+                          )}
                         </Box>
+
+                        <Typography variant="body1" style={{ fontWeight: 500, marginBottom: '0.5rem' }}>
+                          Payment mode:
+                        </Typography>
+                        <Typography variant="body2" color="textSecondary" sx={{ mb: 2 }}>
+                          {order?.paymentMode || "N/A"}
+                        </Typography>
                         
                         <Typography variant="body1" style={{ fontWeight: 500, marginBottom: '0.5rem' }}>
                           Payment ID:
                         </Typography>
                         <Typography variant="body2" color="textSecondary" sx={{ mb: 2, fontFamily: 'monospace' }}>
-                          {order.paymentId.razorpay_order_id || "N/A"}
+                          {order?.paymentId?.razorpay_order_id || "N/A"}
                         </Typography>
                         
                         <Typography variant="body1" style={{ fontWeight: 500, marginBottom: '0.5rem' }}>
                           Amount Paid:
                         </Typography>
                         <Typography variant="h6" sx={{ color: '#4CAF50', fontWeight: 600 }}>
-                          ₹{order.paymentId.amount}
+                          ₹{order?.paymentId?.amount || order?.orderPrice || "N/A"}
                         </Typography>
                       </Box>
                     </Grid>
@@ -688,7 +707,7 @@ function OrderDetails() {
                       </Typography>
                     </Grid> */}
                   </>
-                )}
+                {/* )} */}
 
 
                 </Grid>

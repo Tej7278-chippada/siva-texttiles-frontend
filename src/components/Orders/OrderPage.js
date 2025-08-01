@@ -50,6 +50,7 @@ const OrderPage = ({ user }) => {
   const [paymentInitiated, setPaymentInitiated] = useState(false);
   const [paymentModalClosed, setPaymentModalClosed] = useState(false);
   const [alert, setAlert] = useState({ open: false, message: "", severity: "info" });
+  const [orderId, setOrderId] = useState(null);
   // const [selectedItem, setSelectedItem] = useState(() => {
   //   const selectedColor = location.state?.selectedColor?.colorName;
   //   const selectedSize = location.state?.selectedSize;
@@ -228,6 +229,7 @@ const OrderPage = ({ user }) => {
             colorCode: location.state?.selectedColor?.colorCode
           } : undefined,
           deliveryAddress: userSelectedAddress,
+          paymentMode: 'Online Payment',
           paymentStatus: "Completed",
           sellerTitle: product.user.username,
           // sellerId: product.userId,
@@ -239,6 +241,7 @@ const OrderPage = ({ user }) => {
 
         if (response.status === 201) {
           setActiveStep(2); // Move to order confirmation step
+          setOrderId(response.data._id);
           setPaymentProcessing(false);
           setPaymentInitiated(false);
           setPaymentModalClosed(false);
@@ -274,6 +277,106 @@ const OrderPage = ({ user }) => {
               severity: "error"
             });
           }
+        } else {
+          // console.error("Error saving the order");
+          // alert("Failed to save the order. Please try again.");
+          // setPaymentProcessing(false);
+          setAlert({
+            open: true,
+            message: "Failed to save the order. Please contact us.",
+            severity: "error"
+          });
+        }
+      } catch (err) {
+        console.error("Error completing the order:", err);
+        // alert("Failed to place the order. Please try again.");
+        setAlert({
+          open: true,
+          message: "Failed to place the order. Please try again.",
+          severity: "error"
+        });
+      } finally {
+        setPaymentProcessing(false);
+      }
+    } else if (paymentStatus === "Pending") {
+      try {
+        const userSelectedAddress = {
+          name: selectedAddress.name,
+          phone: selectedAddress.phone,
+          email: selectedAddress.email,
+          address: {
+            street: selectedAddress.address.street,
+            area: selectedAddress.address.area,
+            city: selectedAddress.address.city,
+            state: selectedAddress.address.state,
+            pincode: selectedAddress.address.pincode,
+          },
+        };
+  
+        const orderData = {
+          productId: product._id,
+          // productTitle: product.title,
+          // productPic: product.media[0], // Include the first product image
+          // orderPrice: product.price,
+          selectedItem: location.state?.selectedColor?.colorName ? {
+            size: location.state?.selectedSize,
+            colorName: location.state?.selectedColor?.colorName,
+            colorCode: location.state?.selectedColor?.colorCode
+          } : undefined,
+          deliveryAddress: userSelectedAddress,
+          paymentMode: "Cash on Delivery",
+          paymentStatus: "Pending",
+          sellerTitle: product.user.username,
+          // sellerId: product.userId,
+          razorpay_order_id,
+        };
+  
+        const response = await saveOrder(orderData);
+        // setActiveStep(2); // Move to order confirmation step
+
+        if (response.status === 201) {
+          setActiveStep(2); // Move to order confirmation step
+          setOrderId(response.data._id);
+          setPaymentProcessing(false);
+          setPaymentInitiated(false);
+          setPaymentModalClosed(false);
+
+          try {
+            const emailPayload = {
+              email: selectedAddress.email,
+              product: {
+                title: product.title,
+                price: product.price,
+                media: product.media[0], // Send as Base64 string .toString("base64")
+                selectedItem: {
+                  size: location.state?.selectedSize,
+                  colorName: location.state?.selectedColor?.colorName,
+                  colorCode: location.state?.selectedColor?.colorCode
+                },
+              },
+              deliverTo: selectedAddress.name,
+              contactTo: selectedAddress.phone,
+              deliveryAddress: userSelectedAddress,
+              deliveryDate: product.deliveryDays,
+              sellerTitle: product.user.username,
+            };
+  
+            await sendOrderConfirmationEmail(emailPayload);
+            // console.log("Order email sent successfully");
+          } catch (emailError) {
+            // console.error("Failed to send email:", emailError);
+            // alert("Order placed, but email sending failed.");
+            setAlert({
+              open: true,
+              message: "Order placed, but email sending failed.",
+              severity: "error"
+            });
+          }
+          setAlert({
+            open: true,
+            message: 'Order placed!, Payment Pending for Cash on Delivery.',
+            severity: "success",
+          });
         } else {
           // console.error("Error saving the order");
           // alert("Failed to save the order. Please try again.");
@@ -965,7 +1068,7 @@ const OrderPage = ({ user }) => {
                     <Button
                       variant="contained"
                       size="large"
-                      onClick={() => navigate("/my-orders", { replace: true })}
+                      onClick={() => navigate(`/order-details/${orderId}`, { replace: true })}
                       sx={{
                         borderRadius: '12px',
                         px: 5,
@@ -981,7 +1084,7 @@ const OrderPage = ({ user }) => {
                         transition: 'all 0.3s ease'
                       }}
                     >
-                      View My Orders
+                      View Order Details
                     </Button>
 
                     {/* Helper Text */}
