@@ -37,6 +37,8 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
   const [paymentData, setPaymentData] = useState(null);
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'info' });
   const [currentStatus, setCurrentStatus] = useState(order?.orderStatus || 'Created');
+  const [paymentStatus, setPaymentStatus] = useState(order?.paymentStatus || null);
+  const [updatedAt, setUpdatedAt] = useState(order?.updatedAt || null);
 
   // Handle browser back button
 //   useEffect(() => {
@@ -80,26 +82,38 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
 
   // Fetch payment data when order changes and dialog is open
   useEffect(() => {
-    if (open && order?.paymentId) {
+    if (open && order?.paymentId ) {
       fetchPaymentData();
       setCurrentStatus(order?.orderStatus || 'Created');
     }
   }, [open, order, fetchPaymentData]); // Added fetchPaymentData to dependencies
 
+  // Fetch payment data when order changes and dialog is open
+  useEffect(() => {
+    if (open && order?.paymentStatus ) {
+      setPaymentStatus(order?.paymentStatus || null);
+      setUpdatedAt(order?.updatedAt)
+    }
+  }, [open, order, order?.paymentStatus]); // Added fetchPaymentData to dependencies
+
+
   // Update currentStatus when order prop changes
   useEffect(() => {
-    if (order?.orderStatus) {
+    if (order && order?.orderStatus) {
       setCurrentStatus(order.orderStatus);
+      setUpdatedAt(order?.updatedAt);
     }
-  }, [order?.orderStatus]);
+  }, [order, order?.orderStatus]);
 
   const handleStatusChange = async (newStatus) => {
     try {
       setLoading(true);
-      await updateOrderStatus(order._id, newStatus);
+      const response = await updateOrderStatus(order._id, newStatus);
       setCurrentStatus(newStatus);
+      setPaymentStatus(response?.data?.paymentStatus);
+      setUpdatedAt(response?.data?.updatedAt);
       if (onStatusUpdate) {
-        onStatusUpdate(order._id, newStatus);
+        onStatusUpdate(order._id, newStatus, response?.data?.updatedAt, response?.data?.paymentStatus);
       }
       setSnackbar({
         open: true,
@@ -121,7 +135,8 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
   const handleClose = () => {
     onClose(false);
     setPaymentData(null);
-    setCurrentStatus(null);
+    // setCurrentStatus(null);
+    setPaymentStatus(null);
   };
 
   const handleCloseSnackbar = () => {
@@ -289,6 +304,10 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                       ))}
                     </Stack>
                   </Box>
+                  {updatedAt &&
+                  <Typography variant="body2" mt={1} color="text.secondary">
+                    Updated on: {formatDate(updatedAt)}
+                  </Typography>}
                 </CardContent>
               </Card>
             </Grid>
@@ -366,12 +385,12 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                     <Box display="flex" justifyContent="space-between" mb={1}>
                       <Typography variant="body2">Payment Status:</Typography>
                       <Chip
-                        label={order?.paymentStatus}
+                        label={paymentStatus}
                         size="small"
                         color={
-                          order?.paymentStatus === 'Completed'
+                          paymentStatus === 'Completed'
                             ? 'success'
-                            : order?.paymentStatus === 'Pending'
+                            : paymentStatus === 'Pending'
                               ? 'warning'
                               : 'error'
                         }

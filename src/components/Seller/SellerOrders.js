@@ -781,10 +781,10 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     setSelectedOrder(post);
     setOrderDialogOpen(true);
   };
-  const handleStatusUpdate = (orderId, newStatus) => {
+  const handleStatusUpdate = (orderId, newStatus, updatedAt, paymentStatus) => {
     setPosts(prevPosts => 
       prevPosts.map(post => 
-        post._id === orderId ? { ...post, orderStatus: newStatus } : post
+        post._id === orderId ? { ...post, orderStatus: newStatus, updatedAt: updatedAt, paymentStatus: paymentStatus  } : post
       )
     );
   };
