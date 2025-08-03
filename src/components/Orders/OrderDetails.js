@@ -11,7 +11,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '@emotion/react';
 // import SkeletonProductDetail from './SkeletonProductDetail';
 // import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
-import { fetchOrderById } from '../Apis/UserApis';
+import { fetchOrderById, deleteRating, fetchRatingByOrderId, submitRating, updateRating } from '../Apis/UserApis';
 import Layout from '../Layout/Layout';
 import SkeletonProductDetail from '../Layout/SkeletonProductDetail';
 import { styled } from '@mui/material/styles';
@@ -22,7 +22,17 @@ import DeliveryDiningIcon from '@mui/icons-material/DeliveryDining';
 import HomeIcon from '@mui/icons-material/Home';
 import UndoIcon from '@mui/icons-material/Undo';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
-
+import Rating from '@mui/material/Rating';
+import Button from '@mui/material/Button';
+import TextField from '@mui/material/TextField';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogTitle from '@mui/material/DialogTitle';
+import StarIcon from '@mui/icons-material/Star';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
+import { useCallback } from 'react';
 // Custom Stepper Connector
 // const CustomStepConnector = styled(StepConnector)(({ theme }) => ({
 //   [`&.${StepConnector.alternativeLabel}`]: {
@@ -110,6 +120,7 @@ function OrderDetails() {
   const getPaymentStatusColor = (status) => {
     const colors = {
       'captured': '#4CAF50',
+      'Completed': '#4CAF50',
       'Pending': '#9C27B0',
       'refunded': '#FF9800',
       'failed': '#F44336',
@@ -117,6 +128,11 @@ function OrderDetails() {
     };
     return colors[status] || '#757575';
   };
+
+  const [ratingDialogOpen, setRatingDialogOpen] = useState(false);
+  const [currentRating, setCurrentRating] = useState(0);
+  const [reviewText, setReviewText] = useState('');
+  const [existingRating, setExistingRating] = useState(null);
 
   // const StepIconComponent = (props) => {
   //   const { active, completed, className } = props;
@@ -348,6 +364,149 @@ function OrderDetails() {
   //     </Layout>
   //   );
   // }
+
+  const handleRatingOpen = () => {
+    setRatingDialogOpen(true);
+  };
+
+  const handleRatingClose = () => {
+    setRatingDialogOpen(false);
+    // setCurrentRating(0);
+    // setReviewText('');
+  };
+
+  const fetchExistingRating = useCallback(async () => {
+    try {
+      const response = await fetchRatingByOrderId(id);
+      if (response.data) {
+        setExistingRating(response.data);
+        setCurrentRating(response.data.rating);
+        setReviewText(response.data.review || '');
+      }
+    } catch (error) {
+      console.error('Error fetching rating:', error);
+      setSnackbar({ open: true, message: 'Error fetching rating', severity: 'error' });
+    }
+  }, [id, setExistingRating, setCurrentRating, setReviewText]);
+
+  const handleSubmitRating = async () => {
+    if (currentRating === null || currentRating === undefined || currentRating === 0 || order.orderStatus !== 'Delivered') {
+      setSnackbar({ open: true, message: 'Please give a valid rating!', severity: 'error' });
+      return;
+    }
+    try {
+      const ratingData = {
+        productId: order.product,
+        orderId: id,
+        rating: currentRating,
+        review: reviewText
+      };
+
+      if (existingRating) {
+        // Update existing rating
+        await updateRating(existingRating._id, ratingData);
+        setSnackbar({ open: true, message: 'Rating updated successfully!', severity: 'success' });
+      } else {
+        // Create new rating
+        await submitRating(ratingData);
+        setSnackbar({ open: true, message: 'Rating submitted successfully!', severity: 'success' });
+      }
+      
+      fetchExistingRating(); // Refresh rating data
+      handleRatingClose();
+    } catch (error) {
+      console.error('Error submitting rating:', error);
+      setSnackbar({ open: true, message: 'Error submitting rating', severity: 'error' });
+    }
+  };
+
+  const handleDeleteRating = async () => {
+    try {
+      await deleteRating(existingRating._id);
+      setSnackbar({ open: true, message: 'Rating deleted successfully!', severity: 'success' });
+      setExistingRating(null);
+      setCurrentRating(0);
+      setReviewText('');
+      handleRatingClose();
+    } catch (error) {
+      console.error('Error deleting rating:', error);
+      setSnackbar({ open: true, message: 'Error deleting rating', severity: 'error' });
+    }
+  };
+
+  // Call this in useEffect after setting order
+  useEffect(() => {
+    const fetchRating = async () => {
+      if (order && order.orderStatus === 'Delivered') {
+        try {
+          await fetchExistingRating();
+        } catch (error) {
+          console.error('Error in rating fetch:', error);
+        }
+      }
+    };
+    
+    fetchRating();
+  }, [order, id, fetchExistingRating]);
+
+  const renderRatingDialog = () => (
+    <Dialog open={ratingDialogOpen} onClose={handleRatingClose} maxWidth="sm" fullWidth sx={{
+      '& .MuiPaper-root': { // Target the dialog paper
+        borderRadius: '16px', // Apply border radius
+        scrollbarWidth: 'thin', scrollbarColor: '#aaa transparent',
+      }, 
+      '& .MuiDialogActions-root': {
+        margin: '8px',
+      },
+    }}>
+      <DialogTitle>{existingRating ? 'Edit Rating' : 'Rate this Product'}</DialogTitle>
+      <DialogContent>
+        <Box sx={{ display: 'flex', alignItems: 'center', my: 2 }}>
+          <Rating
+            name="product-rating"
+            value={currentRating}
+            onChange={(event, newValue) => setCurrentRating(newValue)}
+            precision={0.5}
+            emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+          />
+          <Typography sx={{ ml: 2 }}>
+            {currentRating !== null && currentRating !== undefined
+              ? currentRating.toFixed(1)
+              : 'Not rated'}
+          </Typography>
+        </Box>
+        <TextField
+          autoFocus
+          margin="dense"
+          id="review"
+          label="Review (optional)"
+          type="text"
+          fullWidth
+          variant="outlined"
+          multiline
+          rows={6}
+          value={reviewText}
+          onChange={(e) => setReviewText(e.target.value)}
+          sx={{ mt: 2, '& .MuiOutlinedInput-root': { borderRadius: '8px' }, '& .MuiInputBase-input': { scrollbarWidth: 'thin' }  }}
+        />
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleRatingClose} sx={{borderRadius: '8px'}}>Cancel</Button>
+        {existingRating && (
+          <Button 
+            onClick={handleDeleteRating}
+            color="error" sx={{borderRadius: '8px'}}
+            startIcon={<DeleteIcon />}
+          >
+            Delete
+          </Button>
+        )}
+        <Button onClick={handleSubmitRating} variant="contained" sx={{borderRadius: '8px'}}>
+          {existingRating ? 'Update' : 'Submit'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
 
   return (
     <Layout>
@@ -610,6 +769,77 @@ function OrderDetails() {
                     </Typography>
                   </Grid>
 
+                  {order.orderStatus === 'Delivered' && (
+                    <Grid item xs={12} sx={{ mt: 2 }}>
+                      <Typography variant="h6" sx={{ mb: 1, fontWeight: 600 }}>
+                        Product Rating
+                      </Typography>
+                      <Box sx={{ 
+                        p: 2, 
+                        bgcolor: '#f8f9fa', 
+                        borderRadius: 2,
+                        // display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'flex-start'
+                      }}>
+                        {existingRating ? (
+                          <>
+                            <Box sx={{display: 'flex', justifyContent: 'space-between', gap: 2, mb: 1}}>
+                              <Box sx={{ display: 'flex', alignItems: 'center', }}>
+                                <Rating
+                                  value={existingRating.rating}
+                                  readOnly
+                                  precision={0.5}
+                                  emptyIcon={<StarIcon style={{ opacity: 0.55 }} fontSize="inherit" />}
+                                />
+                                <Typography sx={{ ml: 1 }}>
+                                  {existingRating.rating.toFixed(1)}
+                                </Typography>
+                              </Box>
+                              <Button
+                                variant="outlined" size="small" sx={{borderRadius: '8px'}}
+                                startIcon={<EditIcon />}
+                                onClick={handleRatingOpen}
+                              >
+                                Edit
+                              </Button>
+                            </Box>
+                            {existingRating.review && (
+                              <Typography variant="body2" sx={{ mb: 2,
+                                // marginTop: '0.5rem',
+                                lineHeight: '1.5',
+                                // textAlign: 'justify',
+                                whiteSpace: "pre-wrap", // Retain line breaks and tabs
+                                wordWrap: "break-word", // Handle long words gracefully
+                                // backgroundColor: "#f5f5f5",
+                                padding: "6px",
+                                borderRadius: "8px",
+                                // border: "1px solid #ddd",
+                              }}>
+                                {existingRating.review}
+                              </Typography>
+                            )}
+                            <Typography variant="body2" color="text.secondary">
+                              Added on: {new Date(existingRating.createdAt).toLocaleString()}
+                            </Typography>
+                            {existingRating.updatedAt && (
+                              <Typography variant="body2" mt={1} color="text.secondary">
+                                Updated on: {new Date(existingRating.updatedAt).toLocaleString()}
+                              </Typography>
+                            )}
+                            
+                          </>
+                        ) : (
+                          <Button
+                            variant="contained" 
+                            onClick={handleRatingOpen} sx={{borderRadius: '8px', textTransform: 'none',}}
+                          >
+                            Rate this Product
+                          </Button>
+                        )}
+                      </Box>
+                    </Grid>
+                  )}
                    
                 </Grid>
               </Box>
@@ -717,6 +947,8 @@ function OrderDetails() {
                     )}
                     </Box>
 
+        {renderRatingDialog()}
+
         {/* </div> */}
         <Snackbar
           open={snackbar.open}
@@ -724,7 +956,7 @@ function OrderDetails() {
           onClose={handleCloseSnackbar}
           anchorOrigin={{ vertical: "top", horizontal: "center" }}
         >
-          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity}>
+          <Alert onClose={handleCloseSnackbar} severity={snackbar.severity} sx={{borderRadius: '12px'}}>
             {snackbar.message}
           </Alert>
         </Snackbar>

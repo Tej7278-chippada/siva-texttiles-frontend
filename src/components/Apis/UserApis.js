@@ -226,3 +226,35 @@ export const fetchOrderById = async (id) => {
   
   return await API.get(`/api/orders/${id}`, { headers });
 };
+
+export const fetchRatingByOrderId = async (orderId) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.get(`/api/ratings?orderId=${orderId}`, { headers });
+};
+
+export const submitRating = async (ratingData) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.post('/api/ratings', ratingData, { headers });
+};
+
+export const updateRating = async (ratingId, ratingData) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.put(`/api/ratings/${ratingId}`, ratingData, { headers });
+};
+
+export const deleteRating = async (ratingId) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.delete(`/api/ratings/${ratingId}`, { headers });
+};
+
+export const fetchRatingsofProduct = async (prodId) => {
+  return await API.get(`/api/ratings/product/${prodId}`);
+};

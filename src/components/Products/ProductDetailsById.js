@@ -1,6 +1,6 @@
 // src/components/Products/PostDetailsById.js
 import React, { useEffect, useState } from 'react';
-import { Typography, CardMedia, IconButton, Grid, Tooltip, Box, useMediaQuery, Snackbar, Alert, Toolbar, CircularProgress, Button, styled, Avatar } from '@mui/material';
+import { Typography, CardMedia, IconButton, Grid, Tooltip, Box, useMediaQuery, Snackbar, Alert, Toolbar, CircularProgress, Button, styled, Avatar, Rating } from '@mui/material';
 // import ForumRoundedIcon from '@mui/icons-material/ForumRounded';
 import ThumbUpRoundedIcon from '@mui/icons-material/ThumbUpRounded';
 import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined';
@@ -28,7 +28,7 @@ import ShareIcon from '@mui/icons-material/Share'; // Import the share icon
 // import RateUserDialog from './RateUserDialog';
 // import StarRoundedIcon from '@mui/icons-material/StarRounded';
 // import axios from 'axios';
-import { addToWishlist, checkIfLiked, checkProductInWishlist, fetchLikesCount, fetchProductById, likeProduct, removeFromWishlist } from '../Apis/UserApis';
+import { addToWishlist, checkIfLiked, checkProductInWishlist, fetchLikesCount, fetchProductById, fetchRatingsofProduct, likeProduct, removeFromWishlist } from '../Apis/UserApis';
 import ImageZoomDialog from './ImageZoomDialog';
 import SkeletonProductDetail from '../Layout/SkeletonProductDetail';
 import Layout from '../Layout/Layout';
@@ -200,6 +200,9 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
   const [selectedSizeCount, setSelectedSizeCount] = useState(0);
   const [productStockCount, setProductStockCount] = useState(0);
   // const [sizeError, setSizeError] = useState('');
+  const [showAllRatings, setShowAllRatings] = useState(false);
+  const [productRatings, setProductRatings] = useState([]);
+  const [ratingsLoading, setRatingsLoading] = useState(false);
   
 
 
@@ -561,6 +564,26 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
     const options = { weekday: "long", month: "long", day: "numeric" };
     return deliveryDate.toLocaleDateString(undefined, options);
   };
+
+  const fetchProductRatings = async () => {
+    try {
+      setRatingsLoading(true);
+      const response = await fetchRatingsofProduct(product._id);
+      setProductRatings(response.data);
+      // console.log('ratings fetched');
+    } catch (error) {
+      console.error('Error fetching product ratings:', error);
+      setSnackbar({ open: true, message: 'Error loading ratings', severity: 'error' });
+    } finally {
+      setRatingsLoading(false);
+    }
+  };
+
+  // useEffect(() => {
+  //   if (product && product._id) {
+  //     fetchProductRatings();
+  //   }
+  // }, [product]);
 
   return (
     <Layout username={tokenUsername} darkMode={darkMode} toggleDarkMode={toggleDarkMode} unreadCount={unreadCount} shouldAnimate={shouldAnimate}>
@@ -1012,6 +1035,186 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                 
               </Box>
             </Grid>
+            {/* Ratings Section */}
+              <Box sx={{
+                borderRadius: '8px',
+                my: 1,
+                p: 2,
+                ...getGlassmorphismStyle(theme, darkMode)
+              }}>
+                <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
+                  Product Ratings
+                </Typography>
+                <Box sx={{
+                  display: 'flex', gap: 1,
+                  flexDirection: isMobile ? 'column' : 'row',
+                  // justifyContent: 'space-between',
+                  // alignItems: 'flex-start',
+                  // mb: 2
+                }}>
+                  <Box sx={{
+                    display: 'flex', flexDirection: 'column', gap: 2,
+                    alignItems: 'center', justifyContent: 'center',
+                    p: 3, bgcolor: '#f8f9fa',
+                    // minWidth: isMobile ? '100%' : 180,
+                    // width: isMobile ? '100%' : 180,
+                    borderRadius: '8px',
+                    // bgcolor: darkMode ? 'rgba(30,30,30,0.3)' : 'rgba(255,255,255,0.3)',
+                    // position: 'sticky',
+                    top: 16,
+                    // alignSelf: 'flex-start'
+                  }}>
+                    <Rating
+                      value={product.ratings?.average || 0}
+                      precision={0.1}
+                      readOnly
+                      size="large"
+                    />
+                    <Typography variant="body1" sx={{ ml: 0 }}>
+                      {product.ratings?.average?.toFixed(1) || '0.0'} ({product.ratings?.count || 0} ratings)
+                    </Typography>
+                    {showAllRatings && <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setShowAllRatings(!showAllRatings);
+                        if (!showAllRatings && productRatings.length === 0) {
+                          fetchProductRatings();
+                        }
+                      }}
+                      sx={{
+                        borderRadius: '8px',
+                        textTransform: 'none',
+                        fontWeight: 'medium'
+                      }}
+                    >
+                      Hide Ratings
+                    </Button>}
+                  </Box>
+
+                  {showAllRatings ? (
+                    <Box sx={{
+                      flex: 1,
+                      width: isMobile ? '100%' : '60%',
+                      position: 'relative', alignSelf: 'center'
+                      // minHeight: 200
+                    }}>
+                      {ratingsLoading ? (
+                        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', p: 2 }}>
+                          <CircularProgress size={24} />
+                        </Box>
+                      ) : productRatings.length > 0 ? (
+                        <Box sx={{
+                          display: 'flex',
+                          overflowX: 'auto',
+                          // scrollbarWidth: 'thin',
+                          // py: 1, px: 1,
+                          gap: 1,
+                          // '&::-webkit-scrollbar': {
+                          //   height: '6px',
+                          // },
+                          // '&::-webkit-scrollbar-thumb': {
+                          //   backgroundColor: darkMode ? '#555' : '#ccc',
+                          //   borderRadius: '3px',
+                          // },
+                          scrollbarWidth: 'none', // Firefox
+                          // scrollbarColor: '#aaa transparent',
+                          //                 "&::-webkit-scrollbar-button": {
+                          //   display: 'none', // Remove scrollbar arrows
+                          // },
+                        }}>
+                          {
+                            productRatings.map((rating, index) => (
+                              <Box key={index} sx={{
+                                p: 2,
+                                minWidth: 240,
+                                maxWidth: 240,
+                                borderRadius: '12px',
+                                flexShrink: 0, bgcolor: '#f8f9fa',
+                                // bgcolor: darkMode ? 'rgba(30,30,30,0.5)' : 'rgba(255,255,255,0.7)',
+                                display: 'flex',
+                                flexDirection: 'column', justifyContent: 'space-between',
+                                height: 180, // height: '100%'
+                              }}>
+                                <Box>
+                                <Box item xs={12} sm={4} my={1} display="flex" alignItems="center" >
+                                  <Avatar
+                                    src={`data:image/png;base64,${rating?.userId?.profilePic}`}
+                                    alt={rating?.userId?.username[0]}
+                                    sx={{ width: 24, height: 24, borderRadius: '50%', marginRight: 1 }}
+                                  />
+                                  <Typography variant="body1" style={{ fontWeight: 500 }}>
+                                    {rating?.userId?.username}
+                                  </Typography>
+
+                                </Box>
+                                <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                  <Rating
+                                    value={rating.rating}
+                                    precision={0.5}
+                                    readOnly
+                                    size="small"
+                                  />
+                                  <Typography variant="body2" sx={{ ml: 1 }}>
+                                    {rating.rating.toFixed(1)}
+                                  </Typography>
+                                </Box>
+                                {rating.review && (
+                                  <Typography variant="body2" sx={{
+                                    whiteSpace: 'pre-wrap',
+                                    wordWrap: 'break-word',
+                                    display: '-webkit-box',
+                                    WebkitLineClamp: 4, // no of lines of description
+                                    WebkitBoxOrient: 'vertical',
+                                    overflow: 'hidden',
+                                    lineHeight: 1.4,
+                                    mb: 1
+                                  }}>
+                                    {rating.review}
+                                  </Typography>
+                                )}
+                                </Box>
+                                <Typography variant="caption" color="textSecondary" >
+                                  {rating.updatedAt ? `Updated on: ${new Date(rating.updatedAt).toLocaleString()}` : `Rated on: ${new Date(rating.createdAt).toLocaleString()}`}
+                                </Typography>
+                              </Box >
+                            ))
+                          }</Box>
+                      ) : (
+                        <Typography variant="body2" color="textSecondary" sx={{ textAlign: 'center', p: 2 }}>
+                          No ratings yet for this product
+                        </Typography>
+                      )}
+                    </Box>
+                  ) : (
+                    <Box sx={{
+                      flex: 1,
+                      width: isMobile ? '100%' : '60%',
+                      position: 'relative', alignItems: 'center', display: 'flex', justifyContent: 'center',
+                      // minHeight: 200
+                    }}>
+                    <Button
+                      variant="outlined"
+                      onClick={() => {
+                        setShowAllRatings(!showAllRatings);
+                        if (!showAllRatings && productRatings.length === 0) {
+                          fetchProductRatings();
+                        }
+                      }}
+                      sx={{
+                        borderRadius: '8px',
+                        textTransform: 'none',
+                        fontWeight: 'medium', 
+                      }}
+                    >
+                      {showAllRatings ? 'Hide Ratings' : 'Show All Ratings'}
+                    </Button>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+
+              
+            {/* </Box> */}
             <Box sx={{ borderRadius:'8px', my:1, padding:'1rem', ...getGlassmorphismStyle(theme, darkMode), }}> {/* bgcolor: '#f5f5f5', */}
             <Grid item xs={6} sm={4} >
               <Typography variant="body1" style={{ fontWeight: 500 }}>
