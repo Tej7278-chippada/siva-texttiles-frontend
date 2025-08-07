@@ -174,6 +174,74 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVa
     return minDistance < 50 ? closestColor : `Color ${variants.length + 1}`;
   };
 
+  // function to resize images for variants
+  const resizeVariantImage = (blob, maxSize) => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.src = URL.createObjectURL(blob);
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        // Set the new dimensions
+        let width = img.width;
+        let height = img.height;
+        const scaleFactor = Math.sqrt(maxSize / blob.size);
+
+        width *= scaleFactor;
+        height *= scaleFactor;
+        canvas.width = width;
+        canvas.height = height;
+
+        ctx.drawImage(img, 0, 0, width, height);
+
+        // Convert canvas to Blob
+        canvas.toBlob(
+          (resizedBlob) => {
+            resolve(resizedBlob);
+          },
+          "image/jpeg",
+          0.8
+        );
+      };
+    });
+  };
+
+  // function to handle variant image upload
+  const handleVariantImageUpload = async (colorIndex, e) => {
+    const selectedFiles = Array.from(e.target.files);
+    const resizedFiles = [];
+
+    for (const file of selectedFiles) {
+      if (file.size > 2 * 1024 * 1024) {
+        const resizedBlob = await resizeVariantImage(file, 2 * 1024 * 1024);
+        const resizedFile = new File([resizedBlob], file.name, { type: file.type });
+        resizedFiles.push(resizedFile);
+      } else {
+        resizedFiles.push(file);
+      }
+    }
+
+    const updated = [...variants];
+    const currentImages = updated[colorIndex].images || [];
+    
+    // Check if total images exceed 5
+    if (currentImages.length + resizedFiles.length > 5) {
+      alert("Maximum 5 images allowed per color variant.");
+      return;
+    }
+
+    updated[colorIndex].images = [...currentImages, ...resizedFiles];
+    setVariants(updated);
+  };
+
+  // function to remove variant image
+  const handleRemoveVariantImage = (colorIndex, imageIndex) => {
+    const updated = [...variants];
+    updated[colorIndex].images = updated[colorIndex].images.filter((_, i) => i !== imageIndex);
+    setVariants(updated);
+  };
+
   const handleAddVariant = () => {
     const colorName = getColorName(currentColor, variants);
     
@@ -327,6 +395,120 @@ const ColorVariantForm = ({ variants, setVariants, removedVariants, setRemovedVa
                         <DeleteIcon/>
                       </IconButton>
                     </Box>
+                  </Box>
+
+                  {/* Color Variant Images Section */}
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="body2" sx={{ mb: 1 }}>Color Images (Max 5):</Typography>
+                    
+                    {/* Display existing images for this variant */}
+                    {variant.existingImages && variant.existingImages.length > 0 && (
+                      <Box sx={{ mb: 2 }}>
+                        <Typography variant="caption" color="text.secondary">Existing Images:</Typography>
+                        {/* <Box sx={{ display: 'flex', gap: 1, mt: 1, overflowX: 'auto' }}> */}
+                        <Box sx={{ display: 'flex', gap: '4px', marginTop: '10px', mx: '4px', overflowX: 'auto', scrollbarWidth: 'none', scrollbarColor: '#888 transparent' }}>
+                          {variant.existingImages.map((imageData, imgIndex) => (
+                            // <Box key={imgIndex} sx={{ position: 'relative', minWidth: 80 }}>
+                            <Box key={imgIndex} style={{ display: 'flex', position: 'relative', alignItems: 'flex-start', flexDirection: 'column' }}>
+                              <img
+                                src={`data:image/jpeg;base64,${imageData}`}
+                                alt={`${variant.colorName} ${imgIndex + 1}`}
+                                style={{
+                                  // width: 80,
+                                  height: 120,
+                                  objectFit: 'cover',
+                                  borderRadius: 4,
+                                  border: '1px solid #ddd'
+                                }}
+                              />
+                              {/* <IconButton
+                                size="small"
+                                sx={{
+                                  position: 'absolute',
+                                  top: 2,
+                                  right: -2,
+                                  bgcolor: 'error.main',
+                                  color: 'white',
+                                  '&:hover': { bgcolor: 'error.dark' }
+                                }}
+                                onClick={() => {
+                                  const updated = [...variants];
+                                  updated[colorIndex].existingImages = updated[colorIndex].existingImages.filter((_, i) => i !== imgIndex);
+                                  setVariants(updated);
+                                }}
+                              >
+                                <CloseIcon fontSize="small" />
+                              </IconButton> */}
+                              <Button size="small" color="secondary"
+                                onClick={() => {
+                                  const updated = [...variants];
+                                  updated[colorIndex].existingImages = updated[colorIndex].existingImages.filter((_, i) => i !== imgIndex);
+                                  setVariants(updated);
+                                }}>Remove</Button>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+
+                    {/* Display new images for this variant */}
+                    {variant.images && variant.images.length > 0 && (
+                      <Box sx={{ mb: 1 }}>
+                        <Typography variant="caption" color="text.secondary">New Images:</Typography>
+                        {/* <Box sx={{ display: 'flex', gap: 1, mt: 1, overflowX: 'auto' }}> */}
+                        <Box sx={{ display: 'flex', gap: '4px', marginTop: '10px', mx: '4px', overflowX: 'auto', scrollbarWidth: 'none', scrollbarColor: '#888 transparent' }}>
+                          {variant.images.map((file, imgIndex) => (
+                            // <Box key={imgIndex} sx={{ position: 'relative', minWidth: 80 }}>
+                            <Box key={imgIndex} style={{ display: 'flex', position: 'relative', alignItems: 'flex-start', flexDirection: 'column' }}>
+                              <img
+                                src={URL.createObjectURL(file)}
+                                alt={`${variant.colorName} ${imgIndex + 1}`}
+                                style={{
+                                  // width: 80,
+                                  height: 120,
+                                  objectFit: 'cover',
+                                  borderRadius: 4,
+                                  border: '1px solid #ddd'
+                                }}
+                              />
+                              {/* <IconButton
+                                size="small"
+                                sx={{
+                                  position: 'absolute',
+                                  top: -8,
+                                  right: -8,
+                                  bgcolor: 'error.main',
+                                  color: 'white',
+                                  '&:hover': { bgcolor: 'error.dark' }
+                                }}
+                                onClick={() => handleRemoveVariantImage(colorIndex, imgIndex)}
+                              >
+                                <CloseIcon fontSize="small" />
+                              </IconButton> */}
+                              <Button size="small" color="secondary" onClick={() => handleRemoveVariantImage(colorIndex, imgIndex)}>Remove</Button>
+                            </Box>
+                          ))}
+                        </Box>
+                      </Box>
+                    )}
+
+                    {/* Upload button for variant images */}
+                    <Button
+                      variant="outlined"
+                      component="label"
+                      size="small"
+                      disabled={(variant.images?.length || 0) + (variant.existingImages?.length || 0) >= 5}
+                      sx={{ mt: 1 }}
+                    >
+                      Add Images for {variant.colorName}
+                      <input
+                        type="file"
+                        multiple
+                        hidden
+                        accept="image/png, image/jpeg, image/jpg, image/webp"
+                        onChange={(e) => handleVariantImageUpload(colorIndex, e)}
+                      />
+                    </Button>
                   </Box>
                   
                   <Typography variant="body2" sx={{ mb: 1 }}>Size Availability:</Typography>
@@ -551,7 +733,13 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
         deliveryDays: editingProduct.deliveryDays,
         description: editingProduct.description,
       });
-      setVariants(editingProduct.variants || []);
+      // Process variants and convert existing images to base64 if they exist
+      const processedVariants = (editingProduct.variants || []).map(variant => ({
+        ...variant,
+        images: [], // Reset images array for new uploads
+        existingImages: variant.images || [] // Store existing images separately
+      }));
+      setVariants(processedVariants);
     } else {
       // Reset form when creating new post
       setFormData({
@@ -634,8 +822,18 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
     setLoading(true); // Show loading state
     const data = new FormData();
 
-    // Add only new media files to FormData
+    // Add only new media files to FormData (general product images)
     newMedia.forEach((file) => data.append('media', file));
+
+    // Add variant images to FormData
+    variants.forEach((variant, variantIndex) => {
+      if (variant.images && variant.images.length > 0) {
+        variant.images.forEach((file) => {
+          data.append(`variantImages_${variantIndex}`, file);
+        });
+      }
+    });
+
     // Append form data
     Object.keys(formData).forEach(key => {
       if (key !== 'media') data.append(key, formData[key]);
@@ -646,15 +844,32 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
       data.append('removedVariants', JSON.stringify(removedVariants));
     }
 
-    // Include variants data
+    // Include variants data (without the File objects for images)
     if (variants.length > 0) {
-      data.append('variants', JSON.stringify(variants));
+      const variantsForSubmission = variants.map((variant, index) => ({
+        ...variant,
+        images: undefined, // Remove File objects - we're sending them separately
+        imageCount: variant.images ? variant.images.length : 0, // Track how many images this variant has
+        variantIndex: index // Track which variant this is for the backend
+      }));
+      data.append('variants', JSON.stringify(variantsForSubmission));
     }
 
-    // Include IDs of existing media to keep
+    // Include IDs of existing media to keep (general product images)
     const mediaToKeep = existingMedia.filter(media => !media.remove).map(media => media._id);
     if (mediaToKeep.length > 0) {
       data.append('existingMedia', JSON.stringify(mediaToKeep));
+    }
+
+    // Handle existing variant images
+    const existingVariantImages = {};
+    variants.forEach((variant, variantIndex) => {
+      if (variant.existingImages && variant.existingImages.length > 0) {
+        existingVariantImages[variantIndex] = variant.existingImages;
+      }
+    });
+    if (Object.keys(existingVariantImages).length > 0) {
+      data.append('existingVariantImages', JSON.stringify(existingVariantImages));
     }
 
     try {
