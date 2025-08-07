@@ -203,7 +203,7 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
   const [showAllRatings, setShowAllRatings] = useState(false);
   const [productRatings, setProductRatings] = useState([]);
   const [ratingsLoading, setRatingsLoading] = useState(false);
-  
+  const [selectedVariantImages, setSelectedVariantImages] = useState([]);
 
 
   
@@ -232,6 +232,12 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
         });
         // setStockCountId(response.data.stockCount); // Set initial stock count
         setProductStockCount(response.data.totalStock);
+        // Set initial images - either variant images if available or main media
+        if (response.data.variants && response.data.variants.length > 0 && response.data.variants[0].images) {
+          setSelectedVariantImages(response.data.variants[0].images);
+        } else {
+          setSelectedVariantImages(response.data.media);
+        }
 
       } catch (error) {
         if (error.response && error.response.status === 404) {
@@ -249,6 +255,18 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
   
     fetchProductDetails();
   }, [id]);
+
+  // useEffect to set initial images when product loads
+  // useEffect(() => {
+  //   if (product) {
+  //     // Set initial images - either variant images if available or main media
+  //     if (product.variants && product.variants.length > 0 && product.variants[0].images) {
+  //       setSelectedVariantImages(product.variants[0].images);
+  //     } else {
+  //       setSelectedVariantImages(product.media);
+  //     }
+  //   }
+  // }, [product]);
   
 
   useEffect(() => {
@@ -480,6 +498,7 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
     navigate(`/order/${id}`, { 
       state: { 
         product,
+        selectedColorImage: selectedVariantImages.length !== 0 ?  selectedVariantImages[0] : product?.media[0],
         selectedColor: product.variants?.[selectedColorIndex],
         selectedSize,
         selectedSizeCount,
@@ -629,7 +648,22 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                         // borderRadius: '8px',
                         gap: isMobile ? '3px' : '4px', height: isMobile1 ? '250px' : '330px',
                       }}>
-                        {product.media && product.media.length > 0 ? (
+                        {selectedVariantImages && selectedVariantImages.length > 0 ? (
+                          selectedVariantImages.map((base64Image, index) => (
+                            <img
+                              key={index}
+                              src={`data:image/jpeg;base64,${base64Image.toString('base64')}`}
+                              alt={`Product ${index}`}
+                              style={{
+                                borderRadius: '6px',
+                                objectFit: 'cover',
+                                flexShrink: 0,
+                                cursor: 'pointer'
+                              }}
+                              onClick={() => handleImageClick(base64Image)}
+                            />
+                          ))
+                        ) : product.media && product.media.length > 0 ? (
                           product.media.map((base64Image, index) => (
                             <img
                               key={index}
@@ -908,7 +942,12 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
                       <ColorVariantDisplay 
                         variants={product.variants}
                         selectedColorIndex={selectedColorIndex}
-                        setSelectedColorIndex={setSelectedColorIndex}
+                        setSelectedColorIndex={(index) => {
+                          setSelectedColorIndex(index);
+                          setSelectedVariantImages(product.variants[index].images || product.media);
+                          // setSelectedSize(null);
+                          // setSelectedSizeCount(0);
+                        }}
                         selectedSize={selectedSize}
                         setSelectedSize={setSelectedSize}
                         setSelectedSizeCount={setSelectedSizeCount}
@@ -1291,7 +1330,7 @@ function ProductDetailsById({ onClose, user, darkMode, toggleDarkMode, unreadCou
           <ImageZoomDialog
             selectedImage={selectedImage}
             handleCloseImageModal={handleCloseImageModal}
-            images={product.media} // Pass the full media array
+            images={selectedVariantImages.length !== 0 ? selectedVariantImages : product.media} // Pass the full media array
           />
           <CommentPopup
             open={commentPopupOpen}

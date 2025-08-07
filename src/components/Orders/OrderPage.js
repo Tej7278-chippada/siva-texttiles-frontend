@@ -514,7 +514,7 @@ const OrderPage = ({ user }) => {
                   }}>
                     {/* <Box sx={{ display: "flex", alignItems: "center", p: 2 }}> */}
                     <Avatar
-                      src={`data:image/jpeg;base64,${product.media[0]}`} // Assuming the first image is the primary one
+                      src={`data:image/jpeg;base64,${location.state?.selectedColorImage ? location.state?.selectedColorImage : product.media[0]}`} // Assuming the first image is the primary one
                       alt={product.title}
                       sx={{ width: 80, height: 120, my: 2, ml: 2, borderRadius: '10px' }}
                     />
