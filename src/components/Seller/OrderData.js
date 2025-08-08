@@ -29,6 +29,7 @@ import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import HomeIcon from '@mui/icons-material/Home';
 import { fetchPaymentDetails, updateOrderStatus } from '../Apis/SellerApis';
+import CircleIcon from '@mui/icons-material/Circle';
 
 const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProductDetail }) => {
   const theme = useTheme();
@@ -244,16 +245,13 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                         {order?.productTitle}
                       </Typography>
                       <Box sx={{display: 'flex', }}>
-                        <Box
-                            sx={{
-                            width: 16,
-                            height: 16,
-                            borderRadius: '50%',
-                            backgroundColor: order?.selectedItem[0]?.colorCode,
-                            border: '1px solid #ddd',
-                            mr: 1
-                            }}
-                        />
+                        <Avatar sx={{ 
+                          bgcolor: order?.selectedItem[0]?.colorCode,
+                          width: 20, 
+                          height: 20, mr: 1
+                        }}>
+                          <CircleIcon sx={{ color: order?.selectedItem[0]?.colorCode, }} />
+                        </Avatar>
                         {order?.selectedItem && <Typography variant="body2" color="text.secondary">
                             {order?.selectedItem?.[0]?.colorName} ({order?.selectedItem?.[0]?.size})
                         </Typography>}

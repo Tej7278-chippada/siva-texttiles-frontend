@@ -34,6 +34,8 @@ import StarIcon from '@mui/icons-material/Star';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
 import { useCallback } from 'react';
+import InputAdornment from '@mui/material/InputAdornment';
+import CircleIcon from '@mui/icons-material/Circle';
 // Custom Stepper Connector
 // const CustomStepConnector = styled(StepConnector)(({ theme }) => ({
 //   [`&.${StepConnector.alternativeLabel}`]: {
@@ -604,44 +606,123 @@ function OrderDetails() {
   };
 
   const renderEditAddressDialog = () => (
-    <Dialog open={editAddressOpen} onClose={handleEditAddressClose} maxWidth="sm" fullWidth sx={{
-      '& .MuiPaper-root': { // Target the dialog paper
-        borderRadius: '16px', // Apply border radius
-        scrollbarWidth: 'thin', scrollbarColor: '#aaa transparent',
-      }, 
-      '& .MuiDialogActions-root': {
-        margin: '8px',
-      },
-    }}>
-      <DialogTitle>Edit Delivery Address</DialogTitle>
-      <DialogContent>
-        <Box >
-          <Grid container spacing={2}>
-            {["name", "phone", "email", "street", "area", "city", "state", "pincode"].map(
-              (field) => (
-                <Grid item xs={12} sm={6} key={field}>
-                  <TextField
-                    name={field}
-                    label={field.charAt(0).toUpperCase() + field.slice(1)}
-                    fullWidth
-                    value={addressForm[field]}
-                    onChange={handleAddressChange}
-                  />
-                </Grid>
-              )
-            )}
+    <Dialog 
+      open={editAddressOpen} 
+      onClose={handleEditAddressClose} 
+      maxWidth="sm" 
+      fullWidth fullScreen={isMobile ? true : false}
+      sx={{
+        '& .MuiPaper-root': {
+          borderRadius: isMobile ? '0px' : '16px',
+          background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+        },
+      }}
+    >
+      <DialogTitle sx={{
+        background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+        color: 'white',
+        fontWeight: 600,
+        borderRadius: isMobile ? '0px' : '16px 16px 0 0',
+        padding: '16px 24px',
+      }}>
+        Edit Delivery Address
+        <Typography variant="caption" display="block" sx={{ color: 'rgba(255,255,255,0.8)', mt: 0.5 }}>
+          Only editable for orders in "Created" or "Packing" status
+        </Typography>
+      </DialogTitle>
+
+      <DialogContent sx={{ padding: '24px' }}>
+        <Box sx={{ marginTop: 3 }}>
+          <Grid container spacing={3}>
+            {[
+              { field: 'name', label: 'Full Name', required: true },
+              { field: 'phone', label: 'Phone Number', required: true, type: 'tel' },
+              { field: 'email', label: 'Email', required: true, type: 'email' },
+              { field: 'street', label: 'Street Address', required: true, fullWidth: true },
+              { field: 'area', label: 'Area/Locality', required: true },
+              { field: 'city', label: 'City', required: true },
+              { field: 'state', label: 'State', required: true },
+              { field: 'pincode', label: 'Pincode', required: true, type: 'number' },
+            ].map(({ field, label, required, type, fullWidth }) => (
+              <Grid item xs={12} sm={fullWidth ? 12 : 6} key={field}>
+                <TextField
+                  name={field}
+                  label={label}
+                  fullWidth
+                  required={required}
+                  type={type}
+                  value={addressForm[field]}
+                  onChange={handleAddressChange}
+                  variant="outlined"
+                  size="small"
+                  sx={{
+                    '& .MuiOutlinedInput-root': {
+                      borderRadius: '8px',
+                      backgroundColor: '#ffffff',
+                      '&:hover .MuiOutlinedInput-notchedOutline': {
+                        borderColor: '#1976d2',
+                      },
+                    },
+                    '& .MuiInputLabel-root': {
+                      color: '#5f6368',
+                    },
+                  }}
+                  InputProps={{
+                    startAdornment: field === 'phone' && (
+                      <InputAdornment position="start">
+                        +91
+                      </InputAdornment>
+                    ),
+                  }}
+                />
+              </Grid>
+            ))}
           </Grid>
         </Box>
       </DialogContent>
-      <DialogActions>
-        <Button onClick={handleEditAddressClose} sx={{borderRadius: '8px'}}>Cancel</Button>
+
+      <DialogActions sx={{
+        padding: '16px 24px',
+        borderTop: '1px solid #e0e0e0',
+        justifyContent: 'space-between',
+      }}>
+        <Button 
+          onClick={handleEditAddressClose}
+          variant="outlined"
+          sx={{
+            borderRadius: '8px',
+            textTransform: 'none',
+            padding: '8px 16px',
+            borderColor: '#e0e0e0',
+            color: '#5f6368',
+            '&:hover': {
+              borderColor: '#bdbdbd',
+              backgroundColor: 'rgba(0, 0, 0, 0.04)',
+            },
+          }}
+          // startIcon={<CloseIcon />}
+        >
+          Cancel
+        </Button>
+        
         <Button 
           onClick={handleAddressSubmit} 
-          variant="contained" 
+          variant="contained"
+          sx={{
+            borderRadius: '8px',
+            textTransform: 'none',
+            padding: '8px 24px',
+            background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            '&:hover': {
+              background: 'linear-gradient(45deg, #1565c0 30%, #1e88e5 90%)',
+            },
+          }}
           disabled={loadingAddressUpdating}
-          sx={{borderRadius: '8px'}}
+          // startIcon={<SaveIcon />}
         >
-          {loadingAddressUpdating ?<> <CircularProgress size={20} sx={{mr: 1}}/> Updating... </>: 'Update Address'}
+          {loadingAddressUpdating ? <><CircularProgress size={20} sx={{mr: 1, color: '#fff'}} /> updating...</> : 'Update Address'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -829,15 +910,13 @@ function OrderDetails() {
                       {order.productTitle}
                     </Typography>
                     <Box sx={{display: 'flex', gap: 1, mb: 1 }}>
-                      <Box 
-                        sx={{
-                          width: 20,
-                          height: 20,
-                          borderRadius: '50%',
-                          backgroundColor: order.selectedItem[0]?.colorCode,
-                          border: '1px solid #ddd'
-                        }}
-                      />
+                      <Avatar sx={{ 
+                        bgcolor: order.selectedItem[0]?.colorCode,
+                        width: 20, 
+                        height: 20,
+                      }}>
+                        <CircleIcon sx={{ color: order.selectedItem[0]?.colorCode, }} />
+                      </Avatar>
                       <Typography variant="body2" color="textSecondary">
                         {order.selectedItem[0]?.colorName || 'No Color'}, {order.selectedItem[0]?.size || 'No Size'}
                       </Typography>
