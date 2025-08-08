@@ -345,6 +345,10 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                           {order.userDeliveryAddresses[0].address.pincode}
                         </Typography>
                       </Box>
+                      {order?.userDeliveryAddresses[0]?.updatedAt &&
+                      <Typography variant="body2" mt={1} color="text.secondary">
+                        Updated on: {formatDate(order.userDeliveryAddresses[0]?.updatedAt)}
+                      </Typography>}
                     </>
                   ) : (
                     <Typography variant="body2">No delivery address provided</Typography>

@@ -4,14 +4,15 @@ import { Typography, Grid, Box, useMediaQuery, Snackbar, Alert, Avatar, Stepper,
   Step,
   StepLabel,
   StepConnector,
-  Chip } from '@mui/material';
+  Chip, 
+  CircularProgress} from '@mui/material';
 // import { fetchOrderById } from '../../api/api';
 import { useNavigate, useParams } from 'react-router-dom';
 // import Layout from '../Layout';
 import { useTheme } from '@emotion/react';
 // import SkeletonProductDetail from './SkeletonProductDetail';
 // import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
-import { fetchOrderById, deleteRating, fetchRatingByOrderId, submitRating, updateRating } from '../Apis/UserApis';
+import { fetchOrderById, deleteRating, fetchRatingByOrderId, submitRating, updateRating, updateDeliveryAddress } from '../Apis/UserApis';
 import Layout from '../Layout/Layout';
 import SkeletonProductDetail from '../Layout/SkeletonProductDetail';
 import { styled } from '@mui/material/styles';
@@ -133,6 +134,18 @@ function OrderDetails() {
   const [currentRating, setCurrentRating] = useState(0);
   const [reviewText, setReviewText] = useState('');
   const [existingRating, setExistingRating] = useState(null);
+  const [editAddressOpen, setEditAddressOpen] = useState(false);
+  const [addressForm, setAddressForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    street: '',
+    area: '',
+    city: '',
+    state: '',
+    pincode: ''
+  });
+  const [loadingAddressUpdating, setLoadingAddressUpdating] = useState(false);
 
   // const StepIconComponent = (props) => {
   //   const { active, completed, className } = props;
@@ -341,6 +354,25 @@ function OrderDetails() {
             </Typography>
           </Box>
         )}
+
+        {['Created', 'Packing', 'Ready to Deliver', 'On Delivery'].includes(order?.orderStatus) &&
+        <Button
+          variant="outlined" size="small" fullWidth sx={{borderRadius: '8px', textTransform:'none', mt: 1}}
+          // startIcon={<EditIcon />}
+          // onClick={handleRatingOpen}
+          disabled={!['Created', 'Packing'].includes(order?.orderStatus)}
+        >
+          Cancel Order
+        </Button>}
+        {order?.orderStatus === 'Delivered' && 
+        <Button
+          variant="outlined" size="small" fullWidth sx={{borderRadius: '8px', textTransform:'none', mt: 2}}
+          // startIcon={<EditIcon />}
+          // onClick={handleRatingOpen}
+          // disabled={!['Delivered'].includes(order?.orderStatus)}
+        >
+          Return Product
+        </Button>}
       </Box>
     );
   };
@@ -503,6 +535,113 @@ function OrderDetails() {
         )}
         <Button onClick={handleSubmitRating} variant="contained" sx={{borderRadius: '8px'}}>
           {existingRating ? 'Update' : 'Submit'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  const handleEditAddressOpen = () => {
+    if (order && order.userDeliveryAddresses && order.userDeliveryAddresses[0]) {
+      const address = order.userDeliveryAddresses[0];
+      setAddressForm({
+        name: address.name || '',
+        phone: address.phone || '',
+        email: address.email || '',
+        street: address.address.street || '',
+        area: address.address.area || '',
+        city: address.address.city || '',
+        state: address.address.state || '',
+        pincode: address.address.pincode || ''
+      });
+    }
+    setEditAddressOpen(true);
+  };
+
+  const handleEditAddressClose = () => {
+    setEditAddressOpen(false);
+  };
+
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddressForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleAddressSubmit = async () => {
+    setLoadingAddressUpdating(true);
+    try {
+      const addressData = {
+        name: addressForm.name,
+        phone: addressForm.phone,
+        email: addressForm.email,
+        address: {
+          street: addressForm.street,
+          area: addressForm.area,
+          city: addressForm.city,
+          state: addressForm.state,
+          pincode: addressForm.pincode
+        }
+      };
+
+      await updateDeliveryAddress(id, addressData);
+      
+      // Refresh order data
+      const response = await fetchOrderById(id);
+      setOrder({
+        ...response.data,
+      });
+      
+      setSnackbar({ open: true, message: 'Address updated successfully!', severity: 'success' });
+      handleEditAddressClose();
+    } catch (error) {
+      // console.error('Error updating address:', error);
+      setSnackbar({ open: true, message: 'Failed to update address', severity: 'error' });
+    } finally {
+      setLoadingAddressUpdating(false);
+    }
+  };
+
+  const renderEditAddressDialog = () => (
+    <Dialog open={editAddressOpen} onClose={handleEditAddressClose} maxWidth="sm" fullWidth sx={{
+      '& .MuiPaper-root': { // Target the dialog paper
+        borderRadius: '16px', // Apply border radius
+        scrollbarWidth: 'thin', scrollbarColor: '#aaa transparent',
+      }, 
+      '& .MuiDialogActions-root': {
+        margin: '8px',
+      },
+    }}>
+      <DialogTitle>Edit Delivery Address</DialogTitle>
+      <DialogContent>
+        <Box >
+          <Grid container spacing={2}>
+            {["name", "phone", "email", "street", "area", "city", "state", "pincode"].map(
+              (field) => (
+                <Grid item xs={12} sm={6} key={field}>
+                  <TextField
+                    name={field}
+                    label={field.charAt(0).toUpperCase() + field.slice(1)}
+                    fullWidth
+                    value={addressForm[field]}
+                    onChange={handleAddressChange}
+                  />
+                </Grid>
+              )
+            )}
+          </Grid>
+        </Box>
+      </DialogContent>
+      <DialogActions>
+        <Button onClick={handleEditAddressClose} sx={{borderRadius: '8px'}}>Cancel</Button>
+        <Button 
+          onClick={handleAddressSubmit} 
+          variant="contained" 
+          disabled={loadingAddressUpdating}
+          sx={{borderRadius: '8px'}}
+        >
+          {loadingAddressUpdating ?<> <CircularProgress size={20} sx={{mr: 1}}/> Updating... </>: 'Update Address'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -743,9 +882,18 @@ function OrderDetails() {
                     </Typography>
                   </Grid>
                   <Grid item xs={12} sm={12}>
-                    <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
-                      Delivery Address Details:
-                    </Typography>
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+                      <Typography variant="body1" sx={{ fontWeight: 500, mb: 1 }}>
+                        Delivery Address Details:
+                      </Typography>
+                      <Button
+                        variant="outlined" size="small" sx={{borderRadius: '8px', textTransform:'none'}}
+                        disabled={!['Created', 'Packing'].includes(order?.orderStatus)}
+                        onClick={handleEditAddressOpen}
+                      >
+                        Edit Address
+                      </Button>
+                    </Box>
                     <Typography variant="body2" color="textSecondary" style={{ marginBottom: '0.5rem' }}>
                       Name: {order.userDeliveryAddresses[0]?.name || "N/A"}
                     </Typography>
@@ -948,6 +1096,8 @@ function OrderDetails() {
                     </Box>
 
         {renderRatingDialog()}
+
+        {renderEditAddressDialog()}
 
         {/* </div> */}
         <Snackbar

@@ -258,3 +258,10 @@ export const deleteRating = async (ratingId) => {
 export const fetchRatingsofProduct = async (prodId) => {
   return await API.get(`/api/ratings/product/${prodId}`);
 };
+
+export const updateDeliveryAddress = async (orderId, addressData) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.put(`/api/orders/${orderId}/address`, addressData, { headers });
+};
