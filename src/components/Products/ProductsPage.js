@@ -676,7 +676,7 @@ const ProductsPage = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                     letterSpacing: '-0.02em'
                 }}
             >
-                Welcome to Siva Textiles!
+                Welcome to SKD Handlooms!
             </Typography>
             
             <Typography 
