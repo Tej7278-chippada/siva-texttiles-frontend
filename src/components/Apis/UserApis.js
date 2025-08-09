@@ -265,3 +265,10 @@ export const updateDeliveryAddress = async (orderId, addressData) => {
   
   return await API.put(`/api/orders/${orderId}/address`, addressData, { headers });
 };
+
+export const cancelOrder = async (orderId, reason) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.put(`/api/orders/${orderId}/cancel`, { reason }, { headers });
+};

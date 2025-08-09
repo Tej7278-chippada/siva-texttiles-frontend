@@ -171,7 +171,7 @@ const MyOrders = () => {
                               />
                               <Chip
                                 // icon={<PersonIcon sx={{ fontSize: 14 }} />}
-                                label={`${order?.selectedItem[0]?.colorName} (${order?.selectedItem[0]?.size || order?.categoriesMale})`}
+                                label={`${order?.selectedItem[0]?.colorName || 'No Color'} (${order?.selectedItem[0]?.size || 'No Size'})`}
                                 size="small"
                                 variant="outlined"
                                 sx={{ fontSize: '0.75rem', color: 'text.secondary', borderColor: 'transparent' }}

@@ -1806,7 +1806,7 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
                                     />
                                     <Chip
                                     // icon={<PersonIcon sx={{ fontSize: 14 }} />}
-                                    label={`${post?.selectedItem[0]?.colorName} (${post?.selectedItem[0]?.size || post.categoriesMale})`}
+                                    label={`${post?.selectedItem[0]?.colorName || 'No Color'} (${post?.selectedItem[0]?.size || 'No Size'})`}
                                     size="small"
                                     variant="outlined"
                                     sx={{ fontSize: '0.75rem', color: 'text.secondary', borderColor: 'transparent' }}

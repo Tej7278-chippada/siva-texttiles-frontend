@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '@emotion/react';
 // import SkeletonProductDetail from './SkeletonProductDetail';
 // import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
-import { fetchOrderById, deleteRating, fetchRatingByOrderId, submitRating, updateRating, updateDeliveryAddress } from '../Apis/UserApis';
+import { fetchOrderById, deleteRating, fetchRatingByOrderId, submitRating, updateRating, updateDeliveryAddress, cancelOrder } from '../Apis/UserApis';
 import Layout from '../Layout/Layout';
 import SkeletonProductDetail from '../Layout/SkeletonProductDetail';
 import { styled } from '@mui/material/styles';
@@ -36,6 +36,8 @@ import EditIcon from '@mui/icons-material/Edit';
 import { useCallback } from 'react';
 import InputAdornment from '@mui/material/InputAdornment';
 import CircleIcon from '@mui/icons-material/Circle';
+import CancelIcon from '@mui/icons-material/Cancel';
+import MenuItem from '@mui/material/MenuItem';
 // Custom Stepper Connector
 // const CustomStepConnector = styled(StepConnector)(({ theme }) => ({
 //   [`&.${StepConnector.alternativeLabel}`]: {
@@ -114,6 +116,8 @@ function OrderDetails() {
       'Ready to Deliver': '#2196F3',
       'On Delivery': '#9C27B0',
       'Delivered': '#4CAF50',
+      'Cancelled': '#F44336',
+      'Return Initiated': '#FF9800',
       'Returned': '#F44336',
       'Refunded': '#795548'
     };
@@ -126,6 +130,8 @@ function OrderDetails() {
       'Completed': '#4CAF50',
       'Pending': '#9C27B0',
       'refunded': '#FF9800',
+      'Refund Initiated': '#FF9800',
+      'Refunded': '#4CAF50',
       'failed': '#F44336',
       'declined': '#F44336'
     };
@@ -148,6 +154,10 @@ function OrderDetails() {
     pincode: ''
   });
   const [loadingAddressUpdating, setLoadingAddressUpdating] = useState(false);
+  const [cancelDialogOpen, setCancelDialogOpen] = useState(false);
+  const [cancellationReason, setCancellationReason] = useState('');
+  const [isSubmittingCancel, setIsSubmittingCancel] = useState(false);
+  const [cancellationReasonDetails, setCancellationReasonDetails] = useState('');
 
   // const StepIconComponent = (props) => {
   //   const { active, completed, className } = props;
@@ -360,9 +370,9 @@ function OrderDetails() {
         {['Created', 'Packing', 'Ready to Deliver', 'On Delivery'].includes(order?.orderStatus) &&
         <Button
           variant="outlined" size="small" fullWidth sx={{borderRadius: '8px', textTransform:'none', mt: 1}}
-          // startIcon={<EditIcon />}
-          // onClick={handleRatingOpen}
+          onClick={() => setCancelDialogOpen(true)}
           disabled={!['Created', 'Packing'].includes(order?.orderStatus)}
+          startIcon={<CancelIcon />}
         >
           Cancel Order
         </Button>}
@@ -375,6 +385,26 @@ function OrderDetails() {
         >
           Return Product
         </Button>}
+
+        {['Cancelled'].includes(order?.orderStatus) && (
+          <Box sx={{ 
+            textAlign: 'center', 
+            p: isMobile ? 1 : 3, 
+            bgcolor: '#fff',
+            borderRadius: 2,
+            border: `1px solid ${getStatusColor(order.orderStatus)}`
+          }}>
+            <Typography variant="h6" sx={{ color: getStatusColor(order.orderStatus), fontWeight: 600 }}>
+              Your Order {order.orderStatus}
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Reason for cancellation: <strong> {order?.cancellationReason} </strong>
+            </Typography>
+            <Typography variant="body2" color="text.secondary">
+              Cancelled on: {new Date(order.cancelledAt).toLocaleString()}
+            </Typography>
+          </Box>
+        )}
       </Box>
     );
   };
@@ -723,6 +753,160 @@ function OrderDetails() {
           // startIcon={<SaveIcon />}
         >
           {loadingAddressUpdating ? <><CircularProgress size={20} sx={{mr: 1, color: '#fff'}} /> updating...</> : 'Update Address'}
+        </Button>
+      </DialogActions>
+    </Dialog>
+  );
+
+  const handleCancelOrder = async () => {
+    setIsSubmittingCancel(true);
+    try {
+      const finalReason = cancellationReason === 'Other reason' 
+        ? cancellationReasonDetails 
+        : cancellationReason;
+
+      await cancelOrder(id, finalReason);
+      
+      // Refresh order data
+      const response = await fetchOrderById(id);
+      setOrder({
+        ...response.data,
+      });
+      
+      setSnackbar({ 
+        open: true, 
+        message: 'Order cancelled successfully!', 
+        severity: 'success' 
+      });
+      
+      // Reset form
+      setCancelDialogOpen(false);
+      setCancellationReason('');
+      setCancellationReasonDetails('');
+    } catch (error) {
+      console.error('Error cancelling order:', error);
+      setSnackbar({ 
+        open: true, 
+        message: error.response?.data?.message || 'Error cancelling order', 
+        severity: 'error' 
+      });
+    } finally {
+      setIsSubmittingCancel(false);
+    }
+  };
+
+  const renderCancelConfirmationDialog = () => (
+    <Dialog
+      open={cancelDialogOpen}
+      onClose={() => setCancelDialogOpen(false)}
+      maxWidth="sm"
+      fullWidth
+      sx={{
+        '& .MuiPaper-root': {
+          borderRadius: '16px',
+          boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.15)',
+        },
+      }}
+    >
+      <DialogTitle sx={{
+        bgcolor: '#fff3f2',
+        color: '#d32f2f',
+        fontWeight: 600,
+        borderBottom: '1px solid #ffcdd2',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 1,
+      }}>
+        <CancelIcon color="error" />
+        Confirm Order Cancellation
+      </DialogTitle>
+      
+      <DialogContent sx={{ py: 3, mt: 3 }}>
+        <Typography variant="body1" gutterBottom>
+          Are you sure you want to cancel this order?
+        </Typography>
+        
+        <TextField
+          select
+          fullWidth
+          label="Reason for cancellation"
+          value={cancellationReason}
+          onChange={(e) => setCancellationReason(e.target.value)}
+          sx={{ mt: 2, 
+            '& .MuiOutlinedInput-root': {
+              borderRadius: '8px',
+              // backgroundColor: '#ffffff',
+              // '&:hover .MuiOutlinedInput-notchedOutline': {
+              //   borderColor: '#1976d2',
+              // },
+            },
+          }}
+          
+        >
+          {[
+            'Changed my mind',
+            'Found better price elsewhere',
+            'Delivery time too long',
+            'Ordered by mistake',
+            'Other reason'
+          ].map((option) => (
+            <MenuItem key={option} value={option}>
+              {option}
+            </MenuItem>
+          ))}
+        </TextField>
+        
+        {cancellationReason === 'Other reason' && (
+          <TextField
+            fullWidth
+            label="Please specify"
+            multiline
+            rows={3}
+            sx={{ mt: 2 ,
+              '& .MuiOutlinedInput-root': {
+                borderRadius: '8px',
+              },
+            }}
+            value={cancellationReasonDetails}
+            onChange={(e) => setCancellationReasonDetails(e.target.value)}
+          />
+        )}
+        
+        <Typography variant="caption" color="textSecondary" display="block" sx={{ mt: 2 }}>
+          Note: Refund (if applicable) will be processed within 3-5 business days
+        </Typography>
+      </DialogContent>
+      
+      <DialogActions sx={{
+        p: 2,
+        borderTop: '1px solid #eeeeee',
+        justifyContent: 'space-between'
+      }}>
+        <Button
+          onClick={() => setCancelDialogOpen(false)}
+          sx={{
+            borderRadius: '8px',
+            textTransform: 'none',
+            color: '#5f6368',
+          }}
+        >
+          Go Back
+        </Button>
+        
+        <Button
+          onClick={handleCancelOrder}
+          variant="contained"
+          color="error"
+          disabled={!cancellationReason || isSubmittingCancel}
+          sx={{
+            borderRadius: '8px',
+            textTransform: 'none',
+            px: 3,
+            bgcolor: '#d32f2f',
+            '&:hover': { bgcolor: '#b71c1c' }
+          }}
+        >
+          {isSubmittingCancel ? <CircularProgress size={24} color="inherit" /> : 'Confirm Cancellation'}
         </Button>
       </DialogActions>
     </Dialog>
@@ -1115,15 +1299,18 @@ function OrderDetails() {
                             />
                           ) : (
                             <Chip
-                              label={order?.paymentId?.status}
+                              label={order?.orderStatus === 'Cancelled' ? order?.paymentStatus :  order?.paymentId?.status}
                               sx={{
-                                bgcolor: getPaymentStatusColor(order?.paymentId?.status),
+                                bgcolor: getPaymentStatusColor(order?.orderStatus === 'Cancelled' ? order?.paymentStatus : order?.paymentId?.status),
                                 color: 'white',
                                 fontWeight: 600
                               }}
                             />
                           )}
                         </Box>
+                        {order?.orderStatus === 'Cancelled' && <Typography variant="caption" color="textSecondary" display="block" sx={{ my: 1 }}>
+                          Note: Refund will be processed within 3-5 business days
+                        </Typography>}
 
                         <Typography variant="body1" style={{ fontWeight: 500, marginBottom: '0.5rem' }}>
                           Payment mode:
@@ -1177,6 +1364,8 @@ function OrderDetails() {
         {renderRatingDialog()}
 
         {renderEditAddressDialog()}
+
+        {renderCancelConfirmationDialog()}
 
         {/* </div> */}
         <Snackbar

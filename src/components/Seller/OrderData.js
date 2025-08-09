@@ -30,6 +30,7 @@ import PhoneIcon from '@mui/icons-material/Phone';
 import HomeIcon from '@mui/icons-material/Home';
 import { fetchPaymentDetails, updateOrderStatus } from '../Apis/SellerApis';
 import CircleIcon from '@mui/icons-material/Circle';
+import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 
 const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProductDetail }) => {
   const theme = useTheme();
@@ -252,9 +253,9 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                         }}>
                           <CircleIcon sx={{ color: order?.selectedItem[0]?.colorCode, }} />
                         </Avatar>
-                        {order?.selectedItem && <Typography variant="body2" color="text.secondary">
-                            {order?.selectedItem?.[0]?.colorName} ({order?.selectedItem?.[0]?.size})
-                        </Typography>}
+                        <Typography variant="body2" color="text.secondary">
+                            {order?.selectedItem[0]?.colorName  || 'No Color'} ({order?.selectedItem[0]?.size || 'No Size'})
+                        </Typography>
                       </Box>
                       <Box display="flex" alignItems="center" mt={1}>
                         <PriceChangeIcon color="action" fontSize="small" sx={{ mr: 0.5 }} />
@@ -293,7 +294,7 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                           key={status}
                           variant={currentStatus === status ? 'contained' : 'outlined'}
                           size="small"
-                          disabled={loading || currentStatus === status}
+                          disabled={loading || currentStatus === status || currentStatus === 'Cancelled'}
                           onClick={() => handleStatusChange(status)}
                           sx={{ mb: 1 }}
                         >
@@ -305,6 +306,18 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                   {updatedAt &&
                   <Typography variant="body2" mt={1} color="text.secondary">
                     Updated on: {formatDate(updatedAt)}
+                  </Typography>}
+                  <Box sx={{mt: 1}}>
+                    <Typography variant="subtitle2" fontWeight={600} gutterBottom>
+                      Order Cancellation Status
+                    </Typography>
+                    <Typography variant="body2" mt={1} color="text.secondary">
+                      Cancellation Reason: <strong>{order?.cancellationReason}</strong>
+                    </Typography>
+                  </Box>
+                  {order?.cancellationReason &&
+                  <Typography variant="body2" mt={1} color="text.secondary">
+                    Cancelled on: {formatDate(order?.cancelledAt)}
                   </Typography>}
                 </CardContent>
               </Card>
@@ -462,7 +475,19 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                       </Typography>
                     )
                   )}
-                  
+                  <Typography variant="subtitle2" fontWeight={600} gutterBottom sx={{mt: 2}}>
+                    <MonetizationOnIcon sx={{ verticalAlign: 'middle', mr: 1 }} /> Refund Information
+                  </Typography>
+                  <Box display="flex" justifyContent="space-between" mb={1}>
+                    <Typography variant="body2">Payment Status:</Typography>
+                    <Chip
+                      label={order?.paymentStatus}
+                      size="small"
+                      color={
+                        order?.paymentStatus === 'Refunded' ? 'success'  : 'warning'
+                      }
+                    />
+                  </Box>
                 </CardContent>
               </Card>
             </Grid>
