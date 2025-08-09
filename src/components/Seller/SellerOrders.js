@@ -374,8 +374,8 @@ const SellerOrders = ({ darkMode, toggleDarkMode, unreadCount, shouldAnimate})=>
     'On Delivery',
     'Delivered',
     'Cancelled',
-    'Returned',
-    'Refunded'
+    'Return Initiated',
+    'Returned'
   ];
 
   // Function to handle status selection

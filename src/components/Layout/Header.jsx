@@ -479,7 +479,7 @@ const Header = ({ username , toggleDarkMode, darkMode, unreadCount, shouldAnimat
                     display: 'inline-block',
                   }}
                 >
-                  Siva Textiles
+                  SKD Handlooms
                 </Link>
               </Typography>
             </Box>

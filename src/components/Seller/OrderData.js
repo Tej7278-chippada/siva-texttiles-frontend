@@ -18,7 +18,10 @@ import {
   Avatar,
 //   CircularProgress,
   Snackbar,
-  Alert
+  Alert,
+  DialogTitle,
+  DialogActions,
+  CircularProgress
 } from '@mui/material';
 import CloseIcon from '@mui/icons-material/Close';
 import PriceChangeIcon from '@mui/icons-material/PriceChange';
@@ -28,7 +31,7 @@ import PersonIcon from '@mui/icons-material/Person';
 import EmailIcon from '@mui/icons-material/Email';
 import PhoneIcon from '@mui/icons-material/Phone';
 import HomeIcon from '@mui/icons-material/Home';
-import { fetchPaymentDetails, updateOrderStatus } from '../Apis/SellerApis';
+import { fetchPaymentDetails, updateOrderStatus, updatePaymentStatus } from '../Apis/SellerApis';
 import CircleIcon from '@mui/icons-material/Circle';
 import MonetizationOnIcon from '@mui/icons-material/MonetizationOn';
 
@@ -41,6 +44,8 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
   const [currentStatus, setCurrentStatus] = useState(order?.orderStatus || 'Created');
   const [paymentStatus, setPaymentStatus] = useState(order?.paymentStatus || null);
   const [updatedAt, setUpdatedAt] = useState(order?.updatedAt || null);
+  const [refundDialogOpen, setRefundDialogOpen] = useState(false);
+  const [isProcessingRefund, setIsProcessingRefund] = useState(false);
 
   // Handle browser back button
 //   useEffect(() => {
@@ -174,6 +179,36 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
       hour: '2-digit',
       minute: '2-digit'
     });
+  };
+
+  const handleRefundClick = () => {
+    setRefundDialogOpen(true);
+  };
+
+  const handleConfirmRefund = async () => {
+    setIsProcessingRefund(true);
+    try {
+      await updatePaymentStatus(order._id, 'Refunded');
+      setPaymentStatus('Refunded');
+      setSnackbar({
+        open: true,
+        message: 'Payment status updated to Refunded',
+        severity: 'success'
+      });
+      if (onStatusUpdate) {
+        onStatusUpdate(order._id, currentStatus, new Date(), 'Refunded');
+      }
+    } catch (error) {
+      console.error('Error updating payment status:', error);
+      setSnackbar({
+        open: true,
+        message: error.response?.data?.message || 'Failed to update payment status',
+        severity: 'error'
+      });
+    } finally {
+      setIsProcessingRefund(false);
+      setRefundDialogOpen(false);
+    }
   };
 
   return (
@@ -481,10 +516,11 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
                   <Box display="flex" justifyContent="space-between" mb={1}>
                     <Typography variant="body2">Payment Status:</Typography>
                     <Chip
-                      label={order?.paymentStatus}
+                      label={paymentStatus}
                       size="small"
+                      onClick={paymentStatus !== 'Refunded' ? handleRefundClick : undefined}
                       color={
-                        order?.paymentStatus === 'Refunded' ? 'success'  : 'warning'
+                        paymentStatus === 'Refunded' ? 'success'  : 'warning'
                       }
                     />
                   </Box>
@@ -494,6 +530,62 @@ const OrderData = ({ order, open, onClose, darkMode, onStatusUpdate, openProduct
           </Grid>
         {/* )} */}
       </DialogContent>
+
+      <Dialog
+        open={refundDialogOpen}
+        onClose={() => setRefundDialogOpen(false)}
+        maxWidth="xs"
+        fullWidth
+        PaperProps={{
+          sx: {
+            borderRadius: '12px',
+            overflow: 'visible'
+          }
+        }}
+      >
+        <DialogTitle sx={{
+          bgcolor: 'warning.light',
+          color: 'warning.contrastText',
+          fontWeight: 600,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 1,
+          borderRadius: '12px',
+        }}>
+          <MonetizationOnIcon />
+          Confirm Refund
+        </DialogTitle>
+        
+        <DialogContent sx={{ py: 3, mt: 3 }}>
+          <Typography variant="body1" gutterBottom>
+            Are you sure you've refunded the amount to the buyer's account?
+          </Typography>
+          <Typography variant="body2" color="text.secondary">
+            This action will update the payment status to "Refunded" and cannot be undone.
+          </Typography>
+        </DialogContent>
+
+        <DialogActions sx={{ p: 2, justifyContent: 'space-between' }}>
+          <Button
+            onClick={() => setRefundDialogOpen(false)}
+            variant="outlined"
+            sx={{ borderRadius: '8px' }}
+            disabled={isProcessingRefund}
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleConfirmRefund}
+            variant="contained"
+            color="warning"
+            sx={{ borderRadius: '8px' }}
+            disabled={isProcessingRefund}
+            startIcon={isProcessingRefund ? <CircularProgress size={20} /> : null}
+          >
+            {isProcessingRefund ? 'Processing...' : 'Confirm Refund'}
+          </Button>
+        </DialogActions>
+      </Dialog>
 
       <Snackbar
         open={snackbar.open}

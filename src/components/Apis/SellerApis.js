@@ -125,3 +125,11 @@ export const fetchPaymentDetails = (paymentId) => {
   };
   return API.get(`/api/seller/payments/${paymentId}`, { headers });
 };
+
+// payment status as Refunded
+export const updatePaymentStatus = async (orderId, status) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.put(`/api/seller/${orderId}/payment-status`, { status }, { headers });
+};

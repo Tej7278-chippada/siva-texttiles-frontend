@@ -1308,7 +1308,7 @@ function OrderDetails() {
                             />
                           )}
                         </Box>
-                        {order?.orderStatus === 'Cancelled' && <Typography variant="caption" color="textSecondary" display="block" sx={{ my: 1 }}>
+                        {order?.orderStatus === 'Cancelled' && order?.paymentStatus === 'Refund Initiated' && <Typography variant="caption" color="textSecondary" display="block" sx={{ my: 1 }}>
                           Note: Refund will be processed within 3-5 business days
                         </Typography>}
 
