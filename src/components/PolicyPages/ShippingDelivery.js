@@ -41,7 +41,7 @@ const ShippingDelivery = () => {
           <Typography variant="body1" paragraph sx={{ mt: 4, fontWeight: 'bold' }}>
             For any issues in utilizing our services, you may contact our helpdesk:
             <br />Phone: +91 7730 020821
-            <br />Email: tejachippada14@gmail.com
+            <br />Email: skd.handlooms@gmail.com
           </Typography>
         </Box>
       </Container>

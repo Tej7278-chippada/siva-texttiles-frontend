@@ -17,7 +17,7 @@ const TermsConditions = () => {
           </Typography>
 
           <Typography variant="body1" paragraph>
-            Welcome to Siva Textiles. These Terms and Conditions ("Terms") govern your use of our website, mobile application, and services ("Platform").
+            Welcome to SKD Handlooms. These Terms and Conditions ("Terms") govern your use of our website, mobile application, and services ("Platform").
           </Typography>
 
           <Typography variant="h6" gutterBottom sx={{ fontWeight: 'bold', mt: 3 }}>
@@ -107,10 +107,10 @@ const TermsConditions = () => {
             For any questions regarding these Terms:
           </Typography>
           <Typography variant="body1" paragraph sx={{ fontWeight: 'bold' }}>
-            Email: tejachippada14@gmail.com<br />
+            Email: skd.handlooms@gmail.com<br />
             Phone: +91 7730 020821<br />
             {/* Address: [Your Registered Business Address] */}
-            Address: Siva Textiles, opposite to Union Bank of India, P Kottam, Kotananadhuru, Madealam, Kakinada district - 533407, India
+            Address: SKD Handlooms, opposite to Union Bank of India, P Kottam, Kotananadhuru, Madealam, Kakinada district - 533407, India
           </Typography>
         </Box>
       </Container>

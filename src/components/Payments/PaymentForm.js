@@ -54,7 +54,7 @@ const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockD
         key: process.env.REACT_APP_RAZORPAY_KEY,
         amount: data.amount,
         currency: data.currency,
-        name: "Siva Textiles",
+        name: "SKD HAndlooms",
         description: productDesc, // "Test Transaction",
         order_id: data.id,
         handler: async (response) => {

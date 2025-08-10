@@ -47,7 +47,7 @@ const CancellationRefund = () => {
           <Typography variant="body1" paragraph sx={{ mt: 4, fontWeight: 'bold' }}>
             For any issues, contact our customer service:
             <br />Phone: +91 7730 020821
-            <br />Email: tejachippada14@gmail.com
+            <br />Email: skd.handlooms@gmail.com
           </Typography>
         </Box>
       </Container>

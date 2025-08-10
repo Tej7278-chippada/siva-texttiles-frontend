@@ -82,7 +82,7 @@ const PrivacyPolicy = () => {
           </Typography>
           <Typography variant="body1" paragraph>
             For any privacy-related concerns, please contact:
-            <br /><strong>Email:</strong> tejachippada14@gmail.com
+            <br /><strong>Email:</strong> skd.handlooms@gmail.com
             <br /><strong>Phone:</strong> +91 7730 020821
           </Typography>
         </Box>

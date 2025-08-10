@@ -25,7 +25,7 @@ const Contact = () => {
               Customer Support
             </Typography>
             <Typography variant="body1" paragraph>
-              <strong>Email:</strong> tejachippada14@gmail.com<br />
+              <strong>Email:</strong> skd.handlooms@gmail.com<br />
               <strong>Phone:</strong> +91 7730 020821<br />
               <strong>Hours:</strong> Monday-Saturday, 9:00 AM - 6:00 PM (IST)
             </Typography>
@@ -38,7 +38,7 @@ const Contact = () => {
               Business Address
             </Typography>
             <Typography variant="body1" paragraph>
-              Siva Textiles<br />
+              SKD Handlooms<br />
               {/* [Your Company Address Line 1]<br /> */}
               opposite to Union Bank of India <br/>
               {/* [Your Company Address Line 2]<br /> */}
