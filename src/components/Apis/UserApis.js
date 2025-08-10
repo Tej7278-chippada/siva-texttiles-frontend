@@ -187,6 +187,20 @@ export const addDeliveryAddresses = async (deliveryAddresses) => {
   }
 };
 
+export const updateDeliveryAddress = async (addressId, addressData) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.put(`/api/auth/update-deliveryAddress/${addressId}`, addressData, { headers });
+};
+
+export const deleteDeliveryAddress = async (addressId) => {
+  const authToken = localStorage.getItem('authToken');
+  const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
+  
+  return await API.delete(`/api/auth/delete-deliveryAddress/${addressId}`, { headers });
+};
+
 export const fetchProductStockCount = async (id, size, color) => {
   const authToken = localStorage.getItem('authToken');
   const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
@@ -259,7 +273,7 @@ export const fetchRatingsofProduct = async (prodId) => {
   return await API.get(`/api/ratings/product/${prodId}`);
 };
 
-export const updateDeliveryAddress = async (orderId, addressData) => {
+export const updateOrderDeliveryAddress = async (orderId, addressData) => {
   const authToken = localStorage.getItem('authToken');
   const headers = authToken ? { Authorization: `Bearer ${authToken}` } : {};
   

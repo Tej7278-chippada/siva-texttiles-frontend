@@ -1,6 +1,6 @@
 // components/Products/Orderpage.js
 import React, { useState, useEffect } from "react";
-import { Box, Typography, Button, TextField, Grid, Snackbar, Alert, Stepper, Step, StepLabel, List, ListItem, ListItemText, Paper, IconButton, Card, Avatar, CardContent, Tooltip, useMediaQuery, Chip } from "@mui/material";
+import { Box, Typography, Button, TextField, Grid, Snackbar, Alert, Stepper, Step, StepLabel, List, ListItem, ListItemText, Paper, IconButton, Card, Avatar, CardContent, Tooltip, useMediaQuery, Chip, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material";
 // import API, { addDeliveryAddresses, fetchProductById, fetchProductStockCount, saveOrder, sendOrderConfirmationEmail } from "../../api/api";
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 // import Layout from "../Layout";
@@ -8,13 +8,16 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 // import PaymentForm from "./PaymentForm";
 import ArrowBackRoundedIcon from '@mui/icons-material/ArrowBackRounded';
 import { useTheme } from "@emotion/react";
-import API, { addDeliveryAddresses, fetchProductById, fetchProductStockCount, saveOrder, sendOrderConfirmationEmail } from "../Apis/UserApis";
+import API, { addDeliveryAddresses, deleteDeliveryAddress, fetchProductById, fetchProductStockCount, saveOrder, sendOrderConfirmationEmail, updateDeliveryAddress } from "../Apis/UserApis";
 import Layout from "../Layout/Layout";
 import SkeletonProductDetail from "../Layout/SkeletonProductDetail";
 import PaymentForm from "../Payments/PaymentForm";
 import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
 // import PaymentIcon from '@mui/icons-material/Payment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
+import CurrencyRupeeRoundedIcon from '@mui/icons-material/CurrencyRupeeRounded';
 
 const OrderPage = ({ user }) => {
   const [activeStep, setActiveStep] = useState(0);
@@ -65,6 +68,20 @@ const OrderPage = ({ user }) => {
       size: location.state.selectedSize,
       color: location.state.selectedColor.colorName
     } : null;
+  });
+  const [editAddressOpen, setEditAddressOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [addressToDelete, setAddressToDelete] = useState(null);
+  const [currentAddress, setCurrentAddress] = useState(null);
+  const [addressForm, setAddressForm] = useState({
+    name: '',
+    phone: '',
+    email: '',
+    street: '',
+    area: '',
+    city: '',
+    state: '',
+    pincode: ''
   });
 
   useEffect(() => {
@@ -476,6 +493,112 @@ const OrderPage = ({ user }) => {
   //   );
   // };
 
+  const handleEditAddress = (address) => {
+    setCurrentAddress(address);
+    setAddressForm({
+      name: address.name,
+      phone: address.phone,
+      email: address.email,
+      street: address.address.street,
+      area: address.address.area,
+      city: address.address.city,
+      state: address.address.state,
+      pincode: address.address.pincode
+    });
+    setEditAddressOpen(true);
+  };
+
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setAddressForm(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleUpdateAddress = async () => {
+    try {
+      const addressData = {
+        name: addressForm.name,
+        phone: addressForm.phone,
+        email: addressForm.email,
+        address: {
+          street: addressForm.street,
+          area: addressForm.area,
+          city: addressForm.city,
+          state: addressForm.state,
+          pincode: addressForm.pincode
+        }
+      };
+
+      const response = await updateDeliveryAddress(currentAddress._id, addressData);
+      
+      // // Refresh user data
+      // const authToken = localStorage.getItem('authToken');
+      // const userId = localStorage.getItem('userId');
+      // const response = await API.get(`/api/auth/${userId}`, {
+      //   headers: { Authorization: `Bearer ${authToken}` },
+      // });
+      
+      const addresses = response.data.deliveryAddresses || [];
+      setDeliveryAddresses(addresses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      
+      // Update selected address if it was the one edited
+      if (selectedAddress && selectedAddress._id === currentAddress._id) {
+        const updatedAddress = addresses.find(addr => addr._id === currentAddress._id);
+        setSelectedAddress(updatedAddress);
+      }
+      
+      setAlert({ 
+        open: true, 
+        message: 'Address updated successfully!', 
+        severity: 'success' 
+      });
+      setEditAddressOpen(false);
+    } catch (error) {
+      console.error('Error updating address:', error);
+      setAlert({ 
+        open: true, 
+        message: 'Error updating address', 
+        severity: 'error' 
+      });
+    }
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    try {
+      const response = await deleteDeliveryAddress(addressId);
+      
+      // // Refresh user data
+      // const authToken = localStorage.getItem('authToken');
+      // const userId = localStorage.getItem('userId');
+      // const response = await API.get(`/api/auth/${userId}`, {
+      //   headers: { Authorization: `Bearer ${authToken}` },
+      // });
+      
+      const addresses = response.data.deliveryAddresses || [];
+      setDeliveryAddresses(addresses.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)));
+      
+      // Clear selected address if it was the one deleted
+      if (selectedAddress && selectedAddress._id === addressId) {
+        setSelectedAddress(null);
+      }
+      
+      setAlert({ 
+        open: true, 
+        message: 'Address deleted successfully!', 
+        severity: 'success' 
+      });
+    } catch (error) {
+      console.error('Error deleting address:', error);
+      setAlert({ 
+        open: true, 
+        message: 'Error deleting address', 
+        severity: 'error' 
+      });
+    }
+  };
+
   return (
     <Layout>
       <Box p={2}>
@@ -670,19 +793,20 @@ const OrderPage = ({ user }) => {
                   </Step>
                 </Stepper>
                 {activeStep === 0 && (
-                  <Box mb={2}>
-                    <Box style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '1rem' }}>
+                  <Box mb={2} >
+                    <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mx: 1, my: 2 }}>
+                      <Typography variant="h6" >Select Delivery Address</Typography>
                       <Button
-                        variant="contained"
+                        variant="outlined" size="small"
                         onClick={() => setIsAddAddressBoxOpen((prev) => !prev)}
-                        sx={{ mt: 2, mb: 2, mr: 1, borderRadius: '12px'}}
+                        sx={{ borderRadius: '8px', textTransform: 'none'}}
                       >
-                        Add New Address
+                        Add New
                       </Button>
                     </Box>
                     {isAddAddressBoxOpen && (
-                      <Card sx={{borderRadius:'16px'}}>
-                      <Box my={2} p={2} >
+                      <Card sx={{borderRadius:'16px', mb: 2}}>
+                      <Box  p={2} >
                         <Typography variant="h6" marginInline={1} mb={2}>Add New Delivery Address</Typography>
                         <Grid container spacing={2}>
                           {["name", "phone", "email", "street", "area", "city", "state", "pincode"].map(
@@ -695,6 +819,12 @@ const OrderPage = ({ user }) => {
                                   onChange={(e) =>
                                     setNewAddress({ ...newAddress, [field]: e.target.value })
                                   }
+                                  size="small"
+                                  sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                      borderRadius: '8px',
+                                    },
+                                  }}
                                 />
                               </Grid>
                             )
@@ -725,7 +855,6 @@ const OrderPage = ({ user }) => {
                       <Alert severity="error">{addressFailedMessage}</Alert>
                     </Snackbar>}
                     <Box>
-                      <Typography variant="h6" sx={{ mt: 1, ml: 1 }}>Select Delivery Address</Typography>
                       <Grid container spacing={1}>
                         {deliveryAddresses.length > 0 ? (
                           deliveryAddresses.map((deliveryAddress, index) => (
@@ -740,22 +869,65 @@ const OrderPage = ({ user }) => {
                                     border: selectedAddress === deliveryAddress ? "2px solid blue" : "1px solid lightgray",
                                     borderRadius: 2,
                                     mb: 0,
-                                    flexDirection: "column", // column for desktop, row for mobile to align text on middle
-                                    height: "100%", // Make the ListItem fill the grid cell height
+                                    flexDirection: "column",
+                                    height: "100%",
+                                    position: 'relative',
+                                    '&:hover': {
+                                      boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                                    }
                                   }}
                                 >
+                                  <Box sx={{ 
+                                    position: 'absolute', 
+                                    top: 8, 
+                                    right: 8,
+                                    display: 'flex',
+                                    gap: 1
+                                  }}>
+                                    <IconButton
+                                      size="small"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleEditAddress(deliveryAddress);
+                                      }}
+                                      sx={{
+                                        backgroundColor: 'rgba(25, 118, 210, 0.08)',
+                                        '&:hover': {
+                                          backgroundColor: 'rgba(25, 118, 210, 0.15)'
+                                        }
+                                      }}
+                                    >
+                                      <EditIcon fontSize="small" color="primary" />
+                                    </IconButton>
+                                    <IconButton
+                                      size="small"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        setAddressToDelete(deliveryAddress);
+                                        setDeleteDialogOpen(true);
+                                      }}
+                                      sx={{
+                                        backgroundColor: 'rgba(244, 67, 54, 0.08)',
+                                        '&:hover': {
+                                          backgroundColor: 'rgba(244, 67, 54, 0.15)'
+                                        }
+                                      }}
+                                    >
+                                      <DeleteIcon fontSize="small" color="error" />
+                                    </IconButton>
+                                  </Box>
                                   <ListItemText
                                     primary={
-                                      <>{`${deliveryAddress.name}, ${deliveryAddress.phone}, ${deliveryAddress.email}`}
+                                      <>{`${deliveryAddress.name},`} <br/>
+                                        {` ${deliveryAddress.phone}, ${deliveryAddress.email}`}
                                         <br />
                                         {`${deliveryAddress.address.street}, ${deliveryAddress.address.area}, ${deliveryAddress.address.city}, ${deliveryAddress.address.state}, ${deliveryAddress.address.pincode}`}
                                       </>}
                                     secondary={
                                       <>
-
                                         <br />
                                         <Typography sx={{ display: 'inline-block', float: 'right' }}>
-                                          Added on: {new Date(deliveryAddress.createdAt).toLocaleString()} {/* toLocaleDateString for displaying date only */}
+                                          Added on: {new Date(deliveryAddress.createdAt).toLocaleString()}
                                         </Typography>
                                       </>
                                     }
@@ -770,15 +942,39 @@ const OrderPage = ({ user }) => {
                           </Typography>
                         )}
                       </Grid>
-                      {stockWarningMessage && <p style={{ color: 'red', float: 'inline-start', marginRight: '10px' }}>{stockWarningMessage}</p>}
-                      <Button
-                        variant="contained"
-                        disabled={!selectedAddress || stockData?.selectedItemStock === 0 || stockData?.totalStock === 0}
-                        onClick={handleNext}
-                        sx={{ m: 1, mb: 2, mt: 3, float: 'right', borderRadius: '12px' }}
-                      >
-                        Proceed to Payment
-                      </Button>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', my: 2, py: 2}}>
+                        {stockWarningMessage && <p style={{ color: 'red', marginRight: '10px' }}> {stockWarningMessage} </p>}
+                        <Button
+                          variant="contained" 
+                          sx={{
+                            borderRadius: '12px',
+                            background: (theme) => theme.palette.mode === 'dark' 
+                              ? 'linear-gradient(135deg, #3a56e8 0%, #2c3dd9 100%)' 
+                              : 'linear-gradient(135deg,rgb(238, 201, 67) 0%,rgb(62, 55, 201) 100%)',
+                              textTransform: 'none',
+                            fontWeight: 'medium',
+                            fontSize: '16px', 
+                            maxWidth:  '250px',
+                            '&:hover': {
+                              transform: 'translateY(-2px)',
+                              boxShadow: '0 8px 20px rgba(67, 97, 238, 0.3)',
+                            },
+                            '&:active': {
+                              transform: 'translateY(0)',
+                            },
+                            '&.Mui-disabled': {
+                              background: '#e0e0e0',
+                              color: '#a0a0a0'
+                            },
+                            transition: 'all 0.2s ease',
+                          }}
+                          disabled={!selectedAddress || stockData?.selectedItemStock === 0 || stockData?.totalStock === 0}
+                          onClick={handleNext}
+                          startIcon={<CurrencyRupeeRoundedIcon />}
+                        >
+                          Proceed to Payment
+                        </Button>
+                      </Box>
                     </Box>
                   </Box>
                 )}
@@ -1103,6 +1299,206 @@ const OrderPage = ({ user }) => {
             </Card>
           </>
         }
+
+        {/* edit address dialog */}
+        <Dialog
+          open={editAddressOpen}
+          onClose={() => setEditAddressOpen(false)}
+          maxWidth="sm"
+          fullWidth
+          sx={{
+            '& .MuiPaper-root': {
+              borderRadius: '16px',
+              background: 'linear-gradient(to bottom, #ffffff, #f8f9fa)',
+              boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)',
+            },
+          }}
+        >
+          <DialogTitle sx={{
+            background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+            color: 'white',
+            fontWeight: 600,
+            borderRadius: '16px 16px 0 0',
+            padding: '16px 24px',
+          }}>
+            Edit Delivery Address
+          </DialogTitle>
+
+          <DialogContent sx={{ padding: '24px' , mt: 3, scrollbarWidth: 'thin' }}>
+            <Box sx={{ marginTop: 1 }}>
+              <Grid container spacing={3}>
+                {[
+                  { field: 'name', label: 'Full Name', required: true },
+                  { field: 'phone', label: 'Phone Number', required: true, type: 'tel' },
+                  { field: 'email', label: 'Email', required: true, type: 'email' },
+                  { field: 'street', label: 'Street Address', required: true, fullWidth: true },
+                  { field: 'area', label: 'Area/Locality', required: true },
+                  { field: 'city', label: 'City', required: true },
+                  { field: 'state', label: 'State', required: true },
+                  { field: 'pincode', label: 'Pincode', required: true, type: 'number' },
+                ].map(({ field, label, required, type, fullWidth }) => (
+                  <Grid item xs={12} sm={fullWidth ? 12 : 6} key={field}>
+                    <TextField
+                      name={field}
+                      label={label}
+                      fullWidth
+                      required={required}
+                      type={type}
+                      value={addressForm[field]}
+                      onChange={handleAddressChange}
+                      variant="outlined"
+                      size="small"
+                      sx={{
+                        '& .MuiOutlinedInput-root': {
+                          borderRadius: '8px',
+                          backgroundColor: '#ffffff',
+                          '&:hover .MuiOutlinedInput-notchedOutline': {
+                            borderColor: '#1976d2',
+                          },
+                        },
+                        '& .MuiInputLabel-root': {
+                          color: '#5f6368',
+                        },
+                      }}
+                    />
+                  </Grid>
+                ))}
+              </Grid>
+            </Box>
+          </DialogContent>
+
+          <DialogActions sx={{
+            padding: '16px 24px',
+            borderTop: '1px solid #e0e0e0',
+            justifyContent: 'space-between',
+          }}>
+            <Button 
+              onClick={() => setEditAddressOpen(false)}
+              variant="outlined"
+              sx={{
+                borderRadius: '8px',
+                textTransform: 'none',
+                padding: '8px 16px',
+                borderColor: '#e0e0e0',
+                color: '#5f6368',
+                '&:hover': {
+                  borderColor: '#bdbdbd',
+                  backgroundColor: 'rgba(0, 0, 0, 0.04)',
+                },
+              }}
+            >
+              Cancel
+            </Button>
+            
+            <Button 
+              onClick={handleUpdateAddress}
+              variant="contained"
+              sx={{
+                borderRadius: '8px',
+                textTransform: 'none',
+                padding: '8px 24px',
+                background: 'linear-gradient(45deg, #1976d2 30%, #2196f3 90%)',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+                '&:hover': {
+                  background: 'linear-gradient(45deg, #1565c0 30%, #1e88e5 90%)',
+                },
+              }}
+            >
+              Update Address
+            </Button>
+          </DialogActions>
+        </Dialog>
+
+        <Dialog
+          open={deleteDialogOpen}
+          onClose={() => setDeleteDialogOpen(false)}
+          maxWidth="xs"
+          fullWidth
+          PaperProps={{
+            sx: {
+              borderRadius: '12px',
+              overflow: 'visible'
+            }
+          }}
+        >
+          <DialogTitle sx={{
+            bgcolor: 'error.light',
+            color: 'error.contrastText',
+            fontWeight: 600,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 1,
+            borderRadius: '12px 12px 0 0'
+          }}>
+            <DeleteIcon />
+            Confirm Address Deletion
+          </DialogTitle>
+          
+          <DialogContent sx={{ py: 3, mt: 3 }}>
+            <Typography variant="body1" gutterBottom>
+              Are you sure you want to delete this address?
+            </Typography>
+            {addressToDelete && (
+              <Box sx={{ 
+                p: 2, 
+                mt: 2, 
+                backgroundColor: 'rgba(0, 0, 0, 0.03)',
+                borderRadius: '8px'
+              }}>
+                <Typography variant="subtitle2" sx={{ fontWeight: 500 }}>
+                  {addressToDelete.name}, {addressToDelete.phone}
+                </Typography>
+                <Typography variant="body2">
+                  {addressToDelete.address.street}, {addressToDelete.address.area}
+                </Typography>
+                <Typography variant="body2">
+                  {addressToDelete.address.city}, {addressToDelete.address.state} - {addressToDelete.address.pincode}
+                </Typography>
+              </Box>
+            )}
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 2 }}>
+              This action cannot be undone.
+            </Typography>
+          </DialogContent>
+
+          <DialogActions sx={{ 
+            p: 2, 
+            justifyContent: 'space-between',
+            borderTop: '1px solid rgba(0, 0, 0, 0.12)'
+          }}>
+            <Button
+              onClick={() => setDeleteDialogOpen(false)}
+              variant="outlined"
+              sx={{ 
+                borderRadius: '8px',
+                textTransform: 'none',
+                color: 'text.primary'
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={() => {
+                handleDeleteAddress(addressToDelete._id);
+                setDeleteDialogOpen(false);
+              }}
+              variant="contained"
+              color="error"
+              sx={{ 
+                borderRadius: '8px',
+                textTransform: 'none',
+                px: 3,
+                '&:hover': {
+                  backgroundColor: 'error.dark'
+                }
+              }}
+              startIcon={<DeleteIcon />}
+            >
+              Delete Address
+            </Button>
+          </DialogActions>
+        </Dialog>
+
         {/* Global Alert Snackbar */}
         <Snackbar
           open={alert.open}

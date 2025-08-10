@@ -13,7 +13,7 @@ const TermsPolicyBar = () => {
         </Box> */}
         <Box sx={{ textAlign: "center", py: 2 }}>
         <Typography variant="body2" color="textSecondary">
-        &copy; 2025 Tej Tech |{" "}
+        &copy;2025 Tej Tech |{" "}
         <Link to="/privacy-policy">Privacy Policy</Link> |{" "}
         <Link to="/contact">Contact</Link> |{" "}
         <Link to="/terms-conditions">Terms and Conditions</Link> |{" "}

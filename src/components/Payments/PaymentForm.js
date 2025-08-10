@@ -5,6 +5,7 @@ import axios from "axios";
 import PaymentIcon from '@mui/icons-material/Payment';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CreditCardIcon from '@mui/icons-material/CreditCard';
+import CurrencyRupeeRoundedIcon from '@mui/icons-material/CurrencyRupeeRounded';
 
 const theme = createTheme({
   breakpoints: {
@@ -194,7 +195,7 @@ const PaymentForm = ({amount, discount, originalPrice, onPaymentComplete, stockD
         {/* <Button variant="contained" color="primary" onClick={handlePayment} disabled={loading || stockCountId === 0}>
           {loading ? "Processing..." : "Pay Now"}
         </Button> */}
-        <PaymentIcon color="primary" sx={{ fontSize: 60, mb: 2 }} />
+        <CurrencyRupeeRoundedIcon color="primary" sx={{ fontSize: 60, mb: 2 }} />
         <Typography variant={isMobile ? "h6" : "h5"} mb={1}>
           Complete Your Purchase
         </Typography>

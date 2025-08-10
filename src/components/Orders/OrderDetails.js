@@ -12,7 +12,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useTheme } from '@emotion/react';
 // import SkeletonProductDetail from './SkeletonProductDetail';
 // import LocalMallRoundedIcon from '@mui/icons-material/LocalMallRounded';
-import { fetchOrderById, deleteRating, fetchRatingByOrderId, submitRating, updateRating, updateDeliveryAddress, cancelOrder } from '../Apis/UserApis';
+import { fetchOrderById, deleteRating, fetchRatingByOrderId, submitRating, updateRating, cancelOrder, updateOrderDeliveryAddress } from '../Apis/UserApis';
 import Layout from '../Layout/Layout';
 import SkeletonProductDetail from '../Layout/SkeletonProductDetail';
 import { styled } from '@mui/material/styles';
@@ -617,7 +617,7 @@ function OrderDetails() {
         }
       };
 
-      await updateDeliveryAddress(id, addressData);
+      await updateOrderDeliveryAddress(id, addressData);
       
       // Refresh order data
       const response = await fetchOrderById(id);
