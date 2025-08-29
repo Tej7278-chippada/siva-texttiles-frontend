@@ -1348,7 +1348,7 @@ const PostProduct = ({ openDialog, onCloseDialog, theme, isMobile, fetchPostsDat
               transition: 'all 0.3s ease',
             }}
           >
-            {loading ? <> <CircularProgress size={20} sx={{ marginRight: '8px' }} /> {editingProduct ? 'Updating...' : 'Adding...'} </> : (editingProduct ? 'Update Product' : 'Add Product')}
+            {loading ? <> <CircularProgress size={20} sx={{ marginRight: '8px', color: '#fff' }} /> {editingProduct ? 'Updating...' : 'Adding...'} </> : (editingProduct ? 'Update Product' : 'Add Product')}
           </Button>
         </DialogActions>
       </form>
