@@ -73,6 +73,7 @@ const MenuBar = ({ visible, badgeCounts = {}, darkMode }) => {
   const location = useLocation();
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  // const [isAnimating, setIsAnimating] = useState(false);
   // const [activeIndex, setActiveIndex] = useState(0);
   // const [isAnimating, setIsAnimating] = useState(false);
 
@@ -102,7 +103,14 @@ const MenuBar = ({ visible, badgeCounts = {}, darkMode }) => {
     // }, 150);
   };
 
-  if (!visible || !isMobile) return null;
+  // Animation effect for smooth transitions
+  // useEffect(() => {
+  //   setIsAnimating(true);
+  //   const timer = setTimeout(() => setIsAnimating(false), 400); // Match transition duration
+  //   return () => clearTimeout(timer);
+  // }, [visible]);
+
+  if (!isMobile) return null;
 
   return (
     <Paper
@@ -119,9 +127,9 @@ const MenuBar = ({ visible, badgeCounts = {}, darkMode }) => {
         // borderTop: '1px solid rgba(255, 255, 255, 0.2)',
         borderTopLeftRadius: '20px',
         borderTopRightRadius: '20px',
-        transition: 'all 0.4s cubic-bezier(0.4, 0, 0.2, 1)',
+        transition: 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease',
         transform: visible ? 'translateY(0)' : 'translateY(100%)',
-        opacity: visible ? 1 : 0,
+        opacity: visible ? 1 : 0.8,
         pointerEvents: visible ? 'auto' : 'none',
         // boxShadow: '0 -8px 32px rgba(0, 0, 0, 0.1)',
         '&::before': {
